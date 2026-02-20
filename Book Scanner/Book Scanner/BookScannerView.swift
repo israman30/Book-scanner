@@ -12,6 +12,9 @@ struct BookScannerView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var scannedCode: String?
     @State private var permissionDenied = false
+    @State private var lookupState: LookupState = .idle
+    @State private var book: BookItem?
+    @State private var errorMessage: String?
 
     var body: some View {
         ZStack {
@@ -20,6 +23,10 @@ struct BookScannerView: View {
 
             CameraScannerView(onScan: { code in
                 scannedCode = code
+                lookupState = .loading
+                book = nil
+                errorMessage = nil
+                fetchBook(for: code)
             }, onPermissionDenied: {
                 permissionDenied = true
             })
@@ -51,6 +58,8 @@ struct BookScannerView: View {
                         .padding()
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
                         .padding(.bottom, 40)
+                    BookLookupSection(state: lookupState, book: book, errorMessage: errorMessage)
+                        .padding(.bottom, 20)
                 } else {
                     Text("Align the code in the frame")
                         .font(.headline)
@@ -67,6 +76,94 @@ struct BookScannerView: View {
         } message: {
             Text("Enable camera permissions in Settings to scan barcodes and QR codes.")
         }
+    }
+
+    private func fetchBook(for code: String) {
+        BookService.search(isbn: code) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let item):
+                    self.book = item
+                    self.lookupState = .loaded
+                case .failure(let message):
+                    self.errorMessage = message
+                    self.lookupState = .failed
+                }
+            }
+        }
+    }
+}
+
+enum LookupState {
+    case idle
+    case loading
+    case loaded
+    case failed
+}
+
+struct BookLookupSection: View {
+    let state: LookupState
+    let book: BookItem?
+    let errorMessage: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            switch state {
+            case .idle:
+                EmptyView()
+            case .loading:
+                HStack(spacing: 12) {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                    Text("Looking up book...")
+                        .font(.subheadline)
+                        .foregroundStyle(.white)
+                }
+            case .loaded:
+                if let book {
+                    BookDetailCard(book: book)
+                }
+            case .failed:
+                Text(errorMessage ?? "No book found")
+                    .font(.subheadline)
+                    .foregroundStyle(.red.opacity(0.9))
+                    .padding(12)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+            }
+        }
+        .animation(.easeInOut, value: state)
+    }
+}
+
+struct BookDetailCard: View {
+    let book: BookItem
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(book.volumeInfo.title ?? "Unknown Title")
+                .font(.headline)
+                .foregroundStyle(.white)
+
+            if let authors = book.volumeInfo.authors?.joined(separator: ", ") {
+                Text(authors)
+                    .font(.subheadline)
+                    .foregroundStyle(.white.opacity(0.9))
+            }
+
+            if let published = book.volumeInfo.publishedDate {
+                Text("Published: \(published)")
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.7))
+            }
+
+            if let firstIdentifier = book.volumeInfo.industryIdentifiers?.first?.identifier {
+                Text("ISBN: \(firstIdentifier)")
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.7))
+            }
+        }
+        .padding(12)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
     }
 }
 

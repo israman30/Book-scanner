@@ -10,22 +10,9 @@
 		4D8E3DCD2F4790FE0026AA5F /* Book Scanner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Book Scanner.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		4D8E3DDE2F480B920026AA5F /* Exceptions for "Book Scanner" folder in "Book Scanner" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"Book-Scanner-Info.plist",
-			);
-			target = 4D8E3DCC2F4790FE0026AA5F /* Book Scanner */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		4D8E3DCF2F4790FE0026AA5F /* Book Scanner */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				4D8E3DDE2F480B920026AA5F /* Exceptions for "Book Scanner" folder in "Book Scanner" target */,
-			);
 			path = "Book Scanner";
 			sourceTree = "<group>";
 		};

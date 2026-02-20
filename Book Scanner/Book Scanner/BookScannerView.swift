@@ -167,7 +167,9 @@ final class ScannerViewController: UIViewController {
         self.previewLayer = previewLayer
 
         isConfigured = true
-        session.startRunning()
+        Task.detached(priority: .background) {
+            await self.session.startRunning()
+        }
     }
 }
 
@@ -183,7 +185,9 @@ extension ScannerViewController: AVCaptureMetadataOutputObjectsDelegate {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             self?.didReturnResult = false
-            self?.session.startRunning()
+            Task.detached(priority: .background) {
+                await self?.session.startRunning()
+            }
         }
     }
 }

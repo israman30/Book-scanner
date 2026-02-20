@@ -1,6 +1,6 @@
 import Foundation
 
-struct Books: Decodable {
+struct Books: nonisolated Decodable {
     let items: [BookItem]?
 }
 
@@ -75,6 +75,7 @@ final class BookService {
                 let bookData = try JSONDecoder().decode(Books.self, from: data)
                 if let first = bookData.items?.first {
                     completion(.success(first))
+                    print("Book: \(first.volumeInfo)")
                 } else {
                     completion(.failure("No books found for ISBN \(isbn)"))
                 }

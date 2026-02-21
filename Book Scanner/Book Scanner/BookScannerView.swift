@@ -237,6 +237,8 @@ final class ScannerViewController: UIViewController {
             return
         }
 
+        configureFocus(for: videoDevice)
+
         session.beginConfiguration()
         session.addInput(videoInput)
 
@@ -266,6 +268,34 @@ final class ScannerViewController: UIViewController {
         isConfigured = true
         Task.detached(priority: .background) {
             await self.session.startRunning()
+        }
+    }
+
+    /// Centers the camera focus/exposure for barcode scanning without interrupting capture.
+    private func configureFocus(for device: AVCaptureDevice) {
+        do {
+            try device.lockForConfiguration()
+
+            if device.isFocusPointOfInterestSupported {
+                device.focusPointOfInterest = CGPoint(x: 0.5, y: 0.5)
+            }
+            
+            if device.isFocusModeSupported(.continuousAutoFocus) {
+                device.focusMode = .continuousAutoFocus
+            }
+
+            if device.isExposurePointOfInterestSupported {
+                device.exposurePointOfInterest = CGPoint(x: 0.5, y: 0.5)
+            }
+            
+            if device.isExposureModeSupported(.continuousAutoExposure) {
+                device.exposureMode = .continuousAutoExposure
+            }
+
+            device.unlockForConfiguration()
+        } catch {
+            // If configuration fails, continue with default focus settings.
+            return
         }
     }
 }

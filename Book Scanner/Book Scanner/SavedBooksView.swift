@@ -90,3 +90,31 @@ struct EditableBookDetailView: View {
     }
 }
 
+#Preview {
+    SavedBooksPreviewContainer()
+}
+
+private struct SavedBooksPreviewContainer: View {
+    @State private var books = [
+        SavedBook(
+            title: "The Pragmatic Programmer",
+            authors: "Andrew Hunt, David Thomas",
+            isbn: "978-0201616224"
+        ),
+        SavedBook(
+            title: "Clean Code",
+            authors: "Robert C. Martin",
+            isbn: "978-0132350884"
+        ),
+        SavedBook(
+            title: "SwiftUI Essentials",
+            authors: "Apple Developer Documentation",
+            isbn: nil
+        )
+    ]
+
+    var body: some View {
+        SavedBooksView(savedBooks: $books)
+    }
+}
+

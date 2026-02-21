@@ -9,12 +9,15 @@ import SwiftUI
 import AVFoundation
 
 struct BookScannerView: View {
+    @Binding var savedBooks: [SavedBook]
     @Environment(\.dismiss) private var dismiss
     @State private var scannedCode: String?
     @State private var permissionDenied = false
     @State private var lookupState: LookupState = .idle
     @State private var book: BookItem?
     @State private var errorMessage: String?
+    @State private var showAddMessage = false
+    @State private var addMessage = ""
 
     var body: some View {
         ZStack {
@@ -58,8 +61,13 @@ struct BookScannerView: View {
                         .padding()
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
                         .padding(.bottom, 40)
-                    BookLookupSection(state: lookupState, book: book, errorMessage: errorMessage)
-                        .padding(.bottom, 20)
+                    BookLookupSection(
+                        state: lookupState,
+                        book: book,
+                        errorMessage: errorMessage,
+                        onAdd: addBookToLibrary
+                    )
+                    .padding(.bottom, 20)
                 } else {
                     Text("Align the code in the frame")
                         .font(.headline)
@@ -75,6 +83,9 @@ struct BookScannerView: View {
             }
         } message: {
             Text("Enable camera permissions in Settings to scan barcodes and QR codes.")
+        }
+        .alert(addMessage, isPresented: $showAddMessage) {
+            Button("OK", role: .cancel) { }
         }
     }
 
@@ -92,6 +103,20 @@ struct BookScannerView: View {
             }
         }
     }
+
+    private func addBookToLibrary(_ item: BookItem) {
+        let newEntry = SavedBook(from: item)
+
+        if let isbn = newEntry.isbn,
+           savedBooks.contains(where: { $0.isbn == isbn }) {
+            addMessage = "This book is already in your list."
+        } else {
+            savedBooks.append(newEntry)
+            addMessage = "\"\(newEntry.title)\" added to your list."
+        }
+
+        showAddMessage = true
+    }
 }
 
 enum LookupState {
@@ -105,6 +130,7 @@ struct BookLookupSection: View {
     let state: LookupState
     let book: BookItem?
     let errorMessage: String?
+    var onAdd: ((BookItem) -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -122,6 +148,17 @@ struct BookLookupSection: View {
             case .loaded:
                 if let book {
                     BookDetailCard(book: book)
+                    Button {
+                        onAdd?(book)
+                    } label: {
+                        Label("Add to My Books", systemImage: "plus.circle.fill")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(.white.opacity(0.1))
+                            .foregroundStyle(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .padding(.top, 8)
                 }
             case .failed:
                 Text(errorMessage ?? "No book found")

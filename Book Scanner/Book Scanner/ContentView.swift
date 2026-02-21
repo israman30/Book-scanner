@@ -9,6 +9,8 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var showScanner = false
+    @State private var showLibrary = false
+    @State private var savedBooks: [SavedBook] = []
 
     var body: some View {
         VStack {
@@ -27,10 +29,26 @@ struct ContentView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .padding(.horizontal, 24)
+
+            Button {
+                showLibrary = true
+            } label: {
+                Label("View Saved Books (\(savedBooks.count))", systemImage: "books.vertical")
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.gray.opacity(0.15))
+                    .foregroundStyle(.primary)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            .padding(.horizontal, 24)
+            .padding(.top, 12)
         }
         .padding()
         .fullScreenCover(isPresented: $showScanner) {
-            BookScannerView()
+            BookScannerView(savedBooks: $savedBooks)
+        }
+        .sheet(isPresented: $showLibrary) {
+            SavedBooksView(savedBooks: $savedBooks)
         }
     }
 }

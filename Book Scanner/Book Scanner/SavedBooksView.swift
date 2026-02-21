@@ -26,6 +26,9 @@ struct SavedBooksView: View {
                             .foregroundStyle(.secondary)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("No books yet")
+                    .accessibilityHint("Scan and add books to see them here")
                 } else {
                     List {
                         ForEach($savedBooks) { $book in
@@ -44,6 +47,9 @@ struct SavedBooksView: View {
                                             .foregroundStyle(.secondary)
                                     }
                                 }
+                                .accessibilityElement(children: .combine)
+                                .accessibilityLabel(book.title)
+                                .accessibilityValue(accessibilitySummary(for: book))
                             }
                         }
                         .onDelete { offsets in
@@ -58,14 +64,24 @@ struct SavedBooksView: View {
                     Button("Done") {
                         dismiss()
                     }
+                    .accessibilityLabel("Close library")
                 }
                 ToolbarItem(placement: .primaryAction) {
                     if !savedBooks.isEmpty {
                         EditButton()
+                        .accessibilityLabel("Edit saved books")
                     }
                 }
             }
         }
+    }
+
+    private func accessibilitySummary(for book: SavedBook) -> String {
+        var parts = ["Authors \(book.authors)"]
+        if let isbn = book.isbn {
+            parts.append("ISBN \(isbn)")
+        }
+        return parts.joined(separator: ". ")
     }
 }
 

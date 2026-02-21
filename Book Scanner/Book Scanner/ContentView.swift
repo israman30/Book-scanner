@@ -19,6 +19,7 @@ struct ContentView: View {
             Text("Welcome to Book Scanner")
                 .font(.title2)
                 .padding(.bottom, 16)
+                .accessibilityAddTraits(.isHeader)
 
             Button {
                 showScanner = true
@@ -31,6 +32,8 @@ struct ContentView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .padding(.horizontal, 24)
+            .accessibilityLabel("Start scanning a book")
+            .accessibilityHint("Opens the camera to scan a barcode or QR code")
 
             Button {
                 showLibrary = true
@@ -38,12 +41,19 @@ struct ContentView: View {
                 Label("View Saved Books (\(savedBooks.count))", systemImage: "books.vertical")
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.gray.opacity(0.15))
+                    .background(Color(.systemGray5))
                     .foregroundStyle(.primary)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.primary.opacity(0.15), lineWidth: 1)
+                    }
             }
             .padding(.horizontal, 24)
             .padding(.top, 12)
+            .accessibilityLabel("View saved books")
+            .accessibilityValue("\(savedBooks.count) books")
+            .accessibilityHint("Opens your saved library")
         }
         .padding()
         .fullScreenCover(isPresented: $showScanner) {

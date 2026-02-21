@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AVFoundation
+import UIKit
 
 /// Full-screen scanner experience that reads barcodes/QR codes and looks up
 /// book details, exposing add-to-library flow when a match is found.
@@ -32,6 +33,7 @@ struct BookScannerView: View {
                 lookupState = .loading
                 book = nil
                 errorMessage = nil
+                announce("Code captured. Looking up book details.")
                 fetchBook(for: code)
             }, onPermissionDenied: {
                 permissionDenied = true
@@ -41,8 +43,11 @@ struct BookScannerView: View {
                     .stroke(Color.green, lineWidth: 2)
                     .frame(width: 240, height: 240)
                     .shadow(color: .green.opacity(0.6), radius: 8)
+                    .accessibilityHidden(true)
             }
             .ignoresSafeArea()
+            .accessibilityLabel("Live camera view for barcode scanning")
+            .accessibilityHint("Align the code inside the green frame to scan")
 
             VStack {
                 HStack {
@@ -54,6 +59,8 @@ struct BookScannerView: View {
                             .foregroundStyle(.white)
                             .padding(12)
                     }
+                    .accessibilityLabel("Close scanner")
+                    .accessibilityHint("Returns to the previous screen")
                     Spacer()
                 }
                 Spacer()
@@ -64,6 +71,8 @@ struct BookScannerView: View {
                         .padding()
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
                         .padding(.bottom, 40)
+                        .accessibilityLabel("Scanned code")
+                        .accessibilityValue(scannedCode)
                     BookLookupSection(
                         state: lookupState,
                         book: book,
@@ -76,6 +85,8 @@ struct BookScannerView: View {
                         .font(.headline)
                         .foregroundStyle(.white.opacity(0.9))
                         .padding(.bottom, 40)
+                        .multilineTextAlignment(.center)
+                        .accessibilityHint("Move your device until the barcode is centered")
                 }
             }
             .padding()
@@ -101,9 +112,12 @@ struct BookScannerView: View {
                 case .success(let item):
                     self.book = item
                     self.lookupState = .loaded
+                    let title = item.volumeInfo.title ?? "book"
+                    announce("Book found: \(title)")
                 case .failure(let message):
                     self.errorMessage = message
                     self.lookupState = .failed
+                    announce(message)
                 }
             }
         }
@@ -123,6 +137,12 @@ struct BookScannerView: View {
         }
 
         showAddMessage = true
+        announce(addMessage)
+    }
+
+    /// Announces important state changes for VoiceOver users.
+    private func announce(_ message: String) {
+        UIAccessibility.post(notification: .announcement, argument: message)
     }
 }
 
@@ -154,6 +174,7 @@ struct BookLookupSection: View {
                     Text("Looking up book...")
                         .font(.subheadline)
                         .foregroundStyle(.white)
+                        .accessibilityLabel("Looking up book details")
                 }
             case .loaded:
                 if let book {
@@ -169,6 +190,7 @@ struct BookLookupSection: View {
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                     .padding(.top, 8)
+                    .accessibilityHint("Adds this book to your saved list")
                 }
             case .failed:
                 Text(errorMessage ?? "No book found")
@@ -176,6 +198,8 @@ struct BookLookupSection: View {
                     .foregroundStyle(.red.opacity(0.9))
                     .padding(12)
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                    .accessibilityLabel("Lookup failed")
+                    .accessibilityValue(errorMessage ?? "No book found")
             }
         }
         .animation(.easeInOut, value: state)
@@ -211,7 +235,30 @@ struct BookDetailCard: View {
             }
         }
         .padding(12)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+        .background(
+            Color.black.opacity(0.35),
+            in: RoundedRectangle(cornerRadius: 12)
+        )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Book details")
+        .accessibilityValue(accessibilitySummary)
+    }
+
+    private var accessibilitySummary: String {
+        var parts: [String] = []
+        if let title = book.volumeInfo.title {
+            parts.append("Title \(title)")
+        }
+        if let authors = book.volumeInfo.authors?.joined(separator: ", ") {
+            parts.append("Authors \(authors)")
+        }
+        if let published = book.volumeInfo.publishedDate {
+            parts.append("Published \(published)")
+        }
+        if let firstIdentifier = book.volumeInfo.industryIdentifiers?.first?.identifier {
+            parts.append("ISBN \(firstIdentifier)")
+        }
+        return parts.joined(separator: ". ")
     }
 }
 

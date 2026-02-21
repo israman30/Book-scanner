@@ -77,32 +77,42 @@ final class BookService {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
 
-        let task = session.dataTask(with: request) { data, response, error in
+        let task = session.dataTask(with: request) {
+            data,
+            response,
+            error in
             if let error {
                 completion(.failure(BookServiceError.network(error).message))
                 return
             }
-
+            
             guard let httpResponse = response as? HTTPURLResponse else {
                 completion(.failure(BookServiceError.invalidResponse.message))
                 return
             }
-
+            
             guard (200...299).contains(httpResponse.statusCode) else {
                 completion(.failure(BookServiceError.badStatus(code: httpResponse.statusCode).message))
                 return
             }
-
+            
             guard let data = data else {
                 completion(.failure(BookServiceError.emptyResponseData.message))
                 return
             }
-
+            
             do {
                 let bookData = try JSONDecoder().decode(Books.self, from: data)
                 if let first = bookData.items?.first {
                     completion(.success(first))
-                    print("Book: \(first.volumeInfo)")
+                    guard let title = first.volumeInfo.title,
+                          let authors = first.volumeInfo.authors,
+                          let publisher = first.volumeInfo.publisher,
+                          let descrt = first.volumeInfo.description,
+                          let publisherDate = first.volumeInfo.publishedDate else {
+                        return
+                    }
+                    print("Book: \(title)\n auhor: \(authors)\n publisher: \(publisher)\n Publisher date: \(publisherDate)\n description: \(descrt)")
                 } else {
                     completion(.failure(BookServiceError.noBooksFound(isbn: isbn).message))
                 }

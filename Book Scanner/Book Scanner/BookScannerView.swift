@@ -8,6 +8,9 @@
 import SwiftUI
 import AVFoundation
 
+/// Full-screen scanner experience that reads barcodes/QR codes and looks up
+/// book details, exposing add-to-library flow when a match is found.
+/// Pass a binding to saved books so the parent view stays in sync.
 struct BookScannerView: View {
     @Binding var savedBooks: [SavedBook]
     @Environment(\.dismiss) private var dismiss
@@ -89,6 +92,8 @@ struct BookScannerView: View {
         }
     }
 
+    /// Resolves a scanned barcode/QR string into book metadata using Google Books.
+    /// Updates lookup UI state on the main thread as results arrive.
     private func fetchBook(for code: String) {
         BookService.search(isbn: code) { result in
             DispatchQueue.main.async {
@@ -104,6 +109,8 @@ struct BookScannerView: View {
         }
     }
 
+    /// Converts an API `BookItem` into the app's saved model and prevents
+    /// duplicate entries based on ISBN before showing a confirmation alert.
     private func addBookToLibrary(_ item: BookItem) {
         let newEntry = SavedBook(from: item)
 
@@ -119,6 +126,7 @@ struct BookScannerView: View {
     }
 }
 
+/// UI state machine for the lookup panel shown under the live camera feed.
 enum LookupState {
     case idle
     case loading
@@ -126,6 +134,8 @@ enum LookupState {
     case failed
 }
 
+/// Renders a lookup result section under the scanner: loading indicator,
+/// fetched book details, or an error message. Accepts a callback to add books.
 struct BookLookupSection: View {
     let state: LookupState
     let book: BookItem?
@@ -172,6 +182,7 @@ struct BookLookupSection: View {
     }
 }
 
+/// Minimal card showing the key details we get back from Google Books.
 struct BookDetailCard: View {
     let book: BookItem
 
@@ -204,6 +215,8 @@ struct BookDetailCard: View {
     }
 }
 
+/// SwiftUI wrapper that embeds the UIKit-based scanner controller.
+/// Emits scanned code strings and signals if camera permission is denied.
 struct CameraScannerView: UIViewControllerRepresentable {
     var onScan: (String) -> Void
     var onPermissionDenied: () -> Void
@@ -218,6 +231,8 @@ struct CameraScannerView: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: ScannerViewController, context: Context) { }
 }
 
+/// UIKit controller that configures an AVCapture session to detect barcodes
+/// and QR codes, forwarding results back to SwiftUI via callbacks.
 final class ScannerViewController: UIViewController {
     var onCodeDetected: ((String) -> Void)?
     var onPermissionDenied: (() -> Void)?

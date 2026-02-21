@@ -1,13 +1,16 @@
 import Foundation
 
+/// Container for Google Books API response.
 struct Books: nonisolated Decodable {
     let items: [BookItem]?
 }
 
+/// Single book entry returned by the API.
 struct BookItem: Decodable {
     let volumeInfo: VolumeInfo
 }
 
+/// Metadata we care about from Google Books volume info.
 struct VolumeInfo: Decodable {
     let title: String?
     let authors: [String]?
@@ -18,11 +21,13 @@ struct VolumeInfo: Decodable {
     let industryIdentifiers: [IndustryIdentifier]?
 }
 
+/// URLs for book artwork.
 struct ImageLinks: Decodable {
     let smallThumbnail: String?
     let thumbnail: String?
 }
 
+/// Identifiers such as ISBN-10/ISBN-13.
 struct IndustryIdentifier: Decodable {
     let type: String
     let identifier: String
@@ -63,6 +68,8 @@ enum BookResult {
 }
 
 final class BookService {
+    /// Queries Google Books by ISBN and returns either the first matched item
+    /// or a user-facing error message via completion on any thread.
     static func search(isbn: String, completion: @escaping (BookResult) -> Void) {
         let sessionConfiguration = URLSessionConfiguration.default
         let session = URLSession(configuration: sessionConfiguration)
@@ -116,6 +123,7 @@ final class BookService {
         task.resume()
     }
 
+    /// Helper used for debugging to print book metadata when found.
     private static func logBookDetails(_ book: BookItem) {
         guard let title = book.volumeInfo.title,
               let authors = book.volumeInfo.authors,

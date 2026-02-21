@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+/// Entry screen that lets users start a scan or open their saved library.
+/// Keeps the list of saved books in memory and routes to scanner/library sheets.
 struct ContentView: View {
     @State private var showScanner = false
     @State private var showLibrary = false

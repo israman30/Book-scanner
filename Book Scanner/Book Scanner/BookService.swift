@@ -30,9 +30,31 @@ struct IndustryIdentifier: Decodable {
 
 enum BookServiceError: Error {
     case invalidURL
+    case network(Error)
+    case invalidResponse
     case badStatus(code: Int)
-    case emptyResponse
-    case decodingFailed
+    case emptyResponseData
+    case decodingFailed(Error)
+    case noBooksFound(isbn: String)
+
+    var message: String {
+        switch self {
+        case .invalidURL:
+            return "Invalid URL"
+        case .network(let error):
+            return "Network error: \(error.localizedDescription)"
+        case .invalidResponse:
+            return "Invalid response received from server"
+        case .badStatus(let code):
+            return "Bad status code: \(code)"
+        case .emptyResponseData:
+            return "No data returned"
+        case .decodingFailed:
+            return "Error decoding book data"
+        case .noBooksFound(let isbn):
+            return "No books found for ISBN \(isbn)"
+        }
+    }
 }
 
 enum BookResult {
@@ -46,7 +68,7 @@ final class BookService {
         let session = URLSession(configuration: sessionConfiguration)
 
         guard var url = URL(string: "https://www.googleapis.com/books/v1/volumes/") else {
-            completion(.failure("Invalid URL"))
+            completion(.failure(BookServiceError.invalidURL.message))
             return
         }
 
@@ -57,17 +79,22 @@ final class BookService {
 
         let task = session.dataTask(with: request) { data, response, error in
             if let error {
-                completion(.failure("Network error: \(error.localizedDescription)"))
+                completion(.failure(BookServiceError.network(error).message))
                 return
             }
 
-            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
-                completion(.failure("Bad status code: \(httpResponse.statusCode)"))
+            guard let httpResponse = response as? HTTPURLResponse else {
+                completion(.failure(BookServiceError.invalidResponse.message))
+                return
+            }
+
+            guard (200...299).contains(httpResponse.statusCode) else {
+                completion(.failure(BookServiceError.badStatus(code: httpResponse.statusCode).message))
                 return
             }
 
             guard let data = data else {
-                completion(.failure("No data returned"))
+                completion(.failure(BookServiceError.emptyResponseData.message))
                 return
             }
 
@@ -77,10 +104,10 @@ final class BookService {
                     completion(.success(first))
                     print("Book: \(first.volumeInfo)")
                 } else {
-                    completion(.failure("No books found for ISBN \(isbn)"))
+                    completion(.failure(BookServiceError.noBooksFound(isbn: isbn).message))
                 }
             } catch {
-                completion(.failure("Error decoding book data"))
+                completion(.failure(BookServiceError.decodingFailed(error).message))
             }
         }
         task.resume()

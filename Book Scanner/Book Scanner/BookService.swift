@@ -105,14 +105,7 @@ final class BookService {
                 let bookData = try JSONDecoder().decode(Books.self, from: data)
                 if let first = bookData.items?.first {
                     completion(.success(first))
-                    guard let title = first.volumeInfo.title,
-                          let authors = first.volumeInfo.authors,
-                          let publisher = first.volumeInfo.publisher,
-                          let descrt = first.volumeInfo.description,
-                          let publisherDate = first.volumeInfo.publishedDate else {
-                        return
-                    }
-                    print("Book: \(title)\n auhor: \(authors)\n publisher: \(publisher)\n Publisher date: \(publisherDate)\n description: \(descrt)")
+                    BookService.logBookDetails(first)
                 } else {
                     completion(.failure(BookServiceError.noBooksFound(isbn: isbn).message))
                 }
@@ -121,5 +114,24 @@ final class BookService {
             }
         }
         task.resume()
+    }
+
+    private static func logBookDetails(_ book: BookItem) {
+        guard let title = book.volumeInfo.title,
+              let authors = book.volumeInfo.authors,
+              let publisher = book.volumeInfo.publisher,
+              let description = book.volumeInfo.description,
+              let publishedDate = book.volumeInfo.publishedDate else {
+            return
+        }
+
+        let authorList = authors.joined(separator: ", ")
+        print("""
+        Book: \(title)
+        author(s): \(authorList)
+        publisher: \(publisher)
+        published date: \(publishedDate)
+        description: \(description)
+        """)
     }
 }

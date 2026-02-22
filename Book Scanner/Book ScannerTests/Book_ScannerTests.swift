@@ -64,6 +64,62 @@ class Book_ScannerTests: XCTest  {
         XCTAssertTrue(sut.didReturnResult)
     }
     
+    func test_ConfigureSets_IsConfigured() {
+        let expectation = XCTestExpectation(description: "Configuration complete")
+        sut.configure { success in
+            XCTAssertTrue(success)
+            XCTAssertTrue(self.sut.isConfigured)
+            expectation.fulfill()
+        }
+    }
+    
+    func test_ConfigureFailure() {
+        let expectation = XCTestExpectation(description: "Configuration failed")
+        sut.configure(simulateFailure: true) { success in
+            XCTAssertFalse(success)
+            XCTAssertFalse(self.sut.isConfigured)
+            expectation.fulfill()
+        }
+    }
+    
+    func test_ConfigureDoesNotRunTwice() {
+        let expectation = XCTestExpectation(description: "Configure once")
+        var configureCallCount = 0
+        sut.configure { _ in
+            configureCallCount += 1
+            expectation.fulfill()
+        }
+        
+        sut.configure { _ in
+            configureCallCount += 1
+        }
+        XCTAssertEqual(configureCallCount, 1)
+    }
+    
+    func test_ResetAllowsNewDetection() {
+        var codes: [String] = []
+        sut.onCodeDetected = { code in
+            codes.append(code)
+        }
+        
+        sut.simulateCodeDetection("CODE1")
+        
+        sut.reset()
+        sut.simulateCodeDetection("CODE2")
+        
+        XCTAssertEqual(codes, ["CODE1", "CODE2"])
+        XCTAssertTrue(sut.didReturnResult)
+    }
+    
+    func test_ResetClearsDidReturn_Result() {
+        sut.simulateCodeDetection("TEST")
+        XCTAssertTrue(sut.didReturnResult)
+        
+        sut.reset()
+        
+        XCTAssertFalse(sut.didReturnResult)
+    }
+    
     override func tearDown() {
         sut = nil
     }

@@ -41,7 +41,7 @@ struct BookScannerView: View {
             .overlay {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(Color.green, lineWidth: 2)
-                    .frame(width: 240, height: 240)
+                    .frame(width: 300, height: 240)
                     .shadow(color: .green.opacity(0.6), radius: 8)
                     .accessibilityHidden(true)
             }

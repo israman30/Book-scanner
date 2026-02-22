@@ -37,6 +37,33 @@ class Book_ScannerTests: XCTest  {
         XCTAssertTrue(sut.didReturnResult)
     }
     
+    func test_OnPermissionDenied_Callback() {
+        let expectation = XCTestExpectation(description: "Permission denied")
+        var permissionDeniedCalled = false
+        
+        sut.onPermissionDenied = {
+            permissionDeniedCalled = true
+            expectation.fulfill()
+        }
+        
+        sut.simulatePermissionDenied()
+        XCTAssertTrue(permissionDeniedCalled)
+    }
+    
+    func test_MultipleCodeDetections_OnlyFirstReturns() {
+        var detectionCount = 0
+        sut.onCodeDetected = { _ in
+            detectionCount += 1
+        }
+        
+        sut.simulateCodeDetection("FIRST")
+        sut.simulateCodeDetection("SECOND")
+        sut.simulateCodeDetection("THIRD")
+        
+        XCTAssertEqual(detectionCount, 1)
+        XCTAssertTrue(sut.didReturnResult)
+    }
+    
     override func tearDown() {
         sut = nil
     }
@@ -49,4 +76,30 @@ extension ScannerViewController {
         didReturnResult = true
         onCodeDetected?(code)
     }
+    
+    func simulatePermissionDenied() {
+        onPermissionDenied?()
+    }
+    
+    func configure(simulateFailure: Bool = false, completion: @escaping (Bool) -> Void) {
+        guard !isConfigured else {
+            completion(false)
+            return
+        }
+        
+        // Simulate async configuration
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            if simulateFailure {
+                completion(false)
+            } else {
+                self.isConfigured = true
+                completion(true)
+            }
+        }
+    }
+    
+    func reset() {
+        didReturnResult = false
+    }
+    
 }

@@ -286,8 +286,8 @@ final class ScannerViewController: UIViewController {
 
     private let session = AVCaptureSession()
     private var previewLayer: AVCaptureVideoPreviewLayer?
-    private var isConfigured = false
-    private var didReturnResult = false
+    var isConfigured = false
+    var didReturnResult = false
 
     override func viewDidLoad() {
         super.viewDidLoad()

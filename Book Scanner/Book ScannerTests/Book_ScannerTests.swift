@@ -6,6 +6,7 @@
 //
 
 import Testing
+@testable import Book_Scanner
 
 struct Book_ScannerTests {
 

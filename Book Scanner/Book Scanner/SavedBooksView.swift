@@ -124,6 +124,7 @@ struct SavedBooksView: View {
 
 struct EditableBookDetailView: View {
     @Binding var book: SavedBook
+    @State var isPresented = false
 
     var body: some View {
         Form {
@@ -149,6 +150,10 @@ struct EditableBookDetailView: View {
                         .frame(width: 120, height: 180)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .accessibilityLabel("Book cover")
+                        .onTapGesture {
+                            print(123)
+                            self.isPresented = true
+                        }
                     } else {
                         placeholder
                             .frame(width: 120, height: 180)
@@ -171,6 +176,9 @@ struct EditableBookDetailView: View {
             }
         }
         .navigationTitle("Edit Book")
+        .sheet(isPresented: $isPresented) {
+            EmptyView()
+        }
     }
 
     /// Placeholder used when no thumbnail exists or fails to load.

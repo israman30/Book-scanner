@@ -11,9 +11,44 @@ import XCTest
 class Book_ScannerTests: XCTest  {
     
     var sut: ScannerViewController!
+    var scannedCode: String?
+    var permissionDeniedCalled = false
+    
+    func createScannerView(
+        onScan: @escaping (String) -> Void = { _ in },
+        onPermissionDenied: @escaping () -> Void = {}
+    ) -> CameraScannerView {
+        return CameraScannerView(
+            onScan: onScan,
+            onPermissionDenied: onPermissionDenied
+        )
+    }
 
     override func setUp() {
         sut = ScannerViewController()
+    }
+    
+    func test_InitializationStoresCallbacks() {
+        let expectedCode = "TEST123"
+        let expectation = XCTestExpectation(description: "Scan callback triggered")
+        
+        let onScan: (String) -> Void = { [weak self] code in
+            self?.scannedCode = code
+            expectation.fulfill()
+        }
+        
+        let onDenied: () -> Void = { [weak self] in
+            self?.permissionDeniedCalled = true
+        }
+        
+        let scannerView = CameraScannerView(
+            onScan: onScan,
+            onPermissionDenied: onDenied
+        )
+        
+        scannerView.onScan(expectedCode)
+        
+        XCTAssertEqual(scannedCode, expectedCode)
     }
     
     func test_IntialStateSetup() {
@@ -157,5 +192,19 @@ extension ScannerViewController {
     func reset() {
         didReturnResult = false
     }
+}
+
+class MockViewController: ScannerViewController {
+    var capturedOnCodeDetected: ((String) -> Void)?
+    var capturedOnPermissionDenied: (() -> Void)?
     
+    override var onCodeDetected: ((String) -> Void)? {
+        get { capturedOnCodeDetected }
+        set { capturedOnCodeDetected = newValue }
+    }
+    
+    override var onPermissionDenied: (() -> Void)? {
+        get { capturedOnPermissionDenied }
+        set { capturedOnPermissionDenied = newValue }
+    }
 }

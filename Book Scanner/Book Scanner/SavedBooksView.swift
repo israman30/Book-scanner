@@ -35,21 +35,48 @@ struct SavedBooksView: View {
                             NavigationLink {
                                 EditableBookDetailView(book: $book)
                             } label: {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(book.title)
-                                        .font(.headline)
-                                    Text(book.authors)
-                                        .font(.subheadline)
-                                        .foregroundStyle(.secondary)
-                                    if let isbn = book.isbn {
-                                        Text("ISBN: \(isbn)")
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
+                                HStack(alignment: .top, spacing: 12) {
+                                    if let url = book.thumbnailURL {
+                                        AsyncImage(url: url) { phase in
+                                            switch phase {
+                                            case .empty:
+                                                ProgressView()
+                                                    .progressViewStyle(.circular)
+                                            case .success(let image):
+                                                image
+                                                    .resizable()
+                                                    .scaledToFill()
+                                            case .failure:
+                                                placeholder
+                                            @unknown default:
+                                                placeholder
+                                            }
+                                        }
+                                        .frame(width: 60, height: 90)
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                        .accessibilityHidden(true)
+                                    } else {
+                                        placeholder
+                                            .frame(width: 60, height: 90)
+                                            .accessibilityHidden(true)
                                     }
+
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(book.title)
+                                            .font(.headline)
+                                        Text(book.authors)
+                                            .font(.subheadline)
+                                            .foregroundStyle(.secondary)
+                                        if let isbn = book.isbn {
+                                            Text("ISBN: \(isbn)")
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
+                                    .accessibilityElement(children: .combine)
+                                    .accessibilityLabel(book.title)
+                                    .accessibilityValue(accessibilitySummary(for: book))
                                 }
-                                .accessibilityElement(children: .combine)
-                                .accessibilityLabel(book.title)
-                                .accessibilityValue(accessibilitySummary(for: book))
                             }
                         }
                         .onDelete { offsets in
@@ -82,6 +109,16 @@ struct SavedBooksView: View {
             parts.append("ISBN \(isbn)")
         }
         return parts.joined(separator: ". ")
+    }
+
+    /// Placeholder used when no thumbnail exists or fails to load.
+    private var placeholder: some View {
+        RoundedRectangle(cornerRadius: 8)
+            .fill(Color(.systemGray5))
+            .overlay {
+                Image(systemName: "book.closed")
+                    .foregroundStyle(.secondary)
+            }
     }
 }
 

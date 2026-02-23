@@ -151,7 +151,6 @@ struct EditableBookDetailView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .accessibilityLabel("Book cover")
                         .onTapGesture {
-                            print(123)
                             self.isPresented = true
                         }
                     } else {
@@ -177,7 +176,9 @@ struct EditableBookDetailView: View {
         }
         .navigationTitle("Edit Book")
         .sheet(isPresented: $isPresented) {
-            EmptyView()
+            if let url = book.thumbnailURL {
+                ThumbnailView(url: url)
+            }
         }
     }
 
@@ -220,3 +221,23 @@ private struct SavedBooksPreviewContainer: View {
     }
 }
 
+struct ThumbnailView: View {
+    let url: URL
+    var body: some View {
+        AsyncImage(url: url) { phase in
+            switch phase {
+            case .empty:
+                ProgressView()
+                    .progressViewStyle(.circular)
+            case .success(let image):
+                image
+                    .resizable()
+                    .scaledToFit()
+            case .failure:
+                EmptyView()
+            @unknown default:
+                EmptyView()
+            }
+        }
+    }
+}

@@ -167,10 +167,32 @@ struct EditableBookDetailView: View {
                 TextField("Authors", text: $book.authors)
 
                 if let isbn = book.isbn {
-                    Text("ISBN: \(isbn)")
+                    LabeledContent("ISBN", value: isbn)
                 } else {
-                    Text("ISBN not available")
+                    LabeledContent("ISBN", value: "Not available")
                         .foregroundStyle(.secondary)
+                }
+
+                if let publisher = book.publisher {
+                    LabeledContent("Publisher", value: publisher)
+                } else {
+                    LabeledContent("Publisher", value: "Not available")
+                        .foregroundStyle(.secondary)
+                }
+
+                if let publishedDate = book.publishedDate {
+                    LabeledContent("Published", value: publishedDate)
+                } else {
+                    LabeledContent("Published", value: "Not available")
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            if let description = book.description, !description.isEmpty {
+                Section("Description") {
+                    Text(description)
+                        .font(.body)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
         }
@@ -202,7 +224,10 @@ private struct SavedBooksPreviewContainer: View {
         SavedBook(
             title: "The Pragmatic Programmer",
             authors: "Andrew Hunt, David Thomas",
-            isbn: "978-0201616224"
+            isbn: "978-0201616224",
+            publisher: "Addison-Wesley Professional",
+            publishedDate: "1999",
+            description: "One of the most significant books in my life. It covers topics ranging from personal responsibility and career development to architectural techniques for keeping your code flexible and easy to adapt."
         ),
         SavedBook(
             title: "Clean Code",

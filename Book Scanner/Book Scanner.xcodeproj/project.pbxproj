@@ -6,11 +6,27 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		4D537CD22F4AAF29005BFACE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4D8E3DC52F4790FE0026AA5F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4D8E3DCC2F4790FE0026AA5F;
+			remoteInfo = "Book Scanner";
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		4D537CCE2F4AAF29005BFACE /* Book ScannerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Book ScannerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D8E3DCD2F4790FE0026AA5F /* Book Scanner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Book Scanner.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		4D537CCF2F4AAF29005BFACE /* Book ScannerTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Book ScannerTests";
+			sourceTree = "<group>";
+		};
 		4D8E3DCF2F4790FE0026AA5F /* Book Scanner */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Book Scanner";
@@ -19,6 +35,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		4D537CCB2F4AAF29005BFACE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4D8E3DCA2F4790FE0026AA5F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -33,6 +56,7 @@
 			isa = PBXGroup;
 			children = (
 				4D8E3DCF2F4790FE0026AA5F /* Book Scanner */,
+				4D537CCF2F4AAF29005BFACE /* Book ScannerTests */,
 				4D8E3DCE2F4790FE0026AA5F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				4D8E3DCD2F4790FE0026AA5F /* Book Scanner.app */,
+				4D537CCE2F4AAF29005BFACE /* Book ScannerTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,6 +73,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		4D537CCD2F4AAF29005BFACE /* Book ScannerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4D537CD62F4AAF29005BFACE /* Build configuration list for PBXNativeTarget "Book ScannerTests" */;
+			buildPhases = (
+				4D537CCA2F4AAF29005BFACE /* Sources */,
+				4D537CCB2F4AAF29005BFACE /* Frameworks */,
+				4D537CCC2F4AAF29005BFACE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4D537CD32F4AAF29005BFACE /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				4D537CCF2F4AAF29005BFACE /* Book ScannerTests */,
+			);
+			name = "Book ScannerTests";
+			packageProductDependencies = (
+			);
+			productName = "Book ScannerTests";
+			productReference = 4D537CCE2F4AAF29005BFACE /* Book ScannerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		4D8E3DCC2F4790FE0026AA5F /* Book Scanner */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4D8E3DD82F4791000026AA5F /* Build configuration list for PBXNativeTarget "Book Scanner" */;
@@ -80,6 +128,10 @@
 				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
+					4D537CCD2F4AAF29005BFACE = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = 4D8E3DCC2F4790FE0026AA5F;
+					};
 					4D8E3DCC2F4790FE0026AA5F = {
 						CreatedOnToolsVersion = 26.2;
 					};
@@ -100,11 +152,19 @@
 			projectRoot = "";
 			targets = (
 				4D8E3DCC2F4790FE0026AA5F /* Book Scanner */,
+				4D537CCD2F4AAF29005BFACE /* Book ScannerTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		4D537CCC2F4AAF29005BFACE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4D8E3DCB2F4790FE0026AA5F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -115,6 +175,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		4D537CCA2F4AAF29005BFACE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4D8E3DC92F4790FE0026AA5F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -124,7 +191,55 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		4D537CD32F4AAF29005BFACE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4D8E3DCC2F4790FE0026AA5F /* Book Scanner */;
+			targetProxy = 4D537CD22F4AAF29005BFACE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		4D537CD42F4AAF29005BFACE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.israman.somenews.Book-ScannerTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Book Scanner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Book Scanner";
+			};
+			name = Debug;
+		};
+		4D537CD52F4AAF29005BFACE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.israman.somenews.Book-ScannerTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Book Scanner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Book Scanner";
+			};
+			name = Release;
+		};
 		4D8E3DD62F4791000026AA5F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -319,6 +434,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		4D537CD62F4AAF29005BFACE /* Build configuration list for PBXNativeTarget "Book ScannerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4D537CD42F4AAF29005BFACE /* Debug */,
+				4D537CD52F4AAF29005BFACE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		4D8E3DC82F4790FE0026AA5F /* Build configuration list for PBXProject "Book Scanner" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

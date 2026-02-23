@@ -280,14 +280,14 @@ struct CameraScannerView: UIViewControllerRepresentable {
 
 /// UIKit controller that configures an AVCapture session to detect barcodes
 /// and QR codes, forwarding results back to SwiftUI via callbacks.
-final class ScannerViewController: UIViewController {
+class ScannerViewController: UIViewController {
     var onCodeDetected: ((String) -> Void)?
     var onPermissionDenied: (() -> Void)?
 
     private let session = AVCaptureSession()
     private var previewLayer: AVCaptureVideoPreviewLayer?
-    private var isConfigured = false
-    private var didReturnResult = false
+    var isConfigured = false
+    var didReturnResult = false
 
     override func viewDidLoad() {
         super.viewDidLoad()

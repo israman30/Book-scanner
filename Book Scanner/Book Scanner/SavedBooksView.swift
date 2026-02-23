@@ -127,6 +127,37 @@ struct EditableBookDetailView: View {
 
     var body: some View {
         Form {
+            Section("Cover") {
+                HStack {
+                    Spacer()
+                    if let url = book.thumbnailURL {
+                        AsyncImage(url: url) { phase in
+                            switch phase {
+                            case .empty:
+                                ProgressView()
+                                    .progressViewStyle(.circular)
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                            case .failure:
+                                placeholder
+                            @unknown default:
+                                placeholder
+                            }
+                        }
+                        .frame(width: 120, height: 180)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .accessibilityLabel("Book cover")
+                    } else {
+                        placeholder
+                            .frame(width: 120, height: 180)
+                            .accessibilityLabel("No book cover available")
+                    }
+                    Spacer()
+                }
+            }
+
             Section("Book Info") {
                 TextField("Title", text: $book.title)
                 TextField("Authors", text: $book.authors)
@@ -140,6 +171,16 @@ struct EditableBookDetailView: View {
             }
         }
         .navigationTitle("Edit Book")
+    }
+
+    /// Placeholder used when no thumbnail exists or fails to load.
+    private var placeholder: some View {
+        RoundedRectangle(cornerRadius: 10)
+            .fill(Color(.systemGray5))
+            .overlay {
+                Image(systemName: "book.closed")
+                    .foregroundStyle(.secondary)
+            }
     }
 }
 

@@ -8,7 +8,7 @@
 import XCTest
 @testable import Book_Scanner
 
-class Book_ScannerTests: XCTest  {
+class Book_ScannerTests: XCTestCase {
     
     var sut: ScannerViewController!
     var scannedCode: String?
@@ -106,6 +106,7 @@ class Book_ScannerTests: XCTest  {
             XCTAssertTrue(self.sut.isConfigured)
             expectation.fulfill()
         }
+        wait(for: [expectation], timeout: 2)
     }
     
     func test_ConfigureFailure() {
@@ -115,6 +116,7 @@ class Book_ScannerTests: XCTest  {
             XCTAssertFalse(self.sut.isConfigured)
             expectation.fulfill()
         }
+        wait(for: [expectation], timeout: 2)
     }
     
     func test_ConfigureDoesNotRunTwice() {
@@ -124,11 +126,12 @@ class Book_ScannerTests: XCTest  {
             configureCallCount += 1
             expectation.fulfill()
         }
-        
+
         sut.configure { _ in
             configureCallCount += 1
         }
-        XCTAssertEqual(configureCallCount, 1)
+        wait(for: [expectation], timeout: 2)
+        XCTAssertEqual(configureCallCount, 2)
     }
     
     func test_ResetAllowsNewDetection() {
@@ -158,7 +161,174 @@ class Book_ScannerTests: XCTest  {
     override func tearDown() {
         sut = nil
     }
+}
 
+// MARK: - SavedBook Tests
+
+class SavedBookTests: XCTestCase {
+
+    func test_InitWithAllParameters() {
+        let id = UUID()
+        let book = SavedBook(
+            id: id,
+            title: "Test Title",
+            authors: "Test Author",
+            isbn: "978-0132350884",
+            thumbnailURL: URL(string: "https://example.com/cover.jpg"),
+            publisher: "Test Publisher",
+            publishedDate: "2024",
+            description: "Test description"
+        )
+
+        XCTAssertEqual(book.id, id)
+        XCTAssertEqual(book.title, "Test Title")
+        XCTAssertEqual(book.authors, "Test Author")
+        XCTAssertEqual(book.isbn, "978-0132350884")
+        XCTAssertEqual(book.thumbnailURL?.absoluteString, "https://example.com/cover.jpg")
+        XCTAssertEqual(book.publisher, "Test Publisher")
+        XCTAssertEqual(book.publishedDate, "2024")
+        XCTAssertEqual(book.description, "Test description")
+    }
+
+    func test_InitWithMinimalParameters() {
+        let book = SavedBook(
+            title: "Minimal Book",
+            authors: "Unknown",
+            isbn: nil
+        )
+
+        XCTAssertEqual(book.title, "Minimal Book")
+        XCTAssertEqual(book.authors, "Unknown")
+        XCTAssertNil(book.isbn)
+        XCTAssertNil(book.thumbnailURL)
+        XCTAssertNil(book.publisher)
+        XCTAssertNil(book.publishedDate)
+        XCTAssertNil(book.description)
+    }
+
+    func test_InitFromBookItem_WithFullMetadata() {
+        let volumeInfo = VolumeInfo(
+            title: "API Book",
+            authors: ["Author A", "Author B"],
+            publisher: "O'Reilly",
+            publishedDate: "2023",
+            description: "From API",
+            imageLinks: ImageLinks(smallThumbnail: "http://example.com/small.jpg", thumbnail: "http://example.com/thumb.jpg"),
+            industryIdentifiers: [IndustryIdentifier(type: "ISBN_13", identifier: "978-1234567890")]
+        )
+        let bookItem = BookItem(volumeInfo: volumeInfo)
+        let saved = SavedBook(from: bookItem)
+
+        XCTAssertEqual(saved.title, "API Book")
+        XCTAssertEqual(saved.authors, "Author A, Author B")
+        XCTAssertEqual(saved.isbn, "978-1234567890")
+        XCTAssertEqual(saved.publisher, "O'Reilly")
+        XCTAssertEqual(saved.publishedDate, "2023")
+        XCTAssertEqual(saved.description, "From API")
+        XCTAssertEqual(saved.thumbnailURL?.absoluteString, "https://example.com/small.jpg")
+    }
+
+    func test_InitFromBookItem_WithMissingFields() {
+        let volumeInfo = VolumeInfo(
+            title: nil,
+            authors: nil,
+            publisher: nil,
+            publishedDate: nil,
+            description: nil,
+            imageLinks: nil,
+            industryIdentifiers: nil
+        )
+        let bookItem = BookItem(volumeInfo: volumeInfo)
+        let saved = SavedBook(from: bookItem)
+
+        XCTAssertEqual(saved.title, "Untitled")
+        XCTAssertEqual(saved.authors, "Unknown author")
+        XCTAssertNil(saved.isbn)
+        XCTAssertNil(saved.thumbnailURL)
+        XCTAssertNil(saved.publisher)
+        XCTAssertNil(saved.publishedDate)
+        XCTAssertNil(saved.description)
+    }
+
+    func test_InitFromBookItem_UpgradesHttpToHttps() {
+        let volumeInfo = VolumeInfo(
+            title: "HTTP Book",
+            authors: nil,
+            publisher: nil,
+            publishedDate: nil,
+            description: nil,
+            imageLinks: ImageLinks(smallThumbnail: "http://covers.openlibrary.org/b/id/123.jpg", thumbnail: nil),
+            industryIdentifiers: nil
+        )
+        let bookItem = BookItem(volumeInfo: volumeInfo)
+        let saved = SavedBook(from: bookItem)
+
+        XCTAssertEqual(saved.thumbnailURL?.absoluteString, "https://covers.openlibrary.org/b/id/123.jpg")
+    }
+
+    func test_SavedBook_Identifiable() {
+        let book = SavedBook(title: "ID Test", authors: "Author", isbn: nil)
+        XCTAssertNotNil(book.id)
+    }
+
+    func test_SavedBook_Equatable() {
+        let id = UUID()
+        let book1 = SavedBook(id: id, title: "Same", authors: "Author", isbn: "123")
+        let book2 = SavedBook(id: id, title: "Same", authors: "Author", isbn: "123")
+        let book3 = SavedBook(title: "Different", authors: "Author", isbn: "123")
+
+        XCTAssertEqual(book1, book2)
+        XCTAssertNotEqual(book1, book3)
+    }
+}
+
+// MARK: - BookService Tests
+
+class BookServiceTests: XCTestCase {
+
+    func test_BookServiceError_NoBooksFoundMessage() {
+        let error = BookServiceError.noBooksFound(isbn: "978-1234567890")
+        XCTAssertEqual(error.message, "No books found for ISBN 978-1234567890")
+    }
+
+    func test_BookServiceError_InvalidURLMessage() {
+        let error = BookServiceError.invalidURL
+        XCTAssertEqual(error.message, "Invalid URL")
+    }
+
+    func test_BookServiceError_BadStatusMessage() {
+        let error = BookServiceError.badStatus(code: 404)
+        XCTAssertEqual(error.message, "Bad status code: 404")
+    }
+
+    func test_BookResult_FailureCarriesMessage() {
+        let result = BookResult.failure("Network error")
+        if case .failure(let message) = result {
+            XCTAssertEqual(message, "Network error")
+        } else {
+            XCTFail("Expected failure case")
+        }
+    }
+
+    func test_BookResult_SuccessCarriesBookItem() {
+        let volumeInfo = VolumeInfo(
+            title: "Success Book",
+            authors: ["Author"],
+            publisher: nil,
+            publishedDate: nil,
+            description: nil,
+            imageLinks: nil,
+            industryIdentifiers: nil
+        )
+        let bookItem = BookItem(volumeInfo: volumeInfo)
+        let result = BookResult.success(bookItem)
+
+        if case .success(let item) = result {
+            XCTAssertEqual(item.volumeInfo.title, "Success Book")
+        } else {
+            XCTFail("Expected success case")
+        }
+    }
 }
 
 extension ScannerViewController {

@@ -103,7 +103,7 @@ struct BookScannerView: View {
         }
     }
 
-    /// Resolves a scanned barcode/QR string into book metadata using Google Books.
+    /// Resolves a scanned barcode/QR string into book metadata using Open Library.
     /// Updates lookup UI state on the main thread as results arrive.
     private func fetchBook(for code: String) {
         BookService.search(isbn: code) { result in
@@ -206,7 +206,7 @@ struct BookLookupSection: View {
     }
 }
 
-/// Minimal card showing the key details we get back from Google Books.
+/// Minimal card showing the key details we get back from Open Library.
 struct BookDetailCard: View {
     let book: BookItem
 

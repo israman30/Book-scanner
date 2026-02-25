@@ -52,7 +52,7 @@ struct SavedBook: Identifiable, Equatable {
         )
     }
 
-    /// Google Books sometimes returns `http` URLs; upgrade them to https when possible.
+    /// Normalizes image URLs (e.g. upgrade http to https when possible).
     private static func normalize(urlString: String?) -> URL? {
         guard var urlString else { return nil }
         if urlString.hasPrefix("http://") {

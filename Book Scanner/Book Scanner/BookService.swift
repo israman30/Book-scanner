@@ -3,7 +3,7 @@ import Foundation
 // MARK: - Open Library API
 
 /// Response from Open Library search API: https://openlibrary.org/search.json
-struct OpenLibrarySearchResponse: Decodable {
+struct OpenLibrarySearchResponse: nonisolated Decodable {
     let numFound: Int
     let docs: [OpenLibraryDoc]
 }
@@ -107,6 +107,7 @@ final class BookService {
         search(query: query, fallbackIsbn: nil, completion: completion)
     }
 
+    @MainActor
     private static func search(query: String, fallbackIsbn: String?, completion: @escaping (BookResult) -> Void) {
         let sessionConfiguration = URLSessionConfiguration.default
         let session = URLSession(configuration: sessionConfiguration)
@@ -216,3 +217,4 @@ final class BookService {
         """)
     }
 }
+

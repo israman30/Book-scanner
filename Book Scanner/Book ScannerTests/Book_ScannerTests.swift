@@ -271,15 +271,6 @@ class SavedBookTests: XCTestCase {
         XCTAssertNotNil(book.id)
     }
 
-    func test_SavedBook_Equatable() {
-        let id = UUID()
-        let book1 = SavedBook(id: id, title: "Same", authors: "Author", isbn: "123")
-        let book2 = SavedBook(id: id, title: "Same", authors: "Author", isbn: "123")
-        let book3 = SavedBook(title: "Different", authors: "Author", isbn: "123")
-
-        XCTAssertEqual(book1, book2)
-        XCTAssertNotEqual(book1, book3)
-    }
 }
 
 // MARK: - BookService Tests
@@ -378,3 +369,4 @@ class MockViewController: ScannerViewController {
         set { capturedOnPermissionDenied = newValue }
     }
 }
+

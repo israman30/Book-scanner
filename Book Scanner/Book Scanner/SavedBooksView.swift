@@ -78,6 +78,9 @@ struct SavedBooksView: View {
                                                 .font(.caption)
                                                 .foregroundStyle(.secondary)
                                         }
+                                        if let subjects = book.subjects, !subjects.isEmpty {
+                                            subjectTagsView(subjects: subjects)
+                                        }
                                     }
                                     .accessibilityElement(children: .combine)
                                     .accessibilityLabel(book.title ?? "")
@@ -118,6 +121,35 @@ struct SavedBooksView: View {
             parts.append("ISBN \(isbn)")
         }
         return parts.joined(separator: ". ")
+    }
+
+    private func subjectTagsView(subjects: String) -> some View {
+        let subjectList = subjects.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+        return ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 6) {
+                ForEach(subjectList, id: \.self) { subject in
+                    Text(subject)
+                        .font(.caption2)
+                        .fontWeight(.medium)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(colorForSubject(subject).opacity(0.25))
+                        .foregroundStyle(colorForSubject(subject))
+                        .clipShape(Capsule())
+                }
+            }
+        }
+        .frame(height: 28)
+    }
+
+    private func colorForSubject(_ subject: String) -> Color {
+        let palette: [Color] = [
+            .blue, .green, .orange, .purple, .pink, .teal,
+            .mint, .indigo, .red, .cyan, .brown
+        ]
+        let hash = abs(subject.hashValue)
+        let index = hash % palette.count
+        return palette[index]
     }
 
     /// Placeholder used when no thumbnail exists or fails to load.
@@ -242,9 +274,9 @@ struct EditableBookDetailView: View {
     let controller = PersistenceController(inMemory: true)
     let context = controller.viewContext
     for sample in [
-        SavedBook(title: "The Pragmatic Programmer", authors: "Andrew Hunt, David Thomas", isbn: "978-0201616224", publisher: "Addison-Wesley Professional", publishedDate: "1999", description: "One of the most significant books in my life."),
-        SavedBook(title: "Clean Code", authors: "Robert C. Martin", isbn: "978-0132350884"),
-        SavedBook(title: "SwiftUI Essentials", authors: "Apple Developer Documentation", isbn: nil)
+        SavedBook(title: "The Pragmatic Programmer", authors: "Andrew Hunt, David Thomas", isbn: "978-0201616224", publisher: "Addison-Wesley Professional", publishedDate: "1999", description: "One of the most significant books in my life.", subjects: "Programming, Software Development, Best Practices"),
+        SavedBook(title: "Clean Code", authors: "Robert C. Martin", isbn: "978-0132350884", subjects: "Programming, Refactoring"),
+        SavedBook(title: "SwiftUI Essentials", authors: "Apple Developer Documentation", isbn: nil, subjects: "Swift, iOS, Mobile Development")
     ] {
         _ = BookEntity.create(from: sample, in: context)
     }

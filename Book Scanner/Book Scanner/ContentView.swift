@@ -6,13 +6,18 @@
 //
 
 import SwiftUI
+import CoreData
 
 /// Entry screen that lets users start a scan or open their saved library.
-/// Keeps the list of saved books in memory and routes to scanner/library sheets.
+/// Fetches saved books from Core Data and routes to scanner/library sheets.
 struct ContentView: View {
     @State private var showScanner = false
     @State private var showLibrary = false
-    @State private var savedBooks: [SavedBook] = []
+    @FetchRequest(
+        sortDescriptors: [NSSortDescriptor(keyPath: \BookEntity.title, ascending: true)],
+        animation: .default
+    )
+    private var savedBooks: FetchedResults<BookEntity>
 
     var body: some View {
         VStack {
@@ -57,14 +62,15 @@ struct ContentView: View {
         }
         .padding()
         .fullScreenCover(isPresented: $showScanner) {
-            BookScannerView(savedBooks: $savedBooks)
+            BookScannerView()
         }
         .sheet(isPresented: $showLibrary) {
-            SavedBooksView(savedBooks: $savedBooks)
+            SavedBooksView()
         }
     }
 }
 
 #Preview {
     ContentView()
+        .environment(\.managedObjectContext, PersistenceController.preview.viewContext)
 }

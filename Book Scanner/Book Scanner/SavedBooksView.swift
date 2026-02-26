@@ -6,10 +6,16 @@
 //
 
 import SwiftUI
+import CoreData
 
 struct SavedBooksView: View {
     @Environment(\.dismiss) private var dismiss
-    @Binding var savedBooks: [SavedBook]
+    @Environment(\.managedObjectContext) private var viewContext
+    @FetchRequest(
+        sortDescriptors: [NSSortDescriptor(keyPath: \BookEntity.title, ascending: true)],
+        animation: .default
+    )
+    private var savedBooks: FetchedResults<BookEntity>
 
     var body: some View {
         NavigationStack {
@@ -31,12 +37,12 @@ struct SavedBooksView: View {
                     .accessibilityHint("Scan and add books to see them here")
                 } else {
                     List {
-                        ForEach($savedBooks) { $book in
+                        ForEach(savedBooks, id: \.objectID) { book in
                             NavigationLink {
-                                EditableBookDetailView(book: $book)
+                                EditableBookDetailView(book: book)
                             } label: {
                                 HStack(alignment: .top, spacing: 12) {
-                                    if let url = book.thumbnailURL {
+                                    if let url = book.thumbnailURLString.flatMap({ URL(string: $0) }) {
                                         AsyncImage(url: url) { phase in
                                             switch phase {
                                             case .empty:
@@ -62,9 +68,9 @@ struct SavedBooksView: View {
                                     }
 
                                     VStack(alignment: .leading, spacing: 4) {
-                                        Text(book.title)
+                                        Text(book.title ?? "")
                                             .font(.headline)
-                                        Text(book.authors)
+                                        Text(book.authors ?? "")
                                             .font(.subheadline)
                                             .foregroundStyle(.secondary)
                                         if let isbn = book.isbn {
@@ -74,13 +80,16 @@ struct SavedBooksView: View {
                                         }
                                     }
                                     .accessibilityElement(children: .combine)
-                                    .accessibilityLabel(book.title)
+                                    .accessibilityLabel(book.title ?? "")
                                     .accessibilityValue(accessibilitySummary(for: book))
                                 }
                             }
                         }
                         .onDelete { offsets in
-                            savedBooks.remove(atOffsets: offsets)
+                            for index in offsets {
+                                viewContext.delete(savedBooks[index])
+                            }
+                            PersistenceController.shared.save()
                         }
                     }
                 }
@@ -103,8 +112,8 @@ struct SavedBooksView: View {
         }
     }
 
-    private func accessibilitySummary(for book: SavedBook) -> String {
-        var parts = ["Authors \(book.authors)"]
+    private func accessibilitySummary(for book: BookEntity) -> String {
+        var parts = ["Authors \(book.authors ?? "")"]
         if let isbn = book.isbn {
             parts.append("ISBN \(isbn)")
         }
@@ -123,7 +132,8 @@ struct SavedBooksView: View {
 }
 
 struct EditableBookDetailView: View {
-    @Binding var book: SavedBook
+    @ObservedObject var book: BookEntity
+    @Environment(\.managedObjectContext) private var viewContext
     @State var isPresented = false
 
     var body: some View {
@@ -131,7 +141,7 @@ struct EditableBookDetailView: View {
             Section("Cover") {
                 HStack {
                     Spacer()
-                    if let url = book.thumbnailURL {
+                    if let urlString = book.thumbnailURLString, let url = URL(string: urlString) {
                         AsyncImage(url: url) { phase in
                             switch phase {
                             case .empty:
@@ -151,7 +161,7 @@ struct EditableBookDetailView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .accessibilityLabel("Book cover")
                         .onTapGesture {
-                            self.isPresented = true
+                            isPresented = true
                         }
                     } else {
                         placeholder
@@ -163,8 +173,14 @@ struct EditableBookDetailView: View {
             }
 
             Section("Book Info") {
-                TextField("Title", text: $book.title)
-                TextField("Authors", text: $book.authors)
+                TextField("Title", text: Binding(
+                    get: { book.title ?? "" },
+                    set: { book.title = $0 }
+                ))
+                TextField("Authors", text: Binding(
+                    get: { book.authors ?? "" },
+                    set: { book.authors = $0 }
+                ))
 
                 if let isbn = book.isbn {
                     LabeledContent("ISBN", value: isbn)
@@ -188,7 +204,7 @@ struct EditableBookDetailView: View {
                 }
             }
 
-            if let description = book.description, !description.isEmpty {
+            if let description = book.bookDescription, !description.isEmpty {
                 Section("Description") {
                     Text(description)
                         .font(.body)
@@ -197,8 +213,11 @@ struct EditableBookDetailView: View {
             }
         }
         .navigationTitle("Edit Book")
+        .onDisappear {
+            PersistenceController.shared.save()
+        }
         .sheet(isPresented: $isPresented) {
-            if let url = book.thumbnailURL {
+            if let urlString = book.thumbnailURLString, let url = URL(string: urlString) {
                 ThumbnailView(url: url)
             }
         }
@@ -216,34 +235,19 @@ struct EditableBookDetailView: View {
 }
 
 #Preview {
-    SavedBooksPreviewContainer()
-}
-
-private struct SavedBooksPreviewContainer: View {
-    @State private var books = [
-        SavedBook(
-            title: "The Pragmatic Programmer",
-            authors: "Andrew Hunt, David Thomas",
-            isbn: "978-0201616224",
-            publisher: "Addison-Wesley Professional",
-            publishedDate: "1999",
-            description: "One of the most significant books in my life. It covers topics ranging from personal responsibility and career development to architectural techniques for keeping your code flexible and easy to adapt."
-        ),
-        SavedBook(
-            title: "Clean Code",
-            authors: "Robert C. Martin",
-            isbn: "978-0132350884"
-        ),
-        SavedBook(
-            title: "SwiftUI Essentials",
-            authors: "Apple Developer Documentation",
-            isbn: nil
-        )
-    ]
-
-    var body: some View {
-        SavedBooksView(savedBooks: $books)
+    let controller = PersistenceController(inMemory: true)
+    let context = controller.viewContext
+    for sample in [
+        SavedBook(title: "The Pragmatic Programmer", authors: "Andrew Hunt, David Thomas", isbn: "978-0201616224", publisher: "Addison-Wesley Professional", publishedDate: "1999", description: "One of the most significant books in my life."),
+        SavedBook(title: "Clean Code", authors: "Robert C. Martin", isbn: "978-0132350884"),
+        SavedBook(title: "SwiftUI Essentials", authors: "Apple Developer Documentation", isbn: nil)
+    ] {
+        _ = BookEntity.create(from: sample, in: context)
     }
+    try? context.save()
+
+    return SavedBooksView()
+        .environment(\.managedObjectContext, context)
 }
 
 struct ThumbnailView: View {

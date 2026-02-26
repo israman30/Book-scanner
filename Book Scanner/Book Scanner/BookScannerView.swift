@@ -8,13 +8,14 @@
 import SwiftUI
 import AVFoundation
 import UIKit
+import CoreData
 
 /// Full-screen scanner experience that reads barcodes/QR codes and looks up
 /// book details, exposing add-to-library flow when a match is found.
-/// Pass a binding to saved books so the parent view stays in sync.
+/// Saves books to Core Data when the user adds them.
 struct BookScannerView: View {
-    @Binding var savedBooks: [SavedBook]
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.managedObjectContext) private var viewContext
     @State private var scannedCode: String?
     @State private var permissionDenied = false
     @State private var lookupState: LookupState = .idle
@@ -123,19 +124,35 @@ struct BookScannerView: View {
         }
     }
 
-    /// Converts an API `BookItem` into the app's saved model and prevents
-    /// duplicate entries based on ISBN before showing a confirmation alert.
+    /// Converts an API `BookItem` into the app's saved model, persists to Core Data,
+    /// and prevents duplicate entries based on ISBN before showing a confirmation alert.
     private func addBookToLibrary(_ item: BookItem) {
         let newEntry = SavedBook(from: item)
 
-        if let isbn = newEntry.isbn,
-           savedBooks.contains(where: { $0.isbn == isbn }) {
-            addMessage = "This book is already in your list."
-        } else {
-            savedBooks.append(newEntry)
-            addMessage = "\"\(newEntry.title)\" added to your list."
+        if let isbn = newEntry.isbn {
+            let request = BookEntity.fetchRequest()
+            request.predicate = NSPredicate(format: "isbn == %@", isbn)
+            request.fetchLimit = 1
+            do {
+                let existing = try viewContext.fetch(request)
+                if !existing.isEmpty {
+                    addMessage = "This book is already in your list."
+                    showAddMessage = true
+                    announce(addMessage)
+                    return
+                }
+            } catch {
+                print("Duplicate check failed: \(error)")
+            }
         }
 
+        _ = BookEntity.create(from: newEntry, in: viewContext)
+        do {
+            try viewContext.save()
+            addMessage = "\"\(newEntry.title)\" added to your list."
+        } catch {
+            addMessage = "Could not save book: \(error.localizedDescription)"
+        }
         showAddMessage = true
         announce(addMessage)
     }

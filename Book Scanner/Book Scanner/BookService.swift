@@ -17,6 +17,7 @@ struct OpenLibraryDoc: Decodable {
     let isbn: [String]?
     let publisher: [String]?
     let publishDate: [String]?
+    let subject: [String]?
 
     enum CodingKeys: String, CodingKey {
         case title
@@ -26,7 +27,49 @@ struct OpenLibraryDoc: Decodable {
         case isbn
         case publisher
         case publishDate = "publish_date"
+        case subject
     }
+}
+
+// MARK: - Open Library Subjects API
+
+/// Response from Open Library subjects API: https://openlibrary.org/subjects/{subject}.json
+/// Example: https://openlibrary.org/subjects/love.json?published_in=1500-1600
+struct OpenLibrarySubjectsResponse: Decodable {
+    let name: String
+    let workCount: Int
+    let works: [OpenLibrarySubjectWork]
+
+    enum CodingKeys: String, CodingKey {
+        case name
+        case workCount = "work_count"
+        case works
+    }
+}
+
+/// Single work from the subjects API response.
+struct OpenLibrarySubjectWork: Decodable {
+    let key: String
+    let title: String
+    let coverId: Int?
+    let coverEditionKey: String?
+    let subject: [String]
+    let authors: [OpenLibrarySubjectAuthor]
+    let firstPublishYear: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case key
+        case title
+        case coverId = "cover_id"
+        case coverEditionKey = "cover_edition_key"
+        case subject
+        case authors
+        case firstPublishYear = "first_publish_year"
+    }
+}
+
+struct OpenLibrarySubjectAuthor: Decodable {
+    let name: String
 }
 
 // MARK: - App model (unified representation)
@@ -45,6 +88,7 @@ struct VolumeInfo {
     let description: String?
     let imageLinks: ImageLinks?
     let industryIdentifiers: [IndustryIdentifier]?
+    let subjects: [String]?
 }
 
 /// URLs for book artwork.
@@ -93,6 +137,12 @@ enum BookResult {
     case failure(String)
 }
 
+/// Result for subject-based search returning multiple books.
+enum BookListResult {
+    case success([BookItem])
+    case failure(String)
+}
+
 final class BookService {
     /// Queries Open Library by ISBN and returns either the first matched item or a
     /// user-facing error message via completion on any thread.
@@ -105,6 +155,85 @@ final class BookService {
     /// Uses: https://openlibrary.org/search.json?q={query}
     static func search(query: String, completion: @escaping (BookResult) -> Void) {
         search(query: query, fallbackIsbn: nil, completion: completion)
+    }
+
+    /// Fetches books by subject from the Open Library subjects API.
+    /// Uses: https://openlibrary.org/subjects/{subject}.json?published_in={range}
+    /// - Parameters:
+    ///   - subject: Subject name (e.g. "love", "science", "fiction")
+    ///   - publishedIn: Optional date range (e.g. "1500-1600")
+    ///   - completion: Called with an array of BookItems or an error string.
+    static func searchBySubject(
+        subject: String,
+        publishedIn: String? = nil,
+        completion: @escaping (BookListResult) -> Void
+    ) {
+        guard var url = URL(string: "https://openlibrary.org/subjects/\(subject).json") else {
+            completion(.failure(BookServiceError.invalidURL.message))
+            return
+        }
+        if let range = publishedIn, !range.isEmpty {
+            url.append(queryItems: [URLQueryItem(name: "published_in", value: range)])
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("BookScanner/1.0 (iOS)", forHTTPHeaderField: "User-Agent")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error {
+                completion(.failure(BookServiceError.network(error).message))
+                return
+            }
+            guard let httpResponse = response as? HTTPURLResponse else {
+                completion(.failure(BookServiceError.invalidResponse.message))
+                return
+            }
+            guard (200...299).contains(httpResponse.statusCode) else {
+                completion(.failure(BookServiceError.badStatus(code: httpResponse.statusCode).message))
+                return
+            }
+            guard let data else {
+                completion(.failure(BookServiceError.emptyResponseData.message))
+                return
+            }
+            do {
+                let subjectsResponse = try JSONDecoder().decode(OpenLibrarySubjectsResponse.self, from: data)
+                let books = subjectsResponse.works.map { BookService.mapSubjectWorkToBookItem($0) }
+                completion(.success(books))
+            } catch {
+                completion(.failure(BookServiceError.decodingFailed(error).message))
+            }
+        }
+        task.resume()
+    }
+
+    /// Maps an Open Library subject work to the app's BookItem model.
+    private static func mapSubjectWorkToBookItem(_ work: OpenLibrarySubjectWork) -> BookItem {
+        let thumbnailURL: String?
+        if let coverId = work.coverId {
+            thumbnailURL = "https://covers.openlibrary.org/b/id/\(coverId)-M.jpg"
+        } else {
+            thumbnailURL = nil
+        }
+        let imageLinks = ImageLinks(
+            smallThumbnail: thumbnailURL,
+            thumbnail: thumbnailURL
+        )
+        let authorNames = work.authors.map { $0.name }
+        let publishedDate = work.firstPublishYear.map { String($0) }
+        let volumeInfo = VolumeInfo(
+            title: work.title,
+            authors: authorNames.isEmpty ? nil : authorNames,
+            publisher: nil,
+            publishedDate: publishedDate,
+            description: nil,
+            imageLinks: imageLinks,
+            industryIdentifiers: nil,
+            subjects: work.subject.isEmpty ? nil : work.subject
+        )
+        return BookItem(volumeInfo: volumeInfo)
     }
 
     @MainActor
@@ -159,6 +288,7 @@ final class BookService {
                     let bookItem = BookService.mapToBookItem(doc: firstDoc, searchIsbn: fallbackIsbn)
                     completion(.success(bookItem))
                     BookService.logBookDetails(bookItem)
+                    print("Book Object: \(bookItem)")
                 } else {
                     let msg = fallbackIsbn.map { BookServiceError.noBooksFound(isbn: $0).message }
                         ?? "No books found for \"\(query)\""
@@ -196,7 +326,8 @@ final class BookService {
             publishedDate: publishedDate,
             description: nil,
             imageLinks: imageLinks,
-            industryIdentifiers: industryIdentifiers
+            industryIdentifiers: industryIdentifiers,
+            subjects: doc.subject
         )
         return BookItem(volumeInfo: volumeInfo)
     }

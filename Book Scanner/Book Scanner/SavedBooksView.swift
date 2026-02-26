@@ -202,6 +202,10 @@ struct EditableBookDetailView: View {
                     LabeledContent("Published", value: "Not available")
                         .foregroundStyle(.secondary)
                 }
+
+                if let subjects = book.subjects, !subjects.isEmpty {
+                    LabeledContent("Subjects", value: subjects)
+                }
             }
 
             if let description = book.bookDescription, !description.isEmpty {

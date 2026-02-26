@@ -250,6 +250,13 @@ struct BookDetailCard: View {
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.7))
             }
+
+            if let subjects = book.volumeInfo.subjects, !subjects.isEmpty {
+                Text("Subjects: \(subjects.prefix(5).joined(separator: ", "))\(subjects.count > 5 ? "…" : "")")
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.7))
+                    .lineLimit(2)
+            }
         }
         .padding(12)
         .background(

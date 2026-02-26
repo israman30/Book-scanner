@@ -214,7 +214,8 @@ class SavedBookTests: XCTestCase {
             publishedDate: "2023",
             description: "From API",
             imageLinks: ImageLinks(smallThumbnail: "http://example.com/small.jpg", thumbnail: "http://example.com/thumb.jpg"),
-            industryIdentifiers: [IndustryIdentifier(type: "ISBN_13", identifier: "978-1234567890")]
+            industryIdentifiers: [IndustryIdentifier(type: "ISBN_13", identifier: "978-1234567890")],
+            subjects: nil
         )
         let bookItem = BookItem(volumeInfo: volumeInfo)
         let saved = SavedBook(from: bookItem)
@@ -236,7 +237,8 @@ class SavedBookTests: XCTestCase {
             publishedDate: nil,
             description: nil,
             imageLinks: nil,
-            industryIdentifiers: nil
+            industryIdentifiers: nil,
+            subjects: nil
         )
         let bookItem = BookItem(volumeInfo: volumeInfo)
         let saved = SavedBook(from: bookItem)
@@ -258,7 +260,8 @@ class SavedBookTests: XCTestCase {
             publishedDate: nil,
             description: nil,
             imageLinks: ImageLinks(smallThumbnail: "http://covers.openlibrary.org/b/id/123.jpg", thumbnail: nil),
-            industryIdentifiers: nil
+            industryIdentifiers: nil,
+            subjects: nil
         )
         let bookItem = BookItem(volumeInfo: volumeInfo)
         let saved = SavedBook(from: bookItem)
@@ -309,7 +312,8 @@ class BookServiceTests: XCTestCase {
             publishedDate: nil,
             description: nil,
             imageLinks: nil,
-            industryIdentifiers: nil
+            industryIdentifiers: nil,
+            subjects: nil
         )
         let bookItem = BookItem(volumeInfo: volumeInfo)
         let result = BookResult.success(bookItem)

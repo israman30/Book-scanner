@@ -13,6 +13,7 @@ import CoreData
 struct ContentView: View {
     @State private var showScanner = false
     @State private var showLibrary = false
+    @State private var showSubjectBrowse = false
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \BookEntity.title, ascending: true)],
         animation: .default
@@ -41,6 +42,25 @@ struct ContentView: View {
             .accessibilityHint("Opens the camera to scan a barcode or QR code")
 
             Button {
+                showSubjectBrowse = true
+            } label: {
+                Label("Browse by Subject", systemImage: "tag")
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color(.systemGray5))
+                    .foregroundStyle(.primary)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.primary.opacity(0.15), lineWidth: 1)
+                    }
+            }
+            .padding(.horizontal, 24)
+            .padding(.top, 12)
+            .accessibilityLabel("Browse books by subject")
+            .accessibilityHint("Opens subject browse using Open Library API")
+
+            Button {
                 showLibrary = true
             } label: {
                 Label("View Saved Books (\(savedBooks.count))", systemImage: "books.vertical")
@@ -66,6 +86,9 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showLibrary) {
             SavedBooksView()
+        }
+        .sheet(isPresented: $showSubjectBrowse) {
+            SubjectBrowseView()
         }
     }
 }

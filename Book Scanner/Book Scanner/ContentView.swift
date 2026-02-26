@@ -44,7 +44,7 @@ struct ContentView: View {
             Button {
                 showSubjectBrowse = true
             } label: {
-                Label("Browse by Subject", systemImage: "tag")
+                Label("Browse Books", systemImage: "tag")
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(Color(.systemGray5))
@@ -57,7 +57,7 @@ struct ContentView: View {
             }
             .padding(.horizontal, 24)
             .padding(.top, 12)
-            .accessibilityLabel("Browse books by subject")
+            .accessibilityLabel("Browse Books")
             .accessibilityHint("Opens subject browse using Open Library API")
 
             Button {

@@ -9,6 +9,8 @@ import SwiftUI
 import CoreData
 
 struct SavedBooksView: View {
+    var onBooksLoaded: (() -> Void)?
+
     @Environment(\.dismiss) private var dismiss
     @Environment(\.managedObjectContext) private var viewContext
     @FetchRequest(
@@ -98,6 +100,7 @@ struct SavedBooksView: View {
                 }
             }
             .navigationTitle("My Books")
+            .onAppear { onBooksLoaded?() }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") {

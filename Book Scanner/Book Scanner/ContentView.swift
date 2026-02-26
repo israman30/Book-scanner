@@ -14,6 +14,7 @@ struct ContentView: View {
     @State private var showScanner = false
     @State private var showLibrary = false
     @State private var showSubjectBrowse = false
+    @State private var isLoadingLibrary = false
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \BookEntity.title, ascending: true)],
         animation: .default
@@ -61,6 +62,7 @@ struct ContentView: View {
             .accessibilityHint("Opens subject browse using Open Library API")
 
             Button {
+                isLoadingLibrary = true
                 showLibrary = true
             } label: {
                 Label("View Saved Books (\(savedBooks.count))", systemImage: "books.vertical")
@@ -81,11 +83,31 @@ struct ContentView: View {
             .accessibilityHint("Opens your saved library")
         }
         .padding()
+        .overlay {
+            if isLoadingLibrary {
+                ZStack {
+                    Color.black.opacity(0.3)
+                        .ignoresSafeArea()
+                    VStack(spacing: 16) {
+                        ProgressView()
+                            .scaleEffect(1.2)
+                        Text("Loading books...")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(24)
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+                }
+            }
+        }
         .fullScreenCover(isPresented: $showScanner) {
             BookScannerView()
         }
         .sheet(isPresented: $showLibrary) {
-            SavedBooksView()
+            SavedBooksView(onBooksLoaded: { isLoadingLibrary = false })
+        }
+        .onChange(of: showLibrary) { _, isPresented in
+            if !isPresented { isLoadingLibrary = false }
         }
         .sheet(isPresented: $showSubjectBrowse) {
             SubjectBrowseView()

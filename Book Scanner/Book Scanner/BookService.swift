@@ -35,7 +35,7 @@ struct OpenLibraryDoc: Decodable {
 
 /// Response from Open Library subjects API: https://openlibrary.org/subjects/{subject}.json
 /// Example: https://openlibrary.org/subjects/love.json?published_in=1500-1600
-struct OpenLibrarySubjectsResponse: Decodable {
+struct OpenLibrarySubjectsResponse: nonisolated Decodable {
     let name: String
     let workCount: Int
     let works: [OpenLibrarySubjectWork]

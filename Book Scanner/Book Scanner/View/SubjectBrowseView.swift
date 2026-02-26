@@ -2,53 +2,128 @@
 //  SubjectBrowseView.swift
 //  Book Scanner
 //
-//  Browse books by subject using Open Library subjects API.
-//  API: https://openlibrary.org/subjects/{subject}.json?published_in=1500-1600
+//  Browse books by ISBN, author, title, or subject using Open Library APIs.
 //
 
 import SwiftUI
 import CoreData
 
+enum SearchType: String, CaseIterable {
+    case isbn = "ISBN"
+    case author = "Author"
+    case title = "Title"
+    case subject = "Subject"
+}
+
 struct SubjectBrowseView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.managedObjectContext) private var viewContext
-    @State private var subjectInput = "love"
-    @State private var publishedIn = "1500-1600"
+    @State private var searchType: SearchType = .title
+    @State private var searchInput = ""
+    @State private var publishedIn = ""
     @State private var books: [BookItem] = []
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var addMessage = ""
     @State private var showAddMessage = false
 
+    private var searchPlaceholder: String {
+        switch searchType {
+        case .isbn: return "e.g. 978-0-385-50420-5"
+        case .author: return "e.g. Jane Austen"
+        case .title: return "e.g. Pride and Prejudice"
+        case .subject: return "e.g. love, science, fiction"
+        }
+    }
+
+    @ViewBuilder
+    private func styledTextField(
+        placeholder: String,
+        text: Binding<String>,
+        icon: String
+    ) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.body.weight(.medium))
+                .foregroundStyle(.secondary)
+                .frame(width: 24, alignment: .center)
+
+            TextField(placeholder, text: text)
+
+            if !text.wrappedValue.isEmpty {
+                Button {
+                    text.wrappedValue = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.body)
+                        .foregroundStyle(.secondary)
+                        .symbolRenderingMode(.hierarchical)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+        .background(Color(.systemGray6))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay {
+            RoundedRectangle(cornerRadius: 12)
+                .strokeBorder(Color(.systemGray4), lineWidth: 1)
+        }
+    }
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 16) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Subject")
+                    Text("Search by")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                    TextField("e.g. love, science, fiction", text: $subjectInput)
-                        .textFieldStyle(.roundedBorder)
-                        .autocapitalization(.none)
+                    Picker("Search type", selection: $searchType) {
+                        ForEach(SearchType.allCases, id: \.self) { type in
+                            Text(type.rawValue).tag(type)
+                        }
+                    }
+                    .pickerStyle(.segmented)
 
-                    Text("Published in (optional)")
+                    Text(searchType.rawValue)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                    TextField("e.g. 1500-1600 or leave empty", text: $publishedIn)
-                        .textFieldStyle(.roundedBorder)
+                    styledTextField(
+                        placeholder: searchPlaceholder,
+                        text: $searchInput,
+                        icon: searchType == .isbn ? "barcode" : "magnifyingglass"
+                    )
+                    .autocapitalization(.none)
+                    .keyboardType(searchType == .isbn ? .numbersAndPunctuation : .default)
+                    .submitLabel(.search)
+                    .onSubmit { performSearch() }
+
+                    if searchType == .subject {
+                        Text("Published in (optional)")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        styledTextField(
+                            placeholder: "e.g. 1500-1600 or leave empty",
+                            text: $publishedIn,
+                            icon: "calendar"
+                        )
                         .keyboardType(.numbersAndPunctuation)
+                        .submitLabel(.search)
+                        .onSubmit { performSearch() }
+                    }
                 }
                 .padding(.horizontal)
 
                 Button {
-                    searchBySubject()
+                    performSearch()
                 } label: {
                     if isLoading {
                         ProgressView()
                             .progressViewStyle(.circular)
                             .tint(.white)
                     } else {
-                        Text("Search by Subject")
+                        Text("Search")
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -56,7 +131,7 @@ struct SubjectBrowseView: View {
                 .background(Color.accentColor)
                 .foregroundStyle(.white)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
-                .disabled(isLoading || subjectInput.trimmingCharacters(in: .whitespaces).isEmpty)
+                .disabled(isLoading || searchInput.trimmingCharacters(in: .whitespaces).isEmpty)
                 .padding(.horizontal)
 
                 if let error = errorMessage {
@@ -77,7 +152,7 @@ struct SubjectBrowseView: View {
                     .padding()
                 }
             }
-            .navigationTitle("Browse by Subject")
+            .navigationTitle("Browse Books")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") {
@@ -91,30 +166,67 @@ struct SubjectBrowseView: View {
         }
     }
 
-    private func searchBySubject() {
-        let subject = subjectInput.trimmingCharacters(in: .whitespaces).lowercased()
-        guard !subject.isEmpty else { return }
+    private func performSearch() {
+        let trimmed = searchInput.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return }
 
         isLoading = true
         errorMessage = nil
         books = []
 
-        let range = publishedIn.trimmingCharacters(in: .whitespaces)
-        let publishedParam = range.isEmpty ? nil : range
-
-        BookService.searchBySubject(subject: subject, publishedIn: publishedParam) { result in
-            DispatchQueue.main.async {
-                isLoading = false
-                switch result {
-                case .success(let items):
-                    books = items
-                    if items.isEmpty {
-                        errorMessage = "No books found for subject \"\(subject)\""
-                    }
-                case .failure(let message):
-                    errorMessage = message
+        switch searchType {
+        case .isbn:
+            let query = "isbn:\(trimmed)"
+            BookService.searchByQuery(query: query) { result in
+                DispatchQueue.main.async {
+                    handleSearchResult(result, queryTerm: trimmed)
                 }
             }
+        case .author:
+            let query = "author:\(trimmed)"
+            BookService.searchByQuery(query: query) { result in
+                DispatchQueue.main.async {
+                    handleSearchResult(result, queryTerm: trimmed)
+                }
+            }
+        case .title:
+            let query = "title:\(trimmed)"
+            BookService.searchByQuery(query: query) { result in
+                DispatchQueue.main.async {
+                    handleSearchResult(result, queryTerm: trimmed)
+                }
+            }
+        case .subject:
+            let subject = trimmed.lowercased()
+            let range = publishedIn.trimmingCharacters(in: .whitespaces)
+            let publishedParam = range.isEmpty ? nil : range
+            BookService.searchBySubject(subject: subject, publishedIn: publishedParam) { result in
+                DispatchQueue.main.async {
+                    isLoading = false
+                    switch result {
+                    case .success(let items):
+                        books = items
+                        if items.isEmpty {
+                            errorMessage = "No books found for subject \"\(subject)\""
+                        }
+                    case .failure(let message):
+                        errorMessage = message
+                    }
+                }
+            }
+        }
+    }
+
+    private func handleSearchResult(_ result: BookListResult, queryTerm: String) {
+        isLoading = false
+        switch result {
+        case .success(let items):
+            books = items
+            if items.isEmpty {
+                errorMessage = "No books found for \(searchType.rawValue) \"\(queryTerm)\""
+            }
+        case .failure(let message):
+            errorMessage = message
         }
     }
 

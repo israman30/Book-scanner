@@ -157,6 +157,52 @@ final class BookService {
         search(query: query, fallbackIsbn: nil, completion: completion)
     }
 
+    /// Searches Open Library by query and returns multiple books.
+    /// Supports prefixes: isbn:, author:, title:, subject:
+    /// Uses: https://openlibrary.org/search.json?q={query}
+    static func searchByQuery(
+        query: String,
+        completion: @escaping (BookListResult) -> Void
+    ) {
+        guard var url = URL(string: "https://openlibrary.org/search.json") else {
+            completion(.failure(BookServiceError.invalidURL.message))
+            return
+        }
+        url.append(queryItems: [URLQueryItem(name: "q", value: query)])
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("BookScanner/1.0 (iOS)", forHTTPHeaderField: "User-Agent")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error {
+                completion(.failure(BookServiceError.network(error).message))
+                return
+            }
+            guard let httpResponse = response as? HTTPURLResponse else {
+                completion(.failure(BookServiceError.invalidResponse.message))
+                return
+            }
+            guard (200...299).contains(httpResponse.statusCode) else {
+                completion(.failure(BookServiceError.badStatus(code: httpResponse.statusCode).message))
+                return
+            }
+            guard let data else {
+                completion(.failure(BookServiceError.emptyResponseData.message))
+                return
+            }
+            do {
+                let searchResponse = try JSONDecoder().decode(OpenLibrarySearchResponse.self, from: data)
+                let books = searchResponse.docs.map { BookService.mapToBookItem(doc: $0, searchIsbn: nil) }
+                completion(.success(books))
+            } catch {
+                completion(.failure(BookServiceError.decodingFailed(error).message))
+            }
+        }
+        task.resume()
+    }
+
     /// Fetches books by subject from the Open Library subjects API.
     /// Uses: https://openlibrary.org/subjects/{subject}.json?published_in={range}
     /// - Parameters:

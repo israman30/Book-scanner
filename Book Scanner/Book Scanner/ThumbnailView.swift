@@ -28,5 +28,5 @@ struct ThumbnailView: View {
 }
 
 #Preview {
-    ThumbnailView(url: URL(string: ""))
+    ThumbnailView(url: URL(string: "https://picsum.photos/200/300")!)
 }

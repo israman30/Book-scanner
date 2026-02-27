@@ -14,28 +14,7 @@ struct SavedBookCardView: View {
     var body: some View {
         HStack(alignment: .top, spacing: 16) {
             if let url = book.thumbnailURLString.flatMap({ URL(string: $0) }) {
-                AsyncImage(url: thumbnailURLForList(from: url)) { phase in
-                    switch phase {
-                    case .empty:
-                        placeholder
-                            .overlay {
-                                ProgressView()
-                                    .progressViewStyle(.circular)
-                            }
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .scaledToFill()
-                            .contentTransition(.opacity)
-                    case .failure:
-                        placeholder
-                    @unknown default:
-                        placeholder
-                    }
-                }
-                .frame(width: 60, height: 90)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .accessibilityHidden(true)
+                asyncImageThumbnail(with: url)
             } else {
                 placeholder
                     .frame(width: 60, height: 90)
@@ -67,6 +46,31 @@ struct SavedBookCardView: View {
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 4)
+    }
+    
+    private func asyncImageThumbnail(with url: URL) -> some View {
+        AsyncImage(url: thumbnailURLForList(from: url)) { phase in
+            switch phase {
+            case .empty:
+                placeholder
+                    .overlay {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                    }
+            case .success(let image):
+                image
+                    .resizable()
+                    .scaledToFill()
+                    .contentTransition(.opacity)
+            case .failure:
+                placeholder
+            @unknown default:
+                placeholder
+            }
+        }
+        .frame(width: 60, height: 90)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .accessibilityHidden(true)
     }
 
     private func accessibilitySummary(for book: BookEntity) -> String {

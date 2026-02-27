@@ -21,28 +21,7 @@ struct SavedBookCardView: View {
                     .accessibilityHidden(true)
             }
 
-            VStack(alignment: .leading, spacing: 6) {
-                Text(book.title ?? "")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.primary)
-                    .lineLimit(2)
-                Text(book.authors ?? "")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                if let isbn = book.isbn {
-                    Text("ISBN: \(isbn)")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
-                }
-                if let subjects = book.subjects, !subjects.isEmpty {
-                    subjectTagsView(subjects: subjects)
-                }
-            }
-            .accessibilityElement(children: .combine)
-            .accessibilityLabel(book.title ?? "")
-            .accessibilityValue(accessibilitySummary(for: book))
+            bodyCard
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 4)
@@ -71,6 +50,31 @@ struct SavedBookCardView: View {
         .frame(width: 60, height: 90)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .accessibilityHidden(true)
+    }
+    
+    private var bodyCard: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(book.title ?? "")
+                .font(.headline)
+                .fontWeight(.semibold)
+                .foregroundStyle(.primary)
+                .lineLimit(2)
+            Text(book.authors ?? "")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+            if let isbn = book.isbn {
+                Text("ISBN: \(isbn)")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+            if let subjects = book.subjects, !subjects.isEmpty {
+                subjectTagsView(subjects: subjects)
+            }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(book.title ?? "")
+        .accessibilityValue(accessibilitySummary(for: book))
     }
 
     private func accessibilitySummary(for book: BookEntity) -> String {

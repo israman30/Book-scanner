@@ -22,27 +22,7 @@ struct EditableBookDetailView: View {
                 HStack {
                     Spacer()
                     if let urlString = book.thumbnailURLString, let url = URL(string: urlString) {
-                        AsyncImage(url: url) { phase in
-                            switch phase {
-                            case .empty:
-                                ProgressView()
-                                    .progressViewStyle(.circular)
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .scaledToFill()
-                            case .failure:
-                                placeholder
-                            @unknown default:
-                                placeholder
-                            }
-                        }
-                        .frame(width: 120, height: 180)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .accessibilityLabel("Book cover")
-                        .onTapGesture {
-                            isPresented = true
-                        }
+                        asyncImageThumbnail(with: url)
                     } else {
                         placeholder
                             .frame(width: 120, height: 180)
@@ -120,6 +100,30 @@ struct EditableBookDetailView: View {
             if let urlString = book.thumbnailURLString, let url = URL(string: urlString) {
                 ThumbnailView(url: url)
             }
+        }
+    }
+    
+    private func asyncImageThumbnail(with url: URL) -> some View {
+        AsyncImage(url: url) { phase in
+            switch phase {
+            case .empty:
+                ProgressView()
+                    .progressViewStyle(.circular)
+            case .success(let image):
+                image
+                    .resizable()
+                    .scaledToFill()
+            case .failure:
+                placeholder
+            @unknown default:
+                placeholder
+            }
+        }
+        .frame(width: 120, height: 180)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .accessibilityLabel("Book cover")
+        .onTapGesture {
+            isPresented = true
         }
     }
 

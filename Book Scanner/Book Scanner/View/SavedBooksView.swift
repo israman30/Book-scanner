@@ -92,7 +92,15 @@ struct SavedBooksView: View {
                                     .accessibilityLabel(book.title ?? "")
                                     .accessibilityValue(accessibilitySummary(for: book))
                                 }
+                                .padding(.vertical, 4)
                             }
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                            .listRowBackground(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color(.secondarySystemGroupedBackground))
+                                    .shadow(color: .black.opacity(0.06), radius: 4, x: 0, y: 2)
+                            )
                         }
                         .onDelete { offsets in
                             for index in offsets {
@@ -101,6 +109,10 @@ struct SavedBooksView: View {
                             PersistenceController.shared.save()
                         }
                     }
+                    .listStyle(.automatic)
+                    .scrollContentBackground(.hidden)
+                    .listRowSpacing(10)
+                    .background(Color(.systemGroupedBackground))
                 }
             }
             .navigationTitle("My Books")

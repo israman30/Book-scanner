@@ -23,23 +23,7 @@ struct SavedBooksView: View {
         NavigationStack {
             Group {
                 if savedBooks.isEmpty {
-                    VStack(spacing: 16) {
-                        Image(systemName: "books.vertical")
-                            .font(.system(size: 48))
-                            .foregroundStyle(.tertiary)
-                        Text("No books yet")
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.primary)
-                        Text("Scan and add books to see them here.")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                            .multilineTextAlignment(.center)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .accessibilityElement(children: .combine)
-                    .accessibilityLabel("No books yet")
-                    .accessibilityHint("Scan and add books to see them here")
+                    emptyLibraryView
                 } else {
                     List {
                         ForEach(savedBooks, id: \.objectID) { book in
@@ -141,6 +125,27 @@ struct SavedBooksView: View {
                 }
             }
         }
+    }
+    
+    /// Empty Library placeholder
+    private var emptyLibraryView: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "books.vertical")
+                .font(.system(size: 48))
+                .foregroundStyle(.tertiary)
+            Text("No books yet")
+                .font(.title2)
+                .fontWeight(.semibold)
+                .foregroundStyle(.primary)
+            Text("Scan and add books to see them here.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("No books yet")
+        .accessibilityHint("Scan and add books to see them here")
     }
 
     private func accessibilitySummary(for book: BookEntity) -> String {

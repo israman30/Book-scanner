@@ -2,10 +2,11 @@
 //  PersistenceController.swift
 //  Book Scanner
 //
-//  Core Data persistence for saved books.
+//  Core Data persistence for saved books with iCloud sync for automatic restore on new devices.
 //
 
 import CoreData
+import CloudKit
 
 struct PersistenceController {
     static let shared = PersistenceController()
@@ -15,10 +16,22 @@ struct PersistenceController {
 
     init(inMemory: Bool = false) {
         let model = Self.model
-        container = NSPersistentContainer(name: "BookScanner", managedObjectModel: model)
 
         if inMemory {
+            let container = NSPersistentContainer(name: "BookScanner", managedObjectModel: model)
             container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
+            self.container = container
+        } else {
+            let cloudContainer = NSPersistentCloudKitContainer(name: "BookScanner", managedObjectModel: model)
+            guard let description = cloudContainer.persistentStoreDescriptions.first else {
+                self.container = cloudContainer
+                cloudContainer.loadPersistentStores { _, _ in }
+                return
+            }
+            description.cloudKitContainerOptions = NSPersistentCloudKitContainerOptions(
+                containerIdentifier: "iCloud.com.israman.somenews.Book-Scanner"
+            )
+            self.container = cloudContainer
         }
 
         container.loadPersistentStores { _, error in

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import CoreData
+import UIKit
 
 struct SavedBooksView: View {
     var onBooksLoaded: (() -> Void)?
@@ -66,13 +67,73 @@ struct SavedBooksView: View {
                 ToolbarItem(placement: .primaryAction) {
                     if !savedBooks.isEmpty {
                         EditButton()
-                        .accessibilityLabel("Edit saved books")
+                            .accessibilityLabel("Edit saved books")
+                    }
+                }
+                ToolbarItem(placement: .secondaryAction) {
+                    if !savedBooks.isEmpty {
+                        ShareBookListButton(books: savedBooks.map(\.toSavedBook))
+                            .accessibilityLabel("Share book list")
+                            .accessibilityHint("Share your book list with friends or family")
                     }
                 }
             }
         }
     }
     
+    /// Share button that exports the book list and presents the system share sheet.
+    private struct ShareBookListButton: View {
+        let books: [SavedBook]
+        @State private var showShareSheet = false
+        @State private var shareItems: [Any] = []
+
+        var body: some View {
+            Button {
+                shareItems = [exportBookList()]
+                showShareSheet = true
+            } label: {
+                Image(systemName: "square.and.arrow.up")
+                Text("Share")
+            }
+            .sheet(isPresented: $showShareSheet) {
+                ShareSheet(items: shareItems)
+            }
+        }
+
+        private func exportBookList() -> URL {
+            let content = books.enumerated().map { index, book in
+                let authors = book.authors.isEmpty ? "" : " by \(book.authors)"
+                let isbn = book.isbn.map { " (ISBN: \($0))" } ?? ""
+                return "\(index + 1). \(book.title)\(authors)\(isbn)"
+            }.joined(separator: "\n\n")
+
+            let header = "My Book List (\(books.count) books)\n\n"
+            let fullContent = header + content
+
+            let tempURL = FileManager.default.temporaryDirectory
+                .appendingPathComponent("MyBookList-\(formattedDate).txt")
+            try? fullContent.write(to: tempURL, atomically: true, encoding: .utf8)
+            return tempURL
+        }
+
+        private var formattedDate: String {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            return formatter.string(from: Date())
+        }
+    }
+
+    /// System share sheet wrapper.
+    private struct ShareSheet: UIViewControllerRepresentable {
+        let items: [Any]
+
+        func makeUIViewController(context: Context) -> UIActivityViewController {
+            UIActivityViewController(activityItems: items, applicationActivities: nil)
+        }
+
+        func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+    }
+
     /// Empty Library placeholder
     private var emptyLibraryView: some View {
         VStack(spacing: 16) {

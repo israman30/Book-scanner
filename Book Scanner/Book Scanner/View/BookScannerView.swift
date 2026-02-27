@@ -23,6 +23,7 @@ struct BookScannerView: View {
     @State private var errorMessage: String?
     @State private var showAddMessage = false
     @State private var addMessage = ""
+    @State private var didJustAddBook = false
 
     var body: some View {
         ZStack {
@@ -78,7 +79,17 @@ struct BookScannerView: View {
                         state: lookupState,
                         book: book,
                         errorMessage: errorMessage,
-                        onAdd: addBookToLibrary
+                        didJustAdd: didJustAddBook,
+                        onAdd: {
+                            if addBookToLibrary($0) {
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                                    didJustAddBook = true
+                                }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                                    didJustAddBook = false
+                                }
+                            }
+                        }
                     )
                     .padding(.bottom, 20)
                 } else {
@@ -115,6 +126,7 @@ struct BookScannerView: View {
                     self.lookupState = .loaded
                     let title = item.volumeInfo.title ?? "book"
                     announce("Book found: \(title)")
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                 case .failure(let message):
                     self.errorMessage = message
                     self.lookupState = .failed
@@ -126,7 +138,9 @@ struct BookScannerView: View {
 
     /// Converts an API `BookItem` into the app's saved model, persists to Core Data,
     /// and prevents duplicate entries based on ISBN before showing a confirmation alert.
-    private func addBookToLibrary(_ item: BookItem) {
+    /// Returns true if the book was successfully added.
+    @discardableResult
+    private func addBookToLibrary(_ item: BookItem) -> Bool {
         let newEntry = SavedBook(from: item)
 
         if let isbn = newEntry.isbn {
@@ -139,7 +153,7 @@ struct BookScannerView: View {
                     addMessage = "This book is already in your list."
                     showAddMessage = true
                     announce(addMessage)
-                    return
+                    return false
                 }
             } catch {
                 print("Duplicate check failed: \(error)")
@@ -150,11 +164,16 @@ struct BookScannerView: View {
         do {
             try viewContext.save()
             addMessage = "\"\(newEntry.title)\" added to your list."
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
         } catch {
             addMessage = "Could not save book: \(error.localizedDescription)"
+            showAddMessage = true
+            announce(addMessage)
+            return false
         }
         showAddMessage = true
         announce(addMessage)
+        return true
     }
 
     /// Announces important state changes for VoiceOver users.
@@ -177,6 +196,7 @@ struct BookLookupSection: View {
     let state: LookupState
     let book: BookItem?
     let errorMessage: String?
+    var didJustAdd: Bool = false
     var onAdd: ((BookItem) -> Void)?
 
     var body: some View {
@@ -196,6 +216,8 @@ struct BookLookupSection: View {
             case .loaded:
                 if let book {
                     BookDetailCard(book: book)
+                        .scaleEffect(didJustAdd ? 1.03 : 1)
+                        .animation(.spring(response: 0.35, dampingFraction: 0.7), value: didJustAdd)
                     Button {
                         onAdd?(book)
                     } label: {
@@ -430,6 +452,7 @@ extension ScannerViewController: AVCaptureMetadataOutputObjectsDelegate {
               let value = object.stringValue else { return }
 
         didReturnResult = true
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
         onCodeDetected?(value)
         session.stopRunning()
 

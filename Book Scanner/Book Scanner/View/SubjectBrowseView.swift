@@ -7,6 +7,7 @@
 
 import SwiftUI
 import CoreData
+import UIKit
 
 enum SearchType: String, CaseIterable {
     case isbn = "ISBN"
@@ -26,6 +27,7 @@ struct SubjectBrowseView: View {
     @State private var errorMessage: String?
     @State private var addMessage = ""
     @State private var showAddMessage = false
+    @State private var justAddedTitle: String?
 
     private var searchPlaceholder: String {
         switch searchType {
@@ -144,7 +146,10 @@ struct SubjectBrowseView: View {
                 ScrollView {
                     LazyVStack(spacing: 12) {
                         ForEach(Array(books.enumerated()), id: \.offset) { _, book in
-                            SubjectBookRow(book: book) {
+                            SubjectBookRow(
+                                book: book,
+                                didJustAdd: justAddedTitle == book.volumeInfo.title
+                            ) {
                                 addBookToLibrary(book)
                             }
                         }
@@ -253,6 +258,13 @@ struct SubjectBrowseView: View {
         do {
             try viewContext.save()
             addMessage = "\"\(newEntry.title)\" added to your list."
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                justAddedTitle = newEntry.title
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                justAddedTitle = nil
+            }
         } catch {
             addMessage = "Could not save book: \(error.localizedDescription)"
         }
@@ -262,6 +274,7 @@ struct SubjectBrowseView: View {
 
 private struct SubjectBookRow: View {
     let book: BookItem
+    var didJustAdd: Bool = false
     var onAdd: () -> Void
 
     var body: some View {
@@ -317,6 +330,8 @@ private struct SubjectBookRow: View {
         .padding()
         .background(Color(.systemGray6))
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .scaleEffect(didJustAdd ? 1.02 : 1)
+        .animation(.spring(response: 0.35, dampingFraction: 0.7), value: didJustAdd)
     }
 
     private var placeholder: some View {

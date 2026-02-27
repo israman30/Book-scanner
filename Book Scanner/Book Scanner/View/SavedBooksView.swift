@@ -23,15 +23,18 @@ struct SavedBooksView: View {
         NavigationStack {
             Group {
                 if savedBooks.isEmpty {
-                    VStack(spacing: 12) {
+                    VStack(spacing: 16) {
                         Image(systemName: "books.vertical")
-                            .font(.system(size: 42))
-                            .foregroundStyle(.secondary)
+                            .font(.system(size: 48))
+                            .foregroundStyle(.tertiary)
                         Text("No books yet")
-                            .font(.headline)
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.primary)
                         Text("Scan and add books to see them here.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .accessibilityElement(children: .combine)
@@ -43,7 +46,7 @@ struct SavedBooksView: View {
                             NavigationLink {
                                 EditableBookDetailView(book: book)
                             } label: {
-                                HStack(alignment: .top, spacing: 12) {
+                                HStack(alignment: .top, spacing: 16) {
                                     if let url = book.thumbnailURLString.flatMap({ URL(string: $0) }) {
                                         AsyncImage(url: thumbnailURLForList(from: url)) { phase in
                                             switch phase {
@@ -73,16 +76,20 @@ struct SavedBooksView: View {
                                             .accessibilityHidden(true)
                                     }
 
-                                    VStack(alignment: .leading, spacing: 4) {
+                                    VStack(alignment: .leading, spacing: 6) {
                                         Text(book.title ?? "")
                                             .font(.headline)
+                                            .fontWeight(.semibold)
+                                            .foregroundStyle(.primary)
+                                            .lineLimit(2)
                                         Text(book.authors ?? "")
                                             .font(.subheadline)
                                             .foregroundStyle(.secondary)
+                                            .lineLimit(1)
                                         if let isbn = book.isbn {
                                             Text("ISBN: \(isbn)")
                                                 .font(.caption)
-                                                .foregroundStyle(.secondary)
+                                                .foregroundStyle(.tertiary)
                                         }
                                         if let subjects = book.subjects, !subjects.isEmpty {
                                             subjectTagsView(subjects: subjects)
@@ -92,14 +99,16 @@ struct SavedBooksView: View {
                                     .accessibilityLabel(book.title ?? "")
                                     .accessibilityValue(accessibilitySummary(for: book))
                                 }
-                                .padding(.vertical, 4)
+                                .padding(.vertical, 8)
+                                .padding(.horizontal, 4)
                             }
                             .listRowSeparator(.hidden)
-                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                            .listRowInsets(EdgeInsets(top: 6, leading: 20, bottom: 6, trailing: 20))
                             .listRowBackground(
-                                RoundedRectangle(cornerRadius: 12)
+                                RoundedRectangle(cornerRadius: 14)
                                     .fill(Color(.secondarySystemGroupedBackground))
-                                    .shadow(color: .black.opacity(0.06), radius: 4, x: 0, y: 2)
+                                    .shadow(color: .black.opacity(0.08), radius: 6, x: 0, y: 3)
+                                    .shadow(color: .black.opacity(0.04), radius: 2, x: 0, y: 1)
                             )
                         }
                         .onDelete { offsets in
@@ -111,7 +120,7 @@ struct SavedBooksView: View {
                     }
                     .listStyle(.automatic)
                     .scrollContentBackground(.hidden)
-                    .listRowSpacing(10)
+                    .listRowSpacing(12)
                     .background(Color(.systemGroupedBackground))
                 }
             }
@@ -145,13 +154,13 @@ struct SavedBooksView: View {
     private func subjectTagsView(subjects: String) -> some View {
         let subjectList = subjects.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
         return ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 6) {
+            HStack(spacing: 8) {
                 ForEach(subjectList, id: \.self) { subject in
                     Text(subject)
-                        .font(.caption2)
+                        .font(.caption)
                         .fontWeight(.medium)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
                         .background(colorForSubject(subject).opacity(0.25))
                         .foregroundStyle(colorForSubject(subject))
                         .clipShape(Capsule())

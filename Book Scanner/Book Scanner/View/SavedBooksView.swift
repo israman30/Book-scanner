@@ -45,15 +45,19 @@ struct SavedBooksView: View {
                             } label: {
                                 HStack(alignment: .top, spacing: 12) {
                                     if let url = book.thumbnailURLString.flatMap({ URL(string: $0) }) {
-                                        AsyncImage(url: url) { phase in
+                                        AsyncImage(url: thumbnailURLForList(from: url)) { phase in
                                             switch phase {
                                             case .empty:
-                                                ProgressView()
-                                                    .progressViewStyle(.circular)
+                                                placeholder
+                                                    .overlay {
+                                                        ProgressView()
+                                                            .progressViewStyle(.circular)
+                                                    }
                                             case .success(let image):
                                                 image
                                                     .resizable()
                                                     .scaledToFill()
+                                                    .contentTransition(.opacity)
                                             case .failure:
                                                 placeholder
                                             @unknown default:
@@ -153,6 +157,19 @@ struct SavedBooksView: View {
         let hash = abs(subject.hashValue)
         let index = hash % palette.count
         return palette[index]
+    }
+
+    /// Returns a smaller thumbnail URL for list display to improve load time.
+    /// Uses Open Library's -S variant when available; otherwise returns the original URL.
+    private func thumbnailURLForList(from url: URL) -> URL {
+        let absolute = url.absoluteString
+        if absolute.contains("covers.openlibrary.org"),
+           let range = absolute.range(of: "-[ML]\\.jpg$", options: .regularExpression) {
+            var modified = absolute
+            modified.replaceSubrange(range, with: "-S.jpg")
+            return URL(string: modified) ?? url
+        }
+        return url
     }
 
     /// Placeholder used when no thumbnail exists or fails to load.

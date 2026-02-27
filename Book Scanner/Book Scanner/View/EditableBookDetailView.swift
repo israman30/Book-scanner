@@ -7,11 +7,14 @@
 
 import SwiftUI
 import CoreData
+import UIKit
 
 struct EditableBookDetailView: View {
     @ObservedObject var book: BookEntity
     @Environment(\.managedObjectContext) private var viewContext
     @State var isPresented = false
+    @State private var showShareSheet = false
+    @State private var shareItems: [Any] = []
 
     var body: some View {
         Form {
@@ -94,8 +97,24 @@ struct EditableBookDetailView: View {
             }
         }
         .navigationTitle("Edit Book")
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    shareItems = [exportSingleBook()]
+                    showShareSheet = true
+                } label: {
+                    Image(systemName: "square.and.arrow.up")
+                    Text("Share")
+                }
+                .accessibilityLabel("Share book")
+                .accessibilityHint("Share this book with family and friends")
+            }
+        }
         .onDisappear {
             PersistenceController.shared.save()
+        }
+        .sheet(isPresented: $showShareSheet) {
+            ShareSheet(items: shareItems)
         }
         .sheet(isPresented: $isPresented) {
             if let urlString = book.thumbnailURLString, let url = URL(string: urlString) {
@@ -113,6 +132,53 @@ struct EditableBookDetailView: View {
                     .foregroundStyle(.secondary)
             }
     }
+
+    private func exportSingleBook() -> URL {
+        let saved = book.toSavedBook
+        var lines: [String] = [
+            saved.title,
+            saved.authors.isEmpty ? "" : "by \(saved.authors)",
+            ""
+        ]
+        if let isbn = saved.isbn {
+            lines.append("ISBN: \(isbn)")
+        }
+        if let publisher = saved.publisher {
+            lines.append("Publisher: \(publisher)")
+        }
+        if let publishedDate = saved.publishedDate {
+            lines.append("Published: \(publishedDate)")
+        }
+        if let subjects = saved.subjects, !subjects.isEmpty {
+            lines.append("Subjects: \(subjects)")
+        }
+        if let description = saved.description, !description.isEmpty {
+            lines.append("")
+            lines.append(description)
+        }
+        let content = lines.joined(separator: "\n")
+        let sanitizedTitle = saved.title
+            .replacingOccurrences(of: "/", with: "-")
+            .replacingOccurrences(of: ":", with: "-")
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let dateStr = formatter.string(from: Date())
+        let fileName = "\(sanitizedTitle)-\(dateStr).txt"
+        let tempURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(fileName)
+        try? content.write(to: tempURL, atomically: true, encoding: .utf8)
+        return tempURL
+    }
+}
+
+private struct ShareSheet: UIViewControllerRepresentable {
+    let items: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: items, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 #Preview {

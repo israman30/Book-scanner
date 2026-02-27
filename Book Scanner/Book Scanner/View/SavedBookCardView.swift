@@ -78,7 +78,9 @@ struct SavedBookCardView: View {
     }
 
     private func subjectTagsView(subjects: String) -> some View {
-        let subjectList = subjects.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+        let subjectList = subjects
+            .split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
         return ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 ForEach(subjectList, id: \.self) { subject in

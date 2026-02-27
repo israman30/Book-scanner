@@ -75,6 +75,24 @@ struct EditableBookDetailView: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
+
+            Section("Notes") {
+                TextEditor(text: Binding(
+                    get: { book.notes ?? "" },
+                    set: { book.notes = $0.isEmpty ? nil : $0 }
+                ))
+                .frame(minHeight: 100)
+                .font(.body)
+                .overlay(alignment: .topLeading) {
+                    if (book.notes ?? "").isEmpty {
+                        Text("Add your thoughts, highlights, or reminders about this book…")
+                            .foregroundStyle(.tertiary)
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 8)
+                            .allowsHitTesting(false)
+                    }
+                }
+            }
         }
         .navigationTitle("Edit Book")
         .toolbar {
@@ -159,6 +177,11 @@ struct EditableBookDetailView: View {
         if let description = saved.description, !description.isEmpty {
             lines.append("")
             lines.append(description)
+        }
+        if let notes = saved.notes, !notes.isEmpty {
+            lines.append("")
+            lines.append("Notes:")
+            lines.append(notes)
         }
         let content = lines.joined(separator: "\n")
         let sanitizedTitle = saved.title

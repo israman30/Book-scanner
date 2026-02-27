@@ -94,9 +94,15 @@ struct PersistenceController {
         subjectsAttr.attributeType = .stringAttributeType
         subjectsAttr.isOptional = true
 
+        let notesAttr = NSAttributeDescription()
+        notesAttr.name = "notes"
+        notesAttr.attributeType = .stringAttributeType
+        notesAttr.isOptional = true
+
         bookEntity.properties = [
             idAttr, titleAttr, authorsAttr, isbnAttr,
-            thumbnailURLStringAttr, publisherAttr, publishedDateAttr, bookDescriptionAttr, subjectsAttr
+            thumbnailURLStringAttr, publisherAttr, publishedDateAttr, bookDescriptionAttr, subjectsAttr,
+            notesAttr
         ]
 
         model.entities = [bookEntity]

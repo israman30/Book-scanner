@@ -22,6 +22,7 @@ extension BookEntity {
     @NSManaged public var publishedDate: String?
     @NSManaged public var bookDescription: String?
     @NSManaged public var subjects: String?
+    @NSManaged public var notes: String?
 }
 
 // MARK: - Conversion
@@ -42,6 +43,7 @@ extension BookEntity {
         entity.publishedDate = savedBook.publishedDate
         entity.bookDescription = savedBook.description
         entity.subjects = savedBook.subjects
+        entity.notes = savedBook.notes
         return entity
     }
 
@@ -56,7 +58,8 @@ extension BookEntity {
             publisher: publisher,
             publishedDate: publishedDate,
             description: bookDescription,
-            subjects: subjects
+            subjects: subjects,
+            notes: notes
         )
     }
 }

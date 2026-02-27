@@ -14,20 +14,36 @@ struct SavedBooksView: View {
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.managedObjectContext) private var viewContext
+    @State private var searchText = ""
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \BookEntity.title, ascending: true)],
         animation: .default
     )
     private var savedBooks: FetchedResults<BookEntity>
 
+    /// Books filtered by search across title, author, ISBN, and subjects.
+    private var filteredBooks: [BookEntity] {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if query.isEmpty { return Array(savedBooks) }
+        return savedBooks.filter { book in
+            let title = (book.title ?? "").lowercased()
+            let authors = (book.authors ?? "").lowercased()
+            let isbn = (book.isbn ?? "").lowercased()
+            let subjects = (book.subjects ?? "").lowercased()
+            return title.contains(query) || authors.contains(query) || isbn.contains(query) || subjects.contains(query)
+        }
+    }
+
     var body: some View {
         NavigationStack {
             Group {
                 if savedBooks.isEmpty {
                     emptyLibraryView
+                } else if filteredBooks.isEmpty {
+                    noSearchResultsView
                 } else {
                     List {
-                        ForEach(savedBooks, id: \.objectID) { book in
+                        ForEach(filteredBooks, id: \.objectID) { book in
                             NavigationLink {
                                 EditableBookDetailView(book: book)
                             } label: {
@@ -44,7 +60,7 @@ struct SavedBooksView: View {
                         }
                         .onDelete { offsets in
                             for index in offsets {
-                                viewContext.delete(savedBooks[index])
+                                viewContext.delete(filteredBooks[index])
                             }
                             PersistenceController.shared.save()
                         }
@@ -56,6 +72,7 @@ struct SavedBooksView: View {
                 }
             }
             .navigationTitle("My Books")
+            .searchable(text: $searchText, prompt: "Search by title, author, ISBN, or subject")
             .onAppear { onBooksLoaded?() }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -65,14 +82,14 @@ struct SavedBooksView: View {
                     .accessibilityLabel("Close library")
                 }
                 ToolbarItem(placement: .primaryAction) {
-                    if !savedBooks.isEmpty {
+                    if !filteredBooks.isEmpty {
                         EditButton()
                             .accessibilityLabel("Edit saved books")
                     }
                 }
                 ToolbarItem(placement: .secondaryAction) {
-                    if !savedBooks.isEmpty {
-                        ShareBookListButton(books: savedBooks.map(\.toSavedBook))
+                    if !filteredBooks.isEmpty {
+                        ShareBookListButton(books: filteredBooks.map(\.toSavedBook))
                             .accessibilityLabel("Share book list")
                             .accessibilityHint("Share your book list with friends or family")
                     }
@@ -153,6 +170,11 @@ struct SavedBooksView: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel("No books yet")
         .accessibilityHint("Scan and add books to see them here")
+    }
+
+    /// Shown when search yields no matches.
+    private var noSearchResultsView: some View {
+        ContentUnavailableView.search(text: searchText)
     }
 
 }

@@ -151,6 +151,10 @@ struct SavedBookCardView: View {
 struct SavedBookGridCellView: View {
     let book: BookEntity
 
+    private let cardWidth: CGFloat = 100
+    private let coverHeight: CGFloat = 150
+    private let titleHeight: CGFloat = 36
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             coverView
@@ -159,8 +163,16 @@ struct SavedBookGridCellView: View {
                 .fontWeight(.medium)
                 .foregroundStyle(.primary)
                 .lineLimit(2)
+                .frame(width: cardWidth, height: titleHeight, alignment: .topLeading)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(width: cardWidth, height: coverHeight + 8 + titleHeight, alignment: .topLeading)
+        .padding(10)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(.secondarySystemGroupedBackground))
+        )
+        .shadow(color: .black.opacity(0.08), radius: 6, x: 0, y: 3)
+        .shadow(color: .black.opacity(0.04), radius: 2, x: 0, y: 1)
     }
 
     private var coverView: some View {
@@ -185,8 +197,9 @@ struct SavedBookGridCellView: View {
                 placeholder
             }
         }
-        .aspectRatio(2/3, contentMode: .fit)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .frame(width: cardWidth, height: coverHeight)
+        .clipped()
+        .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(alignment: .topTrailing) {
             if book.isFavorite {
                 Image(systemName: "heart.fill")

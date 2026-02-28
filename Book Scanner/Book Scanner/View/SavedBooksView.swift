@@ -24,7 +24,9 @@ struct SavedBooksView: View {
     /// Books filtered by search across title, author, ISBN, and subjects.
     private var filteredBooks: [BookEntity] {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        if query.isEmpty { return Array(savedBooks) }
+        if query.isEmpty {
+            return Array(savedBooks)
+        }
         return savedBooks.filter { book in
             let title = (book.title ?? "").lowercased()
             let authors = (book.authors ?? "").lowercased()
@@ -73,7 +75,9 @@ struct SavedBooksView: View {
             }
             .navigationTitle("My Books")
             .searchable(text: $searchText, prompt: "Search by title, author, ISBN, or subject")
-            .onAppear { onBooksLoaded?() }
+            .onAppear {
+                onBooksLoaded?()
+            }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") {
@@ -148,7 +152,7 @@ struct SavedBooksView: View {
             UIActivityViewController(activityItems: items, applicationActivities: nil)
         }
 
-        func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+        func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) { }
     }
 
     /// Empty Library placeholder

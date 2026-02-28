@@ -106,10 +106,15 @@ struct PersistenceController {
         isFavoriteAttr.attributeType = .booleanAttributeType
         isFavoriteAttr.defaultValue = false
 
+        let addedDateAttr = NSAttributeDescription()
+        addedDateAttr.name = "addedDate"
+        addedDateAttr.attributeType = .dateAttributeType
+        addedDateAttr.isOptional = true
+
         bookEntity.properties = [
             idAttr, titleAttr, authorsAttr, isbnAttr,
             thumbnailURLStringAttr, publisherAttr, publishedDateAttr, bookDescriptionAttr, subjectsAttr,
-            notesAttr, isFavoriteAttr
+            notesAttr, isFavoriteAttr, addedDateAttr
         ]
 
         model.entities = [bookEntity]

@@ -24,6 +24,7 @@ extension BookEntity {
     @NSManaged public var subjects: String?
     @NSManaged public var notes: String?
     @NSManaged public var isFavorite: Bool
+    @NSManaged public var addedDate: Date?
 }
 
 // MARK: - Conversion
@@ -46,6 +47,7 @@ extension BookEntity {
         entity.subjects = savedBook.subjects
         entity.notes = savedBook.notes
         entity.isFavorite = savedBook.isFavorite
+        entity.addedDate = Date()
         return entity
     }
 

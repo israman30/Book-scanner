@@ -22,67 +22,77 @@ struct ContentView: View {
     private var savedBooks: FetchedResults<BookEntity>
 
     var body: some View {
-        VStack {
-            Text("Welcome to Book Scanner")
-                .font(.title2)
-                .padding(.bottom, 16)
-                .accessibilityAddTraits(.isHeader)
+        ScrollView {
+            VStack(spacing: 20) {
+                Text("Welcome to Book Scanner")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .accessibilityAddTraits(.isHeader)
 
-            Button {
-                showScanner = true
-            } label: {
-                Label("Scan Now", systemImage: "camera.viewfinder")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.accentColor)
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-            }
-            .padding(.horizontal, 24)
-            .accessibilityLabel("Start scanning a book")
-            .accessibilityHint("Opens the camera to scan a barcode or QR code")
+                CollectionStatsView()
 
-            Button {
-                showSubjectBrowse = true
-            } label: {
-                Label("Browse Books", systemImage: "tag")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color(.systemGray5))
-                    .foregroundStyle(.primary)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.primary.opacity(0.15), lineWidth: 1)
+                VStack(spacing: 16) {
+                    Button {
+                        showScanner = true
+                    } label: {
+                        Label("Scan Now", systemImage: "camera.viewfinder")
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color.accentColor)
+                            .foregroundStyle(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
                     }
-            }
-            .padding(.horizontal, 24)
-            .padding(.top, 12)
-            .accessibilityLabel("Browse Books")
-            .accessibilityHint("Opens subject browse using Open Library API")
+                    .buttonStyle(.plain)
+                    .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
+                    .padding(.horizontal, 20)
+                    .accessibilityLabel("Start scanning a book")
+                    .accessibilityHint("Opens the camera to scan a barcode or QR code")
 
-            Button {
-                isLoadingLibrary = true
-                showLibrary = true
-            } label: {
-                Label("View Saved Books (\(savedBooks.count))", systemImage: "books.vertical")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color(.systemGray5))
-                    .foregroundStyle(.primary)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.primary.opacity(0.15), lineWidth: 1)
+                    Button {
+                        showSubjectBrowse = true
+                    } label: {
+                        Label("Browse Books", systemImage: "tag")
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color(.secondarySystemGroupedBackground))
+                            .foregroundStyle(.primary)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(Color.primary.opacity(0.1), lineWidth: 1)
+                            }
                     }
+                    .buttonStyle(.plain)
+                    .shadow(color: .black.opacity(0.06), radius: 6, x: 0, y: 3)
+                    .padding(.horizontal, 20)
+                    .accessibilityLabel("Browse Books")
+                    .accessibilityHint("Opens subject browse using Open Library API")
+
+                    Button {
+                        isLoadingLibrary = true
+                        showLibrary = true
+                    } label: {
+                        Label("View Saved Books (\(savedBooks.count))", systemImage: "books.vertical")
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color(.secondarySystemGroupedBackground))
+                            .foregroundStyle(.primary)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(Color.primary.opacity(0.1), lineWidth: 1)
+                            }
+                    }
+                    .buttonStyle(.plain)
+                    .shadow(color: .black.opacity(0.06), radius: 6, x: 0, y: 3)
+                    .padding(.horizontal, 20)
+                    .accessibilityLabel("View saved books")
+                    .accessibilityValue("\(savedBooks.count) books")
+                    .accessibilityHint("Opens your saved library")
+                }
             }
-            .padding(.horizontal, 24)
-            .padding(.top, 12)
-            .accessibilityLabel("View saved books")
-            .accessibilityValue("\(savedBooks.count) books")
-            .accessibilityHint("Opens your saved library")
+            .padding(20)
         }
-        .padding()
         .overlay {
             if isLoadingLibrary {
                 ZStack {
@@ -96,7 +106,8 @@ struct ContentView: View {
                             .foregroundStyle(.secondary)
                     }
                     .padding(24)
-                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                    .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 8)
                 }
             }
         }

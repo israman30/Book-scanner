@@ -12,147 +12,285 @@ import UIKit
 struct EditableBookDetailView: View {
     @ObservedObject var book: BookEntity
     @Environment(\.managedObjectContext) private var viewContext
-    @State var isPresented = false
+    @Environment(\.dismiss) private var dismiss
     @State private var showShareSheet = false
     @State private var shareItems: [Any] = []
+    @State private var showEditSheet = false
+    @State private var showDeleteConfirmation = false
+    @State private var showThumbnailFullScreen = false
+    @State private var isbnCopied = false
+
+    private let coverWidth: CGFloat = 160
+    private let coverHeight: CGFloat = 240
 
     var body: some View {
-        Form {
-            Section("Cover") {
-                HStack {
-                    Spacer()
-                    if let urlString = book.thumbnailURLString, let url = URL(string: urlString) {
-                        asyncImageThumbnail(with: url)
-                    } else {
-                        placeholder
-                            .frame(width: 120, height: 180)
-                            .accessibilityLabel("No book cover available")
-                    }
-                    Spacer()
-                }
-            }
-
-            Section("Book Info") {
-                TextField("Title", text: Binding(
-                    get: { book.title ?? "" },
-                    set: { book.title = $0 }
-                ))
-                TextField("Authors", text: Binding(
-                    get: { book.authors ?? "" },
-                    set: { book.authors = $0 }
-                ))
-
-                if let isbn = book.isbn {
-                    LabeledContent("ISBN", value: isbn)
-                } else {
-                    LabeledContent("ISBN", value: "Not available")
-                        .foregroundStyle(.secondary)
-                }
-
-                if let publisher = book.publisher {
-                    LabeledContent("Publisher", value: publisher)
-                } else {
-                    LabeledContent("Publisher", value: "Not available")
-                        .foregroundStyle(.secondary)
-                }
-
-                if let publishedDate = book.publishedDate {
-                    LabeledContent("Published", value: publishedDate)
-                } else {
-                    LabeledContent("Published", value: "Not available")
-                        .foregroundStyle(.secondary)
-                }
-
-                if let subjects = book.subjects, !subjects.isEmpty {
-                    LabeledContent("Subjects", value: subjects)
-                }
-            }
-
-            if let description = book.bookDescription, !description.isEmpty {
-                Section("Description") {
-                    Text(description)
-                        .font(.body)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
-
-            Section("Notes") {
-                TextEditor(text: Binding(
-                    get: { book.notes ?? "" },
-                    set: { book.notes = $0.isEmpty ? nil : $0 }
-                ))
-                .frame(minHeight: 100)
-                .font(.body)
-                .overlay(alignment: .topLeading) {
-                    if (book.notes ?? "").isEmpty {
-                        Text("Add your thoughts, highlights, or reminders about this book…")
-                            .foregroundStyle(.tertiary)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 8)
-                            .allowsHitTesting(false)
-                    }
-                }
+        ScrollView {
+            VStack(spacing: 0) {
+                coverHeaderSection
+                titleSection
+                quickActionsSection
+                descriptionSection
+                metadataSection
+                isbnSection
+                notesSection
             }
         }
-        .navigationTitle("Edit Book")
+        .background(Color(.systemGroupedBackground))
+        .navigationTitle("Book Details")
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button {
-                    shareItems = [exportSingleBook()]
-                    showShareSheet = true
+                Menu {
+                    Button {
+                        shareItems = [exportSingleBook()]
+                        showShareSheet = true
+                    } label: {
+                        Label("Share", systemImage: "square.and.arrow.up")
+                    }
+                    Button {
+                        showEditSheet = true
+                    } label: {
+                        Label("Edit", systemImage: "pencil")
+                    }
+                    Divider()
+                    Button(role: .destructive) {
+                        showDeleteConfirmation = true
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
                 } label: {
-                    Image(systemName: "square.and.arrow.up")
-                    Text("Share")
+                    Image(systemName: "ellipsis.circle")
                 }
-                .accessibilityLabel("Share book")
-                .accessibilityHint("Share this book with family and friends")
+                .accessibilityLabel("Book actions")
             }
         }
-        .onDisappear {
-            PersistenceController.shared.save()
+        .confirmationDialog("Delete Book", isPresented: $showDeleteConfirmation) {
+            Button("Delete", role: .destructive) {
+                deleteBook()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Remove \"\(book.title ?? "")\" from your catalog? This cannot be undone.")
         }
         .sheet(isPresented: $showShareSheet) {
             ShareSheet(items: shareItems)
         }
-        .sheet(isPresented: $isPresented) {
+        .sheet(isPresented: $showEditSheet) {
+            BookEditSheet(book: book)
+                .environment(\.managedObjectContext, viewContext)
+        }
+        .sheet(isPresented: $showThumbnailFullScreen) {
             if let urlString = book.thumbnailURLString, let url = URL(string: urlString) {
                 ThumbnailView(url: url)
             }
         }
     }
-    
-    private func asyncImageThumbnail(with url: URL) -> some View {
+
+    // MARK: - Cover Header
+
+    private var coverHeaderSection: some View {
+        VStack(spacing: 24) {
+            if let urlString = book.thumbnailURLString, let url = URL(string: urlString) {
+                coverImage(from: url)
+            } else {
+                placeholderCover
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 32)
+        .padding(.horizontal, 24)
+        .background(Color(.secondarySystemGroupedBackground))
+    }
+
+    private func coverImage(from url: URL) -> some View {
         AsyncImage(url: url) { phase in
             switch phase {
             case .empty:
-                ProgressView()
-                    .progressViewStyle(.circular)
+                placeholderCover
+                    .overlay { ProgressView() }
             case .success(let image):
                 image
                     .resizable()
                     .scaledToFill()
             case .failure:
-                placeholder
+                placeholderCover
             @unknown default:
-                placeholder
+                placeholderCover
             }
         }
-        .frame(width: 120, height: 180)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .frame(width: coverWidth, height: coverHeight)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .shadow(color: .black.opacity(0.15), radius: 12, x: 0, y: 6)
         .accessibilityLabel("Book cover")
         .onTapGesture {
-            isPresented = true
+            showThumbnailFullScreen = true
         }
     }
 
-    /// Placeholder used when no thumbnail exists or fails to load.
-    private var placeholder: some View {
-        RoundedRectangle(cornerRadius: 10)
+    private var placeholderCover: some View {
+        RoundedRectangle(cornerRadius: 12)
             .fill(Color(.systemGray5))
+            .frame(width: coverWidth, height: coverHeight)
             .overlay {
                 Image(systemName: "book.closed")
+                    .font(.system(size: 48))
+                    .foregroundStyle(.tertiary)
+            }
+            .accessibilityLabel("No book cover available")
+    }
+
+    // MARK: - Title
+
+    private var titleSection: some View {
+        VStack(spacing: 6) {
+            Text(book.title ?? "Untitled")
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundStyle(.primary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+            if let authors = book.authors, !authors.isEmpty {
+                Text("by \(authors)")
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 24)
+        .padding(.top, 20)
+    }
+
+    // MARK: - Quick Actions
+
+    private var quickActionsSection: some View {
+        HStack(spacing: 24) {
+            QuickActionButton(
+                title: "Share",
+                icon: "square.and.arrow.up",
+                action: {
+                    shareItems = [exportSingleBook()]
+                    showShareSheet = true
+                }
+            )
+            QuickActionButton(
+                title: "Edit",
+                icon: "pencil",
+                action: { showEditSheet = true }
+            )
+            QuickActionButton(
+                title: "Delete",
+                icon: "trash",
+                tint: .red,
+                action: { showDeleteConfirmation = true }
+            )
+        }
+        .padding(.horizontal, 40)
+        .padding(.top, 24)
+        .padding(.bottom, 20)
+    }
+
+    // MARK: - Description
+
+    private var descriptionSection: some View {
+        Group {
+            if let description = book.bookDescription, !description.isEmpty {
+                SectionView(title: "Description") {
+                    Text(description)
+                        .font(.body)
+                        .foregroundStyle(.primary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+    }
+
+    // MARK: - Metadata
+
+    private var metadataSection: some View {
+        SectionView(title: "Metadata") {
+            VStack(alignment: .leading, spacing: 12) {
+                if let publisher = book.publisher, !publisher.isEmpty {
+                    MetadataRow(label: "Publisher", value: publisher)
+                }
+                if let publishedDate = book.publishedDate {
+                    MetadataRow(label: "Published", value: publishedDate)
+                }
+                if let subjects = book.subjects, !subjects.isEmpty {
+                    MetadataRow(label: "Subjects", value: subjects)
+                }
+                if (book.publisher?.isEmpty ?? true) &&
+                   book.publishedDate == nil &&
+                   (book.subjects?.isEmpty ?? true) {
+                    Text("No metadata available")
+                        .font(.subheadline)
+                        .foregroundStyle(.tertiary)
+                }
+            }
+        }
+    }
+
+    // MARK: - ISBN
+
+    private var isbnSection: some View {
+        SectionView(title: "ISBN") {
+            HStack {
+                if let isbn = book.isbn, !isbn.isEmpty {
+                    Text(isbn)
+                        .font(.body.monospacedDigit())
+                        .foregroundStyle(.primary)
+                    Spacer()
+                    Button {
+                        copyISBNToClipboard(isbn)
+                    } label: {
+                        Label(
+                            isbnCopied ? "Copied" : "Copy",
+                            systemImage: isbnCopied ? "checkmark.circle.fill" : "doc.on.doc"
+                        )
+                        .font(.subheadline)
+                        .foregroundStyle(isbnCopied ? .green : .accentColor)
+                    }
+                    .buttonStyle(.borderless)
+                    .disabled(isbnCopied)
+                    .accessibilityHint("Copies ISBN to clipboard")
+                } else {
+                    Text("Not available")
+                        .font(.body)
+                        .foregroundStyle(.tertiary)
+                }
+            }
+            .padding(.vertical, 4)
+        }
+    }
+
+    // MARK: - Notes
+
+    private var notesSection: some View {
+        Group {
+            if let notes = book.notes, !notes.isEmpty {
+                SectionView(title: "Notes") {
+                    Text(notes)
+                        .font(.body)
+                        .foregroundStyle(.primary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+    }
+
+    // MARK: - Helpers
+
+    private func copyISBNToClipboard(_ isbn: String) {
+        UIPasteboard.general.string = isbn
+        isbnCopied = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            isbnCopied = false
+        }
+    }
+
+    private func deleteBook() {
+        viewContext.delete(book)
+        PersistenceController.shared.save()
+        dismiss()
     }
 
     private func exportSingleBook() -> URL {
@@ -198,6 +336,134 @@ struct EditableBookDetailView: View {
     }
 }
 
+// MARK: - Section View
+
+private struct SectionView<Content: View>: View {
+    let title: String
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(title)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundStyle(.secondary)
+                .textCase(.uppercase)
+            content()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(16)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(.secondarySystemGroupedBackground))
+                )
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 20)
+        .padding(.bottom, 20)
+    }
+}
+
+// MARK: - Metadata Row
+
+private struct MetadataRow: View {
+    let label: String
+    let value: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+            Text(value)
+                .font(.subheadline)
+                .foregroundStyle(.primary)
+        }
+    }
+}
+
+// MARK: - Quick Action Button
+
+private struct QuickActionButton: View {
+    let title: String
+    let icon: String
+    var tint: Color = .accentColor
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.title2)
+                Text(title)
+                    .font(.caption)
+            }
+            .foregroundStyle(tint)
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Book Edit Sheet
+
+private struct BookEditSheet: View {
+    @ObservedObject var book: BookEntity
+    @Environment(\.managedObjectContext) private var viewContext
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Book Info") {
+                    TextField("Title", text: Binding(
+                        get: { book.title ?? "" },
+                        set: { book.title = $0 }
+                    ))
+                    TextField("Authors", text: Binding(
+                        get: { book.authors ?? "" },
+                        set: { book.authors = $0 }
+                    ))
+                }
+                Section("Notes") {
+                    TextEditor(text: Binding(
+                        get: { book.notes ?? "" },
+                        set: { book.notes = $0.isEmpty ? nil : $0 }
+                    ))
+                    .frame(minHeight: 100)
+                    .font(.body)
+                    .overlay(alignment: .topLeading) {
+                        if (book.notes ?? "").isEmpty {
+                            Text("Add your thoughts, highlights, or reminders about this book…")
+                                .foregroundStyle(.tertiary)
+                                .padding(.horizontal, 5)
+                                .padding(.vertical, 8)
+                                .allowsHitTesting(false)
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Edit Book")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        viewContext.rollback()
+                        dismiss()
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        PersistenceController.shared.save()
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Share Sheet
+
 private struct ShareSheet: UIViewControllerRepresentable {
     let items: [Any]
 
@@ -229,4 +495,3 @@ private struct ShareSheet: UIViewControllerRepresentable {
             .environment(\.managedObjectContext, context)
     }
 }
-

@@ -11,6 +11,13 @@ import CoreData
 /// Entry screen that lets users start a scan or open their saved library.
 /// Fetches saved books from Core Data and routes to scanner/library sheets.
 struct ContentView: View {
+    private var appVersion: String {
+        (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String) ?? "1.0"
+    }
+    private var currentYear: String {
+        String(Calendar.current.component(.year, from: Date()))
+    }
+
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var showScanner = false
     @State private var showLibrary = false
@@ -91,6 +98,13 @@ struct ContentView: View {
                     .accessibilityValue("\(savedBooks.count) books")
                     .accessibilityHint("Opens your saved library")
                 }
+
+                VStack(spacing: 4) {
+                    Text("Version \(appVersion)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.top, 8)
             }
             .padding(20)
         }

@@ -11,6 +11,7 @@ struct SavedBook: Identifiable, Equatable {
     var description: String?
     var subjects: String?
     var notes: String?
+    var isFavorite: Bool
 
     init(
         id: UUID = UUID(),
@@ -22,7 +23,8 @@ struct SavedBook: Identifiable, Equatable {
         publishedDate: String? = nil,
         description: String? = nil,
         subjects: String? = nil,
-        notes: String? = nil
+        notes: String? = nil,
+        isFavorite: Bool = false
     ) {
         self.id = id
         self.title = title
@@ -34,6 +36,7 @@ struct SavedBook: Identifiable, Equatable {
         self.description = description
         self.subjects = subjects
         self.notes = notes
+        self.isFavorite = isFavorite
     }
 
     init(from item: BookItem) {

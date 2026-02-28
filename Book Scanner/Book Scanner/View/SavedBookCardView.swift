@@ -54,11 +54,19 @@ struct SavedBookCardView: View {
     
     private var bodyCard: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(book.title ?? "")
-                .font(.headline)
-                .fontWeight(.semibold)
-                .foregroundStyle(.primary)
-                .lineLimit(2)
+            HStack(alignment: .top) {
+                Text(book.title ?? "")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.primary)
+                    .lineLimit(2)
+                Spacer(minLength: 4)
+                if book.isFavorite {
+                    Image(systemName: "heart.fill")
+                        .font(.caption)
+                        .foregroundStyle(.pink)
+                }
+            }
             Text(book.authors ?? "")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
@@ -130,6 +138,67 @@ struct SavedBookCardView: View {
 
     private var placeholder: some View {
         RoundedRectangle(cornerRadius: 8)
+            .fill(Color(.systemGray5))
+            .overlay {
+                Image(systemName: "book.closed")
+                    .foregroundStyle(.secondary)
+            }
+    }
+}
+
+// MARK: - Grid Cell (cover-focused)
+
+struct SavedBookGridCellView: View {
+    let book: BookEntity
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            coverView
+            Text(book.title ?? "")
+                .font(.caption)
+                .fontWeight(.medium)
+                .foregroundStyle(.primary)
+                .lineLimit(2)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var coverView: some View {
+        Group {
+            if let url = book.thumbnailURLString.flatMap({ URL(string: $0) }) {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .empty:
+                        placeholder
+                            .overlay { ProgressView() }
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    case .failure:
+                        placeholder
+                    @unknown default:
+                        placeholder
+                    }
+                }
+            } else {
+                placeholder
+            }
+        }
+        .aspectRatio(2/3, contentMode: .fit)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay(alignment: .topTrailing) {
+            if book.isFavorite {
+                Image(systemName: "heart.fill")
+                    .font(.caption)
+                    .foregroundStyle(.pink)
+                    .padding(6)
+            }
+        }
+    }
+
+    private var placeholder: some View {
+        RoundedRectangle(cornerRadius: 10)
             .fill(Color(.systemGray5))
             .overlay {
                 Image(systemName: "book.closed")

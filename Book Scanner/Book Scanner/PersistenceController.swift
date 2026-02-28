@@ -31,6 +31,8 @@ struct PersistenceController {
             description.cloudKitContainerOptions = NSPersistentCloudKitContainerOptions(
                 containerIdentifier: "iCloud.com.israman.somenews.Book-Scanner"
             )
+            description.setOption(true as NSNumber, forKey: NSMigratePersistentStoresAutomaticallyOption)
+            description.setOption(true as NSNumber, forKey: NSInferMappingModelAutomaticallyOption)
             self.container = cloudContainer
         }
 
@@ -99,10 +101,15 @@ struct PersistenceController {
         notesAttr.attributeType = .stringAttributeType
         notesAttr.isOptional = true
 
+        let isFavoriteAttr = NSAttributeDescription()
+        isFavoriteAttr.name = "isFavorite"
+        isFavoriteAttr.attributeType = .booleanAttributeType
+        isFavoriteAttr.defaultValue = false
+
         bookEntity.properties = [
             idAttr, titleAttr, authorsAttr, isbnAttr,
             thumbnailURLStringAttr, publisherAttr, publishedDateAttr, bookDescriptionAttr, subjectsAttr,
-            notesAttr
+            notesAttr, isFavoriteAttr
         ]
 
         model.entities = [bookEntity]

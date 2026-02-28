@@ -9,12 +9,20 @@ import SwiftUI
 import CoreData
 import UIKit
 
+enum SavedBooksDisplayMode: String, CaseIterable {
+    case list = "List"
+    case grid = "Grid"
+}
+
 struct SavedBooksView: View {
     var onBooksLoaded: (() -> Void)?
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.managedObjectContext) private var viewContext
     @State private var searchText = ""
+    @State private var displayMode: SavedBooksDisplayMode = .list
+    @State private var showShareSheet = false
+    @State private var shareItems: [Any] = []
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \BookEntity.title, ascending: true)],
         animation: .default
@@ -43,34 +51,10 @@ struct SavedBooksView: View {
                     emptyLibraryView
                 } else if filteredBooks.isEmpty {
                     noSearchResultsView
+                } else if displayMode == .grid {
+                    booksGridView
                 } else {
-                    List {
-                        ForEach(filteredBooks, id: \.objectID) { book in
-                            NavigationLink {
-                                EditableBookDetailView(book: book)
-                            } label: {
-                                SavedBookCardView(book: book)
-                            }
-                            .listRowSeparator(.hidden)
-                            .listRowInsets(EdgeInsets(top: 6, leading: 20, bottom: 6, trailing: 20))
-                            .listRowBackground(
-                                RoundedRectangle(cornerRadius: 14)
-                                    .fill(Color(.secondarySystemGroupedBackground))
-                                    .shadow(color: .black.opacity(0.08), radius: 6, x: 0, y: 3)
-                                    .shadow(color: .black.opacity(0.04), radius: 2, x: 0, y: 1)
-                            )
-                        }
-                        .onDelete { offsets in
-                            for index in offsets {
-                                viewContext.delete(filteredBooks[index])
-                            }
-                            PersistenceController.shared.save()
-                        }
-                    }
-                    .listStyle(.automatic)
-                    .scrollContentBackground(.hidden)
-                    .listRowSpacing(12)
-                    .background(Color(.systemGroupedBackground))
+                    booksListView
                 }
             }
             .navigationTitle("My Books")
@@ -86,7 +70,7 @@ struct SavedBooksView: View {
                     .accessibilityLabel("Close library")
                 }
                 ToolbarItem(placement: .primaryAction) {
-                    if !filteredBooks.isEmpty {
+                    if !filteredBooks.isEmpty && displayMode == .list {
                         EditButton()
                             .accessibilityLabel("Edit saved books")
                     }
@@ -98,8 +82,168 @@ struct SavedBooksView: View {
                             .accessibilityHint("Share your book list with friends or family")
                     }
                 }
+                ToolbarItem(placement: .primaryAction) {
+                    if !filteredBooks.isEmpty {
+                        Button {
+                            displayMode = displayMode == .list ? .grid : .list
+                        } label: {
+                            Image(systemName: displayMode == .list ? "square.grid.2x2" : "list.bullet")
+                            Text(displayMode == .list ? "Grid" : "List")
+                        }
+                        .accessibilityLabel(displayMode == .list ? "Switch to grid view" : "Switch to list view")
+                    }
+                }
+            }
+            .sheet(isPresented: $showShareSheet) {
+                ShareSheet(items: shareItems)
             }
         }
+    }
+
+    /// List layout with cards.
+    private var booksListView: some View {
+        List {
+            ForEach(filteredBooks, id: \.objectID) { book in
+                NavigationLink {
+                    EditableBookDetailView(book: book)
+                } label: {
+                    SavedBookCardView(book: book)
+                }
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(top: 6, leading: 20, bottom: 6, trailing: 20))
+                .listRowBackground(
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(Color(.secondarySystemGroupedBackground))
+                        .shadow(color: .black.opacity(0.08), radius: 6, x: 0, y: 3)
+                        .shadow(color: .black.opacity(0.04), radius: 2, x: 0, y: 1)
+                )
+                .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                    Button {
+                        book.isFavorite.toggle()
+                        PersistenceController.shared.save()
+                    } label: {
+                        Label(
+                            book.isFavorite ? "Unfavorite" : "Favorite",
+                            systemImage: book.isFavorite ? "heart.slash" : "heart"
+                        )
+                    }
+                    .tint(book.isFavorite ? .gray : .pink)
+                }
+                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                    Button(role: .destructive) {
+                        viewContext.delete(book)
+                        PersistenceController.shared.save()
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                    Button {
+                        shareItems = [exportSingleBook(book)]
+                        showShareSheet = true
+                    } label: {
+                        Label("Share", systemImage: "square.and.arrow.up")
+                    }
+                    .tint(.blue)
+                }
+            }
+            .onDelete { offsets in
+                for index in offsets {
+                    viewContext.delete(filteredBooks[index])
+                }
+                PersistenceController.shared.save()
+            }
+        }
+        .listStyle(.automatic)
+        .scrollContentBackground(.hidden)
+        .listRowSpacing(12)
+        .background(Color(.systemGroupedBackground))
+    }
+
+    /// Grid layout with book covers.
+    private var booksGridView: some View {
+        ScrollView {
+            LazyVGrid(columns: [
+                GridItem(.adaptive(minimum: 100), spacing: 16),
+                GridItem(.adaptive(minimum: 100), spacing: 16),
+                GridItem(.adaptive(minimum: 100), spacing: 16)
+            ], spacing: 20) {
+                ForEach(filteredBooks, id: \.objectID) { book in
+                    NavigationLink {
+                        EditableBookDetailView(book: book)
+                    } label: {
+                        SavedBookGridCellView(book: book)
+                    }
+                    .buttonStyle(.plain)
+                    .contextMenu {
+                        Button {
+                            shareItems = [exportSingleBook(book)]
+                            showShareSheet = true
+                        } label: {
+                            Label("Share", systemImage: "square.and.arrow.up")
+                        }
+                        Button {
+                            book.isFavorite.toggle()
+                            PersistenceController.shared.save()
+                        } label: {
+                            Label(
+                                book.isFavorite ? "Remove from favorites" : "Add to favorites",
+                                systemImage: book.isFavorite ? "heart.slash" : "heart"
+                            )
+                        }
+                        Divider()
+                        Button(role: .destructive) {
+                            viewContext.delete(book)
+                            PersistenceController.shared.save()
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                    }
+                }
+            }
+            .padding()
+        }
+        .background(Color(.systemGroupedBackground))
+    }
+
+    private func exportSingleBook(_ book: BookEntity) -> URL {
+        let saved = book.toSavedBook
+        var lines: [String] = [
+            saved.title,
+            saved.authors.isEmpty ? "" : "by \(saved.authors)",
+            ""
+        ]
+        if let isbn = saved.isbn {
+            lines.append("ISBN: \(isbn)")
+        }
+        if let publisher = saved.publisher {
+            lines.append("Publisher: \(publisher)")
+        }
+        if let publishedDate = saved.publishedDate {
+            lines.append("Published: \(publishedDate)")
+        }
+        if let subjects = saved.subjects, !subjects.isEmpty {
+            lines.append("Subjects: \(subjects)")
+        }
+        if let description = saved.description, !description.isEmpty {
+            lines.append("")
+            lines.append(description)
+        }
+        if let notes = saved.notes, !notes.isEmpty {
+            lines.append("")
+            lines.append("Notes:")
+            lines.append(notes)
+        }
+        let content = lines.joined(separator: "\n")
+        let sanitizedTitle = saved.title
+            .replacingOccurrences(of: "/", with: "-")
+            .replacingOccurrences(of: ":", with: "-")
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let dateStr = formatter.string(from: Date())
+        let fileName = "\(sanitizedTitle)-\(dateStr).txt"
+        let tempURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(fileName)
+        try? content.write(to: tempURL, atomically: true, encoding: .utf8)
+        return tempURL
     }
     
     /// Share button that exports the book list and presents the system share sheet.
@@ -176,9 +320,14 @@ struct SavedBooksView: View {
         .accessibilityHint("Scan and add books to see them here")
     }
 
-    /// Shown when search yields no matches.
+    /// Shown when search yields no matches, with suggestion tips.
     private var noSearchResultsView: some View {
-        ContentUnavailableView.search(text: searchText)
+//        ContentUnavailableView(
+//            "No results found",
+//            description: "No books match \"\(searchText)\". Try a different or shorter search term, check your spelling, or search by author, title, ISBN, or subject.",
+//            systemImage: "magnifyingglass"
+//        )
+        ContentUnavailableView("No results found", systemImage: "magnifyingglass", description: Text("No books match \"\(searchText)\". Try a different or shorter search term, check your spelling, or search by author, title, ISBN, or subject."))
     }
 
 }

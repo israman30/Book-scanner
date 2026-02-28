@@ -66,18 +66,18 @@ struct SubjectBrowseView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
         .overlay {
-            RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(Color(.systemGray4), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 16)
+                .strokeBorder(Color(.systemGray4).opacity(0.6), lineWidth: 1)
         }
     }
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 16) {
-                VStack(alignment: .leading, spacing: 8) {
+            VStack(spacing: 20) {
+                VStack(alignment: .leading, spacing: 12) {
                     Text("Search by")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
@@ -115,7 +115,7 @@ struct SubjectBrowseView: View {
                         .onSubmit { performSearch() }
                     }
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 20)
 
                 Button {
                     performSearch()
@@ -129,12 +129,13 @@ struct SubjectBrowseView: View {
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .padding()
+                .padding(.vertical, 16)
                 .background(Color.accentColor)
                 .foregroundStyle(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
                 .disabled(isLoading || searchInput.trimmingCharacters(in: .whitespaces).isEmpty)
-                .padding(.horizontal)
+                .padding(.horizontal, 20)
 
                 if let error = errorMessage {
                     Text(error)
@@ -144,7 +145,7 @@ struct SubjectBrowseView: View {
                 }
 
                 ScrollView {
-                    LazyVStack(spacing: 12) {
+                    LazyVStack(spacing: 16) {
                         ForEach(Array(books.enumerated()), id: \.offset) { _, book in
                             SubjectBookRow(
                                 book: book,
@@ -154,7 +155,7 @@ struct SubjectBrowseView: View {
                             }
                         }
                     }
-                    .padding()
+                    .padding(20)
                 }
             }
             .navigationTitle("Browse Books")
@@ -278,7 +279,7 @@ private struct SubjectBookRow: View {
     var onAdd: () -> Void
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .top, spacing: 16) {
             if let urlString = book.volumeInfo.imageLinks?.thumbnail ?? book.volumeInfo.imageLinks?.smallThumbnail,
                let url = URL(string: urlString) {
                 AsyncImage(url: url) { phase in
@@ -291,16 +292,17 @@ private struct SubjectBookRow: View {
                         placeholder
                     }
                 }
-                .frame(width: 50, height: 75)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .frame(width: 56, height: 84)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
             } else {
                 placeholder
-                    .frame(width: 50, height: 75)
+                    .frame(width: 56, height: 84)
             }
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(book.volumeInfo.title ?? "Unknown")
                     .font(.headline)
+                    .fontWeight(.semibold)
                 if let authors = book.volumeInfo.authors?.joined(separator: ", ") {
                     Text(authors)
                         .font(.subheadline)
@@ -311,14 +313,12 @@ private struct SubjectBookRow: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                if let subjects = book.volumeInfo.subjects?.prefix(3).joined(separator: ", ") {
-                    Text(subjects)
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
+                if let subjects = book.volumeInfo.subjects, !subjects.isEmpty {
+                    subjectBadgesView(subjects: Array(subjects.prefix(3)))
                 }
             }
 
-            Spacer()
+            Spacer(minLength: 8)
 
             Button {
                 onAdd()
@@ -327,15 +327,52 @@ private struct SubjectBookRow: View {
                     .font(.title2)
             }
         }
-        .padding()
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.secondarySystemGroupedBackground))
+        )
+        .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 4)
         .scaleEffect(didJustAdd ? 1.02 : 1)
         .animation(.spring(response: 0.35, dampingFraction: 0.7), value: didJustAdd)
     }
 
+    private func subjectBadgesView(subjects: [String]) -> some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(subjects, id: \.self) { subject in
+                    Text(subject)
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(softColorForSubject(subject).opacity(0.35))
+                        )
+                        .foregroundStyle(softColorForSubject(subject))
+                }
+            }
+        }
+        .frame(height: 28)
+    }
+
+    private func softColorForSubject(_ subject: String) -> Color {
+        let palette: [Color] = [
+            Color(red: 0.4, green: 0.6, blue: 0.9),
+            Color(red: 0.4, green: 0.75, blue: 0.6),
+            Color(red: 0.85, green: 0.55, blue: 0.4),
+            Color(red: 0.65, green: 0.5, blue: 0.85),
+            Color(red: 0.9, green: 0.5, blue: 0.6),
+            Color(red: 0.4, green: 0.75, blue: 0.75),
+            Color(red: 0.6, green: 0.65, blue: 0.9),
+        ]
+        let hash = abs(subject.hashValue)
+        return palette[hash % palette.count]
+    }
+
     private var placeholder: some View {
-        RoundedRectangle(cornerRadius: 6)
+        RoundedRectangle(cornerRadius: 12)
             .fill(Color(.systemGray5))
             .overlay {
                 Image(systemName: "book.closed")

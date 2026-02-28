@@ -110,12 +110,12 @@ struct SavedBooksView: View {
                     SavedBookCardView(book: book)
                 }
                 .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: 6, leading: 20, bottom: 6, trailing: 20))
+                .listRowInsets(EdgeInsets(top: 8, leading: 20, bottom: 8, trailing: 20))
                 .listRowBackground(
-                    RoundedRectangle(cornerRadius: 14)
+                    RoundedRectangle(cornerRadius: 16)
                         .fill(Color(.secondarySystemGroupedBackground))
-                        .shadow(color: .black.opacity(0.08), radius: 6, x: 0, y: 3)
-                        .shadow(color: .black.opacity(0.04), radius: 2, x: 0, y: 1)
+                        .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
+                        .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
                 )
                 .swipeActions(edge: .leading, allowsFullSwipe: false) {
                     Button {
@@ -154,7 +154,7 @@ struct SavedBooksView: View {
         }
         .listStyle(.automatic)
         .scrollContentBackground(.hidden)
-        .listRowSpacing(12)
+        .listRowSpacing(14)
         .background(Color(.systemGroupedBackground))
     }
 
@@ -165,7 +165,7 @@ struct SavedBooksView: View {
                 GridItem(.adaptive(minimum: 100), spacing: 16),
                 GridItem(.adaptive(minimum: 100), spacing: 16),
                 GridItem(.adaptive(minimum: 100), spacing: 16)
-            ], spacing: 20) {
+            ], spacing: 16) {
                 ForEach(filteredBooks, id: \.objectID) { book in
                     NavigationLink {
                         EditableBookDetailView(book: book)
@@ -199,7 +199,7 @@ struct SavedBooksView: View {
                     }
                 }
             }
-            .padding()
+            .padding(20)
         }
         .background(Color(.systemGroupedBackground))
     }

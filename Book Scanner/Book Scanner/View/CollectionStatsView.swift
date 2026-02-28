@@ -50,12 +50,12 @@ struct CollectionStatsView: View {
         if savedBooks.isEmpty {
             EmptyView()
         } else {
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 20) {
                 Text("Your Collection")
                     .font(.headline)
                     .foregroundStyle(.secondary)
 
-                HStack(spacing: 12) {
+                HStack(spacing: 16) {
                     statCard(
                         value: "\(totalBooks)",
                         label: "Total books",
@@ -77,16 +77,17 @@ struct CollectionStatsView: View {
                     recentlyAddedSection
                 }
             }
-            .padding()
+            .padding(20)
             .background(
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: 20)
                     .fill(Color(.secondarySystemGroupedBackground))
+                    .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 4)
             )
         }
     }
 
     private func statCard(value: String, label: String, icon: String) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 8) {
             Image(systemName: icon)
                 .font(.body)
                 .foregroundStyle(Color.accentColor)
@@ -99,55 +100,79 @@ struct CollectionStatsView: View {
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(12)
+        .padding(16)
         .background(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 16)
                 .fill(Color(.tertiarySystemGroupedBackground))
+                .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
         )
     }
 
     private var subjectsSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 12) {
             Text("Books per subject")
                 .font(.subheadline)
                 .fontWeight(.medium)
                 .foregroundStyle(.secondary)
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
+                HStack(spacing: 12) {
                     ForEach(subjectCounts.prefix(8), id: \.subject) { item in
-                        HStack(spacing: 6) {
-                            Text(item.subject)
-                                .font(.caption)
-                                .fontWeight(.medium)
-                            Text("\(item.count)")
-                                .font(.caption2)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(.white)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Capsule().fill(Color.accentColor))
-                        }
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(
-                            Capsule()
-                                .fill(Color(.tertiarySystemGroupedBackground))
-                        )
+                        subjectBadge(name: item.subject, count: item.count)
                     }
                 }
             }
         }
     }
 
+    private func subjectBadge(name: String, count: Int) -> some View {
+        let color = softColorForSubject(name)
+        return HStack(spacing: 6) {
+            Text(name)
+                .font(.caption)
+                .fontWeight(.medium)
+                .foregroundStyle(color)
+            Text("\(count)")
+                .font(.caption2)
+                .fontWeight(.semibold)
+                .foregroundStyle(color)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Capsule().fill(color.opacity(0.35)))
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(color.opacity(0.2))
+        )
+    }
+
+    /// Soft pastel-like colors for subject badges.
+    private func softColorForSubject(_ subject: String) -> Color {
+        let palette: [Color] = [
+            Color(red: 0.4, green: 0.6, blue: 0.9),   // soft blue
+            Color(red: 0.4, green: 0.75, blue: 0.6),    // soft green
+            Color(red: 0.85, green: 0.55, blue: 0.4),  // soft coral
+            Color(red: 0.65, green: 0.5, blue: 0.85),   // soft purple
+            Color(red: 0.9, green: 0.5, blue: 0.6),    // soft pink
+            Color(red: 0.4, green: 0.75, blue: 0.75), // soft teal
+            Color(red: 0.6, green: 0.65, blue: 0.9),   // soft indigo
+            Color(red: 0.75, green: 0.6, blue: 0.5),   // soft brown
+        ]
+        let hash = abs(subject.hashValue)
+        let index = hash % palette.count
+        return palette[index]
+    }
+
     private var recentlyAddedSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 12) {
             Text("Recently added")
                 .font(.subheadline)
                 .fontWeight(.medium)
                 .foregroundStyle(.secondary)
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 10) {
                 ForEach(recentlyAdded, id: \.objectID) { book in
-                    HStack(spacing: 10) {
+                    HStack(spacing: 12) {
                         if let url = book.thumbnailURLString.flatMap({ URL(string: $0) }) {
                             AsyncImage(url: url) { phase in
                                 switch phase {
@@ -155,14 +180,14 @@ struct CollectionStatsView: View {
                                 default: recentPlaceholder
                                 }
                             }
-                            .frame(width: 36, height: 52)
+                            .frame(width: 40, height: 58)
                             .clipped()
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                         } else {
                             recentPlaceholder
-                                .frame(width: 36, height: 52)
+                                .frame(width: 40, height: 58)
                         }
-                        VStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text(book.title ?? "")
                                 .font(.subheadline)
                                 .fontWeight(.medium)
@@ -175,10 +200,11 @@ struct CollectionStatsView: View {
                         }
                         Spacer(minLength: 0)
                     }
-                    .padding(8)
+                    .padding(12)
                     .background(
-                        RoundedRectangle(cornerRadius: 10)
+                        RoundedRectangle(cornerRadius: 14)
                             .fill(Color(.tertiarySystemGroupedBackground))
+                            .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
                     )
                 }
             }
@@ -186,7 +212,7 @@ struct CollectionStatsView: View {
     }
 
     private var recentPlaceholder: some View {
-        RoundedRectangle(cornerRadius: 6)
+        RoundedRectangle(cornerRadius: 10)
             .fill(Color(.systemGray5))
             .overlay {
                 Image(systemName: "book.closed")

@@ -23,7 +23,7 @@ struct SavedBookCardView: View {
 
             bodyCard
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, 10)
         .padding(.horizontal, 4)
     }
     
@@ -48,12 +48,12 @@ struct SavedBookCardView: View {
             }
         }
         .frame(width: 60, height: 90)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
         .accessibilityHidden(true)
     }
     
     private var bodyCard: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top) {
                 Text(book.title ?? "")
                     .font(.headline)
@@ -104,20 +104,29 @@ struct SavedBookCardView: View {
                         .font(.caption)
                         .fontWeight(.medium)
                         .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
-                        .background(colorForSubject(subject).opacity(0.25))
-                        .foregroundStyle(colorForSubject(subject))
-                        .clipShape(Capsule())
+                        .padding(.vertical, 6)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(softColorForSubject(subject).opacity(0.35))
+                        )
+                        .foregroundStyle(softColorForSubject(subject))
                 }
             }
         }
-        .frame(height: 28)
+        .frame(height: 32)
     }
 
-    private func colorForSubject(_ subject: String) -> Color {
+    /// Soft pastel-like colors for subject badges.
+    private func softColorForSubject(_ subject: String) -> Color {
         let palette: [Color] = [
-            .blue, .green, .orange, .purple, .pink, .teal,
-            .mint, .indigo, .red, .cyan, .brown
+            Color(red: 0.4, green: 0.6, blue: 0.9),   // soft blue
+            Color(red: 0.4, green: 0.75, blue: 0.6),   // soft green
+            Color(red: 0.85, green: 0.55, blue: 0.4),  // soft coral
+            Color(red: 0.65, green: 0.5, blue: 0.85),   // soft purple
+            Color(red: 0.9, green: 0.5, blue: 0.6),    // soft pink
+            Color(red: 0.4, green: 0.75, blue: 0.75),  // soft teal
+            Color(red: 0.6, green: 0.65, blue: 0.9),   // soft indigo
+            Color(red: 0.75, green: 0.6, blue: 0.5),   // soft brown
         ]
         let hash = abs(subject.hashValue)
         let index = hash % palette.count
@@ -137,7 +146,7 @@ struct SavedBookCardView: View {
     }
 
     private var placeholder: some View {
-        RoundedRectangle(cornerRadius: 8)
+        RoundedRectangle(cornerRadius: 12)
             .fill(Color(.systemGray5))
             .overlay {
                 Image(systemName: "book.closed")
@@ -166,13 +175,13 @@ struct SavedBookGridCellView: View {
                 .frame(width: cardWidth, height: titleHeight, alignment: .topLeading)
         }
         .frame(width: cardWidth, height: coverHeight + 8 + titleHeight, alignment: .topLeading)
-        .padding(10)
+        .padding(12)
         .background(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 16)
                 .fill(Color(.secondarySystemGroupedBackground))
         )
-        .shadow(color: .black.opacity(0.08), radius: 6, x: 0, y: 3)
-        .shadow(color: .black.opacity(0.04), radius: 2, x: 0, y: 1)
+        .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
+        .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
     }
 
     private var coverView: some View {
@@ -199,7 +208,7 @@ struct SavedBookGridCellView: View {
         }
         .frame(width: cardWidth, height: coverHeight)
         .clipped()
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay(alignment: .topTrailing) {
             if book.isFavorite {
                 Image(systemName: "heart.fill")
@@ -211,7 +220,7 @@ struct SavedBookGridCellView: View {
     }
 
     private var placeholder: some View {
-        RoundedRectangle(cornerRadius: 10)
+        RoundedRectangle(cornerRadius: 12)
             .fill(Color(.systemGray5))
             .overlay {
                 Image(systemName: "book.closed")

@@ -99,7 +99,12 @@ struct EditableBookDetailView: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 32)
         .padding(.horizontal, 24)
-        .background(Color(.secondarySystemGroupedBackground))
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color(.secondarySystemGroupedBackground))
+                .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 4)
+        )
+        .padding(.horizontal, 20)
     }
 
     private func coverImage(from url: URL) -> some View {
@@ -119,8 +124,8 @@ struct EditableBookDetailView: View {
             }
         }
         .frame(width: coverWidth, height: coverHeight)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .shadow(color: .black.opacity(0.15), radius: 12, x: 0, y: 6)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: 6)
         .accessibilityLabel("Book cover")
         .onTapGesture {
             showThumbnailFullScreen = true
@@ -128,7 +133,7 @@ struct EditableBookDetailView: View {
     }
 
     private var placeholderCover: some View {
-        RoundedRectangle(cornerRadius: 12)
+        RoundedRectangle(cornerRadius: 16)
             .fill(Color(.systemGray5))
             .frame(width: coverWidth, height: coverHeight)
             .overlay {
@@ -163,7 +168,7 @@ struct EditableBookDetailView: View {
     // MARK: - Quick Actions
 
     private var quickActionsSection: some View {
-        HStack(spacing: 24) {
+        HStack(spacing: 20) {
             QuickActionButton(
                 title: "Share",
                 icon: "square.and.arrow.up",
@@ -184,9 +189,9 @@ struct EditableBookDetailView: View {
                 action: { showDeleteConfirmation = true }
             )
         }
-        .padding(.horizontal, 40)
+        .padding(.horizontal, 32)
         .padding(.top, 24)
-        .padding(.bottom, 20)
+        .padding(.bottom, 24)
     }
 
     // MARK: - Description
@@ -208,7 +213,7 @@ struct EditableBookDetailView: View {
 
     private var metadataSection: some View {
         SectionView(title: "Metadata") {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 14) {
                 if let publisher = book.publisher, !publisher.isEmpty {
                     MetadataRow(label: "Publisher", value: publisher)
                 }
@@ -216,7 +221,7 @@ struct EditableBookDetailView: View {
                     MetadataRow(label: "Published", value: publishedDate)
                 }
                 if let subjects = book.subjects, !subjects.isEmpty {
-                    MetadataRow(label: "Subjects", value: subjects)
+                    subjectBadgesSection(subjects: subjects)
                 }
                 if (book.publisher?.isEmpty ?? true) &&
                    book.publishedDate == nil &&
@@ -227,6 +232,48 @@ struct EditableBookDetailView: View {
                 }
             }
         }
+    }
+
+    private func subjectBadgesSection(subjects: String) -> some View {
+        let subjectList = subjects
+            .split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+        return VStack(alignment: .leading, spacing: 8) {
+            Text("Subjects")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(subjectList, id: \.self) { subject in
+                        Text(subject)
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(softColorForSubject(subject).opacity(0.35))
+                            )
+                            .foregroundStyle(softColorForSubject(subject))
+                    }
+                }
+            }
+            .frame(height: 32)
+        }
+    }
+
+    private func softColorForSubject(_ subject: String) -> Color {
+        let palette: [Color] = [
+            Color(red: 0.4, green: 0.6, blue: 0.9),
+            Color(red: 0.4, green: 0.75, blue: 0.6),
+            Color(red: 0.85, green: 0.55, blue: 0.4),
+            Color(red: 0.65, green: 0.5, blue: 0.85),
+            Color(red: 0.9, green: 0.5, blue: 0.6),
+            Color(red: 0.4, green: 0.75, blue: 0.75),
+            Color(red: 0.6, green: 0.65, blue: 0.9),
+        ]
+        let hash = abs(subject.hashValue)
+        return palette[hash % palette.count]
     }
 
     // MARK: - ISBN
@@ -353,8 +400,9 @@ private struct SectionView<Content: View>: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(16)
                 .background(
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: 16)
                         .fill(Color(.secondarySystemGroupedBackground))
+                        .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 3)
                 )
         }
         .frame(maxWidth: .infinity, alignment: .leading)

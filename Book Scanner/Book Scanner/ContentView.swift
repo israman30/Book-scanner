@@ -11,6 +11,7 @@ import CoreData
 /// Entry screen that lets users start a scan or open their saved library.
 /// Fetches saved books from Core Data and routes to scanner/library sheets.
 struct ContentView: View {
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var showScanner = false
     @State private var showLibrary = false
     @State private var showSubjectBrowse = false
@@ -122,6 +123,14 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showSubjectBrowse) {
             SubjectBrowseView()
+        }
+        .fullScreenCover(isPresented: Binding(
+            get: { !hasCompletedOnboarding },
+            set: { if !$0 { hasCompletedOnboarding = true } }
+        )) {
+            OnboardingCarouselView {
+                hasCompletedOnboarding = true
+            }
         }
     }
 }

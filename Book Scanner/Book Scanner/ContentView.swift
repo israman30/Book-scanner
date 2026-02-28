@@ -22,67 +22,70 @@ struct ContentView: View {
     private var savedBooks: FetchedResults<BookEntity>
 
     var body: some View {
-        VStack {
-            Text("Welcome to Book Scanner")
-                .font(.title2)
-                .padding(.bottom, 16)
-                .accessibilityAddTraits(.isHeader)
+        ScrollView {
+            VStack(spacing: 24) {
+                Text("Welcome to Book Scanner")
+                    .font(.title2)
+                    .accessibilityAddTraits(.isHeader)
 
-            Button {
-                showScanner = true
-            } label: {
-                Label("Scan Now", systemImage: "camera.viewfinder")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.accentColor)
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-            }
-            .padding(.horizontal, 24)
-            .accessibilityLabel("Start scanning a book")
-            .accessibilityHint("Opens the camera to scan a barcode or QR code")
+                CollectionStatsView()
 
-            Button {
-                showSubjectBrowse = true
-            } label: {
-                Label("Browse Books", systemImage: "tag")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color(.systemGray5))
-                    .foregroundStyle(.primary)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.primary.opacity(0.15), lineWidth: 1)
+                VStack(spacing: 12) {
+                    Button {
+                        showScanner = true
+                    } label: {
+                        Label("Scan Now", systemImage: "camera.viewfinder")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.accentColor)
+                            .foregroundStyle(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
-            }
-            .padding(.horizontal, 24)
-            .padding(.top, 12)
-            .accessibilityLabel("Browse Books")
-            .accessibilityHint("Opens subject browse using Open Library API")
+                    .padding(.horizontal, 24)
+                    .accessibilityLabel("Start scanning a book")
+                    .accessibilityHint("Opens the camera to scan a barcode or QR code")
 
-            Button {
-                isLoadingLibrary = true
-                showLibrary = true
-            } label: {
-                Label("View Saved Books (\(savedBooks.count))", systemImage: "books.vertical")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color(.systemGray5))
-                    .foregroundStyle(.primary)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.primary.opacity(0.15), lineWidth: 1)
+                    Button {
+                        showSubjectBrowse = true
+                    } label: {
+                        Label("Browse Books", systemImage: "tag")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color(.systemGray5))
+                            .foregroundStyle(.primary)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.primary.opacity(0.15), lineWidth: 1)
+                            }
                     }
+                    .padding(.horizontal, 24)
+                    .accessibilityLabel("Browse Books")
+                    .accessibilityHint("Opens subject browse using Open Library API")
+
+                    Button {
+                        isLoadingLibrary = true
+                        showLibrary = true
+                    } label: {
+                        Label("View Saved Books (\(savedBooks.count))", systemImage: "books.vertical")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color(.systemGray5))
+                            .foregroundStyle(.primary)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.primary.opacity(0.15), lineWidth: 1)
+                            }
+                    }
+                    .padding(.horizontal, 24)
+                    .accessibilityLabel("View saved books")
+                    .accessibilityValue("\(savedBooks.count) books")
+                    .accessibilityHint("Opens your saved library")
+                }
             }
-            .padding(.horizontal, 24)
-            .padding(.top, 12)
-            .accessibilityLabel("View saved books")
-            .accessibilityValue("\(savedBooks.count) books")
-            .accessibilityHint("Opens your saved library")
+            .padding()
         }
-        .padding()
         .overlay {
             if isLoadingLibrary {
                 ZStack {

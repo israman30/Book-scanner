@@ -116,22 +116,21 @@ struct BookScannerView: View {
     }
 
     /// Resolves a scanned barcode/QR string into book metadata using Open Library.
-    /// Updates lookup UI state on the main thread as results arrive.
+    /// Updates lookup UI state on the main actor as results arrive.
     private func fetchBook(for code: String) {
-        BookService.search(isbn: code) { result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let item):
-                    self.book = item
-                    self.lookupState = .loaded
-                    let title = item.volumeInfo.title ?? "book"
-                    announce("Book found: \(title)")
-                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                case .failure(let message):
-                    self.errorMessage = message
-                    self.lookupState = .failed
-                    announce(message)
-                }
+        Task { @MainActor in
+            let result = await BookService.search(isbn: code)
+            switch result {
+            case .success(let item):
+                self.book = item
+                self.lookupState = .loaded
+                let title = item.volumeInfo.title ?? "book"
+                announce("Book found: \(title)")
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            case .failure(let message):
+                self.errorMessage = message
+                self.lookupState = .failed
+                announce(message)
             }
         }
     }

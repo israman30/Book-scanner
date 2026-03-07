@@ -180,59 +180,37 @@ struct SubjectBrowseView: View {
         errorMessage = nil
         books = []
 
-        switch searchType {
-        case .isbn:
-            let query = "isbn:\(trimmed)"
-            BookService.searchByQuery(query: query) { result in
-                DispatchQueue.main.async {
-                    handleSearchResult(result, queryTerm: trimmed)
+        Task { @MainActor in
+            let result: BookListResult
+            switch searchType {
+            case .isbn:
+                let query = "isbn:\(trimmed)"
+                result = await BookService.searchByQuery(query: query)
+            case .author:
+                let query = "author:\(trimmed)"
+                result = await BookService.searchByQuery(query: query)
+            case .title:
+                let query = "title:\(trimmed)"
+                result = await BookService.searchByQuery(query: query)
+            case .subject:
+                let subject = trimmed.lowercased()
+                let range = publishedIn.trimmingCharacters(in: .whitespaces)
+                let publishedParam = range.isEmpty ? nil : range
+                result = await BookService.searchBySubject(subject: subject, publishedIn: publishedParam)
+            }
+            isLoading = false
+            switch result {
+            case .success(let items):
+                books = items
+                if items.isEmpty {
+                    let term = searchType == .subject ? trimmed.lowercased() : trimmed
+                    errorMessage = searchType == .subject
+                        ? "No books found for subject \"\(term)\""
+                        : "No books found for \(searchType.rawValue) \"\(term)\""
                 }
+            case .failure(let message):
+                errorMessage = message
             }
-        case .author:
-            let query = "author:\(trimmed)"
-            BookService.searchByQuery(query: query) { result in
-                DispatchQueue.main.async {
-                    handleSearchResult(result, queryTerm: trimmed)
-                }
-            }
-        case .title:
-            let query = "title:\(trimmed)"
-            BookService.searchByQuery(query: query) { result in
-                DispatchQueue.main.async {
-                    handleSearchResult(result, queryTerm: trimmed)
-                }
-            }
-        case .subject:
-            let subject = trimmed.lowercased()
-            let range = publishedIn.trimmingCharacters(in: .whitespaces)
-            let publishedParam = range.isEmpty ? nil : range
-            BookService.searchBySubject(subject: subject, publishedIn: publishedParam) { result in
-                DispatchQueue.main.async {
-                    isLoading = false
-                    switch result {
-                    case .success(let items):
-                        books = items
-                        if items.isEmpty {
-                            errorMessage = "No books found for subject \"\(subject)\""
-                        }
-                    case .failure(let message):
-                        errorMessage = message
-                    }
-                }
-            }
-        }
-    }
-
-    private func handleSearchResult(_ result: BookListResult, queryTerm: String) {
-        isLoading = false
-        switch result {
-        case .success(let items):
-            books = items
-            if items.isEmpty {
-                errorMessage = "No books found for \(searchType.rawValue) \"\(queryTerm)\""
-            }
-        case .failure(let message):
-            errorMessage = message
         }
     }
 

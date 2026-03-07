@@ -178,32 +178,28 @@ enum BookListResult {
 /// Default timeout for network requests (seconds).
 private let kRequestTimeout: TimeInterval = 30
 
-/// Open Library API client. Completion handlers are invoked on a background queue;
-/// callers must dispatch to the main queue before updating UI.
+/// Open Library API client. All methods are async and can be called from any context;
+/// callers should use @MainActor or Task when updating UI.
 final class BookService {
     /// Queries Open Library by ISBN and returns either the first matched item or a
-    /// user-facing error message via completion on any thread.
+    /// user-facing error message.
     /// Uses: https://openlibrary.org/search.json?q=isbn:{isbn}
-    static func search(isbn: String, completion: @escaping (BookResult) -> Void) {
-        search(query: "isbn:\(isbn)", fallbackIsbn: isbn, completion: completion)
+    static func search(isbn: String) async -> BookResult {
+        await search(query: "isbn:\(isbn)", fallbackIsbn: isbn)
     }
 
     /// Queries Open Library by general search (title, author, etc).
     /// Uses: https://openlibrary.org/search.json?q={query}
-    static func search(query: String, completion: @escaping (BookResult) -> Void) {
-        search(query: query, fallbackIsbn: nil, completion: completion)
+    static func search(query: String) async -> BookResult {
+        await search(query: query, fallbackIsbn: nil)
     }
 
     /// Searches Open Library by query and returns multiple books.
     /// Supports prefixes: isbn:, author:, title:, subject:
     /// Uses: https://openlibrary.org/search.json?q={query}
-    static func searchByQuery(
-        query: String,
-        completion: @escaping (BookListResult) -> Void
-    ) {
+    static func searchByQuery(query: String) async -> BookListResult {
         guard var url = URL(string: "https://openlibrary.org/search.json") else {
-            completion(.failure(BookServiceError.invalidURL.message))
-            return
+            return .failure(BookServiceError.invalidURL.message)
         }
         url.append(queryItems: [URLQueryItem(name: "q", value: query)])
 
@@ -213,40 +209,30 @@ final class BookService {
         request.setValue("BookScanner/1.0 (iOS)", forHTTPHeaderField: "User-Agent")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
 
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error {
-                completion(.failure(BookServiceError.network(error).message))
-                return
-            }
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse else {
-                completion(.failure(BookServiceError.invalidResponse.message))
-                return
+                return .failure(BookServiceError.invalidResponse.message)
             }
             guard (200...299).contains(httpResponse.statusCode) else {
                 #if DEBUG
-                if let bodyData = data, let body = String(data: bodyData, encoding: .utf8) {
+                if let body = String(data: data, encoding: .utf8) {
                     print("[BookService] searchByQuery bad status \(httpResponse.statusCode): \(body.prefix(500))")
                 }
                 #endif
-                completion(.failure(BookServiceError.badStatus(code: httpResponse.statusCode).message))
-                return
+                return .failure(BookServiceError.badStatus(code: httpResponse.statusCode).message)
             }
-            guard let data else {
-                completion(.failure(BookServiceError.emptyResponseData.message))
-                return
-            }
-            do {
-                let searchResponse = try JSONDecoder().decode(OpenLibrarySearchResponse.self, from: data)
-                let books = searchResponse.docs.map { BookService.mapToBookItem(doc: $0, searchIsbn: nil) }
-                completion(.success(books))
-            } catch {
-                #if DEBUG
-                print("[BookService] searchByQuery decoding failed: \(error)")
-                #endif
-                completion(.failure(BookServiceError.decodingFailed(error).message))
-            }
+            let searchResponse = try JSONDecoder().decode(OpenLibrarySearchResponse.self, from: data)
+            let books = searchResponse.docs.map { BookService.mapToBookItem(doc: $0, searchIsbn: nil) }
+            return .success(books)
+        } catch let error as DecodingError {
+            #if DEBUG
+            print("[BookService] searchByQuery decoding failed: \(error)")
+            #endif
+            return .failure(BookServiceError.decodingFailed(error).message)
+        } catch {
+            return .failure(BookServiceError.network(error).message)
         }
-        task.resume()
     }
 
     /// Fetches books by subject from the Open Library subjects API.
@@ -254,20 +240,13 @@ final class BookService {
     /// - Parameters:
     ///   - subject: Subject name (e.g. "love", "science", "fiction")
     ///   - publishedIn: Optional date range (e.g. "1500-1600")
-    ///   - completion: Called with an array of BookItems or an error string.
-    static func searchBySubject(
-        subject: String,
-        publishedIn: String? = nil,
-        completion: @escaping (BookListResult) -> Void
-    ) {
-        // Open Library subjects use URL-safe slugs; encode spaces and special chars.
+    static func searchBySubject(subject: String, publishedIn: String? = nil) async -> BookListResult {
         let encodedSubject = subject
             .lowercased()
             .replacingOccurrences(of: " ", with: "_")
             .addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? subject
         guard var url = URL(string: "https://openlibrary.org/subjects/\(encodedSubject).json") else {
-            completion(.failure(BookServiceError.invalidURL.message))
-            return
+            return .failure(BookServiceError.invalidURL.message)
         }
         if let range = publishedIn, !range.isEmpty {
             url.append(queryItems: [URLQueryItem(name: "published_in", value: range)])
@@ -279,40 +258,30 @@ final class BookService {
         request.setValue("BookScanner/1.0 (iOS)", forHTTPHeaderField: "User-Agent")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
 
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error {
-                completion(.failure(BookServiceError.network(error).message))
-                return
-            }
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse else {
-                completion(.failure(BookServiceError.invalidResponse.message))
-                return
+                return .failure(BookServiceError.invalidResponse.message)
             }
             guard (200...299).contains(httpResponse.statusCode) else {
                 #if DEBUG
-                if let bodyData = data, let body = String(data: bodyData, encoding: .utf8) {
+                if let body = String(data: data, encoding: .utf8) {
                     print("[BookService] searchBySubject bad status \(httpResponse.statusCode): \(body.prefix(500))")
                 }
                 #endif
-                completion(.failure(BookServiceError.badStatus(code: httpResponse.statusCode).message))
-                return
+                return .failure(BookServiceError.badStatus(code: httpResponse.statusCode).message)
             }
-            guard let data else {
-                completion(.failure(BookServiceError.emptyResponseData.message))
-                return
-            }
-            do {
-                let subjectsResponse = try JSONDecoder().decode(OpenLibrarySubjectsResponse.self, from: data)
-                let books = subjectsResponse.works.map { BookService.mapSubjectWorkToBookItem($0) }
-                completion(.success(books))
-            } catch {
-                #if DEBUG
-                print("[BookService] searchBySubject decoding failed: \(error)")
-                #endif
-                completion(.failure(BookServiceError.decodingFailed(error).message))
-            }
+            let subjectsResponse = try JSONDecoder().decode(OpenLibrarySubjectsResponse.self, from: data)
+            let books = subjectsResponse.works.map { BookService.mapSubjectWorkToBookItem($0) }
+            return .success(books)
+        } catch let error as DecodingError {
+            #if DEBUG
+            print("[BookService] searchBySubject decoding failed: \(error)")
+            #endif
+            return .failure(BookServiceError.decodingFailed(error).message)
+        } catch {
+            return .failure(BookServiceError.network(error).message)
         }
-        task.resume()
     }
 
     /// Maps an Open Library subject work to the app's BookItem model.
@@ -342,14 +311,9 @@ final class BookService {
         return BookItem(volumeInfo: volumeInfo)
     }
 
-    @MainActor
-    private static func search(query: String, fallbackIsbn: String?, completion: @escaping (BookResult) -> Void) {
-        let sessionConfiguration = URLSessionConfiguration.default
-        let session = URLSession(configuration: sessionConfiguration)
-
+    private static func search(query: String, fallbackIsbn: String?) async -> BookResult {
         guard var url = URL(string: "https://openlibrary.org/search.json") else {
-            completion(.failure(BookServiceError.invalidURL.message))
-            return
+            return .failure(BookServiceError.invalidURL.message)
         }
 
         url.append(queryItems: [URLQueryItem(name: "q", value: query)])
@@ -360,55 +324,37 @@ final class BookService {
         request.setValue("BookScanner/1.0 (iOS)", forHTTPHeaderField: "User-Agent")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
 
-        let task = session.dataTask(with: request) {
-            data,
-            response,
-            error in
-            if let error {
-                completion(.failure(BookServiceError.network(error).message))
-                return
-            }
-
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse else {
-                completion(.failure(BookServiceError.invalidResponse.message))
-                return
+                return .failure(BookServiceError.invalidResponse.message)
             }
-
             guard (200...299).contains(httpResponse.statusCode) else {
                 #if DEBUG
-                if let bodyData = data, let body = String(data: bodyData, encoding: .utf8) {
+                if let body = String(data: data, encoding: .utf8) {
                     print("[BookService] Bad status \(httpResponse.statusCode): \(body.prefix(500))")
                 }
                 #endif
-                completion(.failure(BookServiceError.badStatus(code: httpResponse.statusCode).message))
-                return
+                return .failure(BookServiceError.badStatus(code: httpResponse.statusCode).message)
             }
-
-            guard let data = data else {
-                completion(.failure(BookServiceError.emptyResponseData.message))
-                return
+            let searchResponse = try JSONDecoder().decode(OpenLibrarySearchResponse.self, from: data)
+            if let firstDoc = searchResponse.docs.first {
+                let bookItem = BookService.mapToBookItem(doc: firstDoc, searchIsbn: fallbackIsbn)
+                BookService.logBookDetails(bookItem)
+                return .success(bookItem)
+            } else {
+                let msg = fallbackIsbn.map { BookServiceError.noBooksFound(isbn: $0).message }
+                    ?? "No books found for \"\(query)\""
+                return .failure(msg)
             }
-
-            do {
-                let searchResponse = try JSONDecoder().decode(OpenLibrarySearchResponse.self, from: data)
-                if let firstDoc = searchResponse.docs.first {
-                    let bookItem = BookService.mapToBookItem(doc: firstDoc, searchIsbn: fallbackIsbn)
-                    completion(.success(bookItem))
-                    BookService.logBookDetails(bookItem)
-                    print("Book Object: \(bookItem)")
-                } else {
-                    let msg = fallbackIsbn.map { BookServiceError.noBooksFound(isbn: $0).message }
-                        ?? "No books found for \"\(query)\""
-                    completion(.failure(msg))
-                }
-            } catch {
-                #if DEBUG
-                print("[BookService] search decoding failed: \(error)")
-                #endif
-                completion(.failure(BookServiceError.decodingFailed(error).message))
-            }
+        } catch let error as DecodingError {
+            #if DEBUG
+            print("[BookService] search decoding failed: \(error)")
+            #endif
+            return .failure(BookServiceError.decodingFailed(error).message)
+        } catch {
+            return .failure(BookServiceError.network(error).message)
         }
-        task.resume()
     }
 
     /// Maps an Open Library doc to the app's BookItem model.

@@ -8,8 +8,7 @@
 
 ### Core Features
 - **Barcode scanning** — Scan ISBN barcodes or QR codes for quick book lookup via camera
-- **Browse books** — Search by ISBN, author, title, or subject using the Open Library API
-- **Subject browse** — Optional "published in" date range for subject searches
+- **Browse books** — Search by ISBN, author, title, or subject using the Open Library API; optional "published in" date range for subject searches
 - **Saved library** — Store books with metadata, notes, favorites, and thumbnails
 - **iCloud sync** — Library syncs across devices using Core Data + CloudKit
 - **Share & export** — Export single books or your full list as text files
@@ -23,7 +22,7 @@
 - **Duplicate detection** — Prevents adding the same ISBN twice
 
 ### Onboarding
-- **First-run carousel** — Guided introduction for new users (Scan, Browse, Save & Organize)
+- **First-run carousel** — 4-page guided introduction: Welcome, Scan Book Barcodes, Browse by Subject, Save & Organize
 
 ---
 

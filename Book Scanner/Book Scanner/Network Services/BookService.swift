@@ -112,22 +112,54 @@ enum BookServiceError: Error {
     case decodingFailed(Error)
     case noBooksFound(isbn: String)
 
+    /// User-facing message suitable for display in the UI.
     var message: String {
         switch self {
         case .invalidURL:
-            return "Invalid URL"
+            return "Invalid request. Please try again."
         case .network(let error):
-            return "Network error: \(error.localizedDescription)"
+            return userFriendlyNetworkMessage(for: error)
         case .invalidResponse:
-            return "Invalid response received from server"
+            return "Invalid response from the server. Please try again."
         case .badStatus(let code):
-            return "Bad status code: \(code)"
+            return userFriendlyStatusMessage(for: code)
         case .emptyResponseData:
-            return "No data returned"
+            return "No data received. Please try again."
         case .decodingFailed:
-            return "Error decoding book data"
+            return "Could not read book data. Please try again."
         case .noBooksFound(let isbn):
             return "No books found for ISBN \(isbn)"
+        }
+    }
+
+    private func userFriendlyNetworkMessage(for error: Error) -> String {
+        let nsError = error as NSError
+        switch nsError.code {
+        case NSURLErrorNotConnectedToInternet, NSURLErrorNetworkConnectionLost:
+            return "No internet connection. Check your network and try again."
+        case NSURLErrorTimedOut:
+            return "Request timed out. Please try again."
+        case NSURLErrorCancelled:
+            return "Request was cancelled."
+        case NSURLErrorCannotFindHost, NSURLErrorCannotConnectToHost:
+            return "Cannot reach the server. Check your connection."
+        default:
+            return "Network error: \(error.localizedDescription)"
+        }
+    }
+
+    private func userFriendlyStatusMessage(for code: Int) -> String {
+        switch code {
+        case 408, 429:
+            return "The server is busy. Please try again in a moment."
+        case 500...599:
+            return "The server is temporarily unavailable. Please try again later."
+        case 401, 403:
+            return "Unable to access this resource."
+        case 404:
+            return "No results found."
+        default:
+            return "Something went wrong (error \(code)). Please try again."
         }
     }
 }
@@ -143,6 +175,11 @@ enum BookListResult {
     case failure(String)
 }
 
+/// Default timeout for network requests (seconds).
+private let kRequestTimeout: TimeInterval = 30
+
+/// Open Library API client. Completion handlers are invoked on a background queue;
+/// callers must dispatch to the main queue before updating UI.
 final class BookService {
     /// Queries Open Library by ISBN and returns either the first matched item or a
     /// user-facing error message via completion on any thread.
@@ -172,6 +209,7 @@ final class BookService {
 
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
+        request.timeoutInterval = kRequestTimeout
         request.setValue("BookScanner/1.0 (iOS)", forHTTPHeaderField: "User-Agent")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
 
@@ -185,6 +223,11 @@ final class BookService {
                 return
             }
             guard (200...299).contains(httpResponse.statusCode) else {
+                #if DEBUG
+                if let bodyData = data, let body = String(data: bodyData, encoding: .utf8) {
+                    print("[BookService] searchByQuery bad status \(httpResponse.statusCode): \(body.prefix(500))")
+                }
+                #endif
                 completion(.failure(BookServiceError.badStatus(code: httpResponse.statusCode).message))
                 return
             }
@@ -197,6 +240,9 @@ final class BookService {
                 let books = searchResponse.docs.map { BookService.mapToBookItem(doc: $0, searchIsbn: nil) }
                 completion(.success(books))
             } catch {
+                #if DEBUG
+                print("[BookService] searchByQuery decoding failed: \(error)")
+                #endif
                 completion(.failure(BookServiceError.decodingFailed(error).message))
             }
         }
@@ -214,7 +260,12 @@ final class BookService {
         publishedIn: String? = nil,
         completion: @escaping (BookListResult) -> Void
     ) {
-        guard var url = URL(string: "https://openlibrary.org/subjects/\(subject).json") else {
+        // Open Library subjects use URL-safe slugs; encode spaces and special chars.
+        let encodedSubject = subject
+            .lowercased()
+            .replacingOccurrences(of: " ", with: "_")
+            .addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? subject
+        guard var url = URL(string: "https://openlibrary.org/subjects/\(encodedSubject).json") else {
             completion(.failure(BookServiceError.invalidURL.message))
             return
         }
@@ -224,6 +275,7 @@ final class BookService {
 
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
+        request.timeoutInterval = kRequestTimeout
         request.setValue("BookScanner/1.0 (iOS)", forHTTPHeaderField: "User-Agent")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
 
@@ -237,6 +289,11 @@ final class BookService {
                 return
             }
             guard (200...299).contains(httpResponse.statusCode) else {
+                #if DEBUG
+                if let bodyData = data, let body = String(data: bodyData, encoding: .utf8) {
+                    print("[BookService] searchBySubject bad status \(httpResponse.statusCode): \(body.prefix(500))")
+                }
+                #endif
                 completion(.failure(BookServiceError.badStatus(code: httpResponse.statusCode).message))
                 return
             }
@@ -249,6 +306,9 @@ final class BookService {
                 let books = subjectsResponse.works.map { BookService.mapSubjectWorkToBookItem($0) }
                 completion(.success(books))
             } catch {
+                #if DEBUG
+                print("[BookService] searchBySubject decoding failed: \(error)")
+                #endif
                 completion(.failure(BookServiceError.decodingFailed(error).message))
             }
         }
@@ -296,6 +356,7 @@ final class BookService {
 
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
+        request.timeoutInterval = kRequestTimeout
         request.setValue("BookScanner/1.0 (iOS)", forHTTPHeaderField: "User-Agent")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
 
@@ -341,6 +402,9 @@ final class BookService {
                     completion(.failure(msg))
                 }
             } catch {
+                #if DEBUG
+                print("[BookService] search decoding failed: \(error)")
+                #endif
                 completion(.failure(BookServiceError.decodingFailed(error).message))
             }
         }

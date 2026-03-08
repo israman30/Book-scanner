@@ -7,35 +7,13 @@
 
 import SwiftUI
 import CoreData
-import UIKit
-
-enum SearchType: String, CaseIterable {
-    case isbn = "ISBN"
-    case author = "Author"
-    case title = "Title"
-    case subject = "Subject"
-}
 
 struct SubjectBrowseView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.managedObjectContext) private var viewContext
-    @State private var searchType: SearchType = .title
-    @State private var searchInput = ""
-    @State private var publishedIn = ""
-    @State private var books: [BookItem] = []
-    @State private var isLoading = false
-    @State private var errorMessage: String?
-    @State private var addMessage = ""
-    @State private var showAddMessage = false
-    @State private var justAddedTitle: String?
+    @StateObject private var viewModel: SubjectBrowseViewModel
 
-    private var searchPlaceholder: String {
-        switch searchType {
-        case .isbn: return "e.g. 978-0-385-50420-5"
-        case .author: return "e.g. Jane Austen"
-        case .title: return "e.g. Pride and Prejudice"
-        case .subject: return "e.g. love, science, fiction"
-        }
+    init(viewContext: NSManagedObjectContext) {
+        _viewModel = StateObject(wrappedValue: SubjectBrowseViewModel(viewContext: viewContext))
     }
 
     @ViewBuilder
@@ -81,46 +59,46 @@ struct SubjectBrowseView: View {
                     Text("Search by")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                    Picker("Search type", selection: $searchType) {
+                    Picker("Search type", selection: $viewModel.searchType) {
                         ForEach(SearchType.allCases, id: \.self) { type in
                             Text(type.rawValue).tag(type)
                         }
                     }
                     .pickerStyle(.segmented)
 
-                    Text(searchType.rawValue)
+                    Text(viewModel.searchType.rawValue)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                     styledTextField(
-                        placeholder: searchPlaceholder,
-                        text: $searchInput,
-                        icon: searchType == .isbn ? "barcode" : "magnifyingglass"
+                        placeholder: viewModel.searchPlaceholder,
+                        text: $viewModel.searchInput,
+                        icon: viewModel.searchType == .isbn ? "barcode" : "magnifyingglass"
                     )
                     .autocapitalization(.none)
-                    .keyboardType(searchType == .isbn ? .numbersAndPunctuation : .default)
+                    .keyboardType(viewModel.searchType == .isbn ? .numbersAndPunctuation : .default)
                     .submitLabel(.search)
-                    .onSubmit { performSearch() }
+                    .onSubmit { viewModel.performSearch() }
 
-                    if searchType == .subject {
+                    if viewModel.searchType == .subject {
                         Text("Published in (optional)")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                         styledTextField(
                             placeholder: "e.g. 1500-1600 or leave empty",
-                            text: $publishedIn,
+                            text: $viewModel.publishedIn,
                             icon: "calendar"
                         )
                         .keyboardType(.numbersAndPunctuation)
                         .submitLabel(.search)
-                        .onSubmit { performSearch() }
+                        .onSubmit { viewModel.performSearch() }
                     }
                 }
                 .padding(.horizontal, 20)
 
                 Button {
-                    performSearch()
+                    viewModel.performSearch()
                 } label: {
-                    if isLoading {
+                    if viewModel.isLoading {
                         ProgressView()
                             .progressViewStyle(.circular)
                             .tint(.white)
@@ -134,10 +112,10 @@ struct SubjectBrowseView: View {
                 .foregroundStyle(.white)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
                 .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
-                .disabled(isLoading || searchInput.trimmingCharacters(in: .whitespaces).isEmpty)
+                .disabled(viewModel.isSearchDisabled)
                 .padding(.horizontal, 20)
 
-                if let error = errorMessage {
+                if let error = viewModel.errorMessage {
                     Text(error)
                         .font(.subheadline)
                         .foregroundStyle(.red)
@@ -146,12 +124,12 @@ struct SubjectBrowseView: View {
 
                 ScrollView {
                     LazyVStack(spacing: 16) {
-                        ForEach(Array(books.enumerated()), id: \.offset) { _, book in
+                        ForEach(Array(viewModel.books.enumerated()), id: \.offset) { _, book in
                             SubjectBookRow(
                                 book: book,
-                                didJustAdd: justAddedTitle == book.volumeInfo.title
+                                didJustAdd: viewModel.justAddedTitle == book.volumeInfo.title
                             ) {
-                                addBookToLibrary(book)
+                                viewModel.addBookToLibrary(book)
                             }
                         }
                     }
@@ -166,88 +144,10 @@ struct SubjectBrowseView: View {
                     }
                 }
             }
-            .alert(addMessage, isPresented: $showAddMessage) {
+            .alert(viewModel.addMessage, isPresented: $viewModel.showAddMessage) {
                 Button("OK", role: .cancel) { }
             }
         }
-    }
-
-    private func performSearch() {
-        let trimmed = searchInput.trimmingCharacters(in: .whitespaces)
-        guard !trimmed.isEmpty else { return }
-
-        isLoading = true
-        errorMessage = nil
-        books = []
-
-        Task { @MainActor in
-            let result: BookListResult
-            switch searchType {
-            case .isbn:
-                let query = "isbn:\(trimmed)"
-                result = await BookService.searchByQuery(query: query)
-            case .author:
-                let query = "author:\(trimmed)"
-                result = await BookService.searchByQuery(query: query)
-            case .title:
-                let query = "title:\(trimmed)"
-                result = await BookService.searchByQuery(query: query)
-            case .subject:
-                let subject = trimmed.lowercased()
-                let range = publishedIn.trimmingCharacters(in: .whitespaces)
-                let publishedParam = range.isEmpty ? nil : range
-                result = await BookService.searchBySubject(subject: subject, publishedIn: publishedParam)
-            }
-            isLoading = false
-            switch result {
-            case .success(let items):
-                books = items
-                if items.isEmpty {
-                    let term = searchType == .subject ? trimmed.lowercased() : trimmed
-                    errorMessage = searchType == .subject
-                        ? "No books found for subject \"\(term)\""
-                        : "No books found for \(searchType.rawValue) \"\(term)\""
-                }
-            case .failure(let message):
-                errorMessage = message
-            }
-        }
-    }
-
-    private func addBookToLibrary(_ item: BookItem) {
-        let newEntry = SavedBook(from: item)
-
-        if let isbn = newEntry.isbn {
-            let request = BookEntity.fetchRequest()
-            request.predicate = NSPredicate(format: "isbn == %@", isbn)
-            request.fetchLimit = 1
-            do {
-                let existing = try viewContext.fetch(request)
-                if !existing.isEmpty {
-                    addMessage = "This book is already in your list."
-                    showAddMessage = true
-                    return
-                }
-            } catch {
-                print("Duplicate check failed: \(error)")
-            }
-        }
-
-        _ = BookEntity.create(from: newEntry, in: viewContext)
-        do {
-            try viewContext.save()
-            addMessage = "\"\(newEntry.title)\" added to your list."
-            UINotificationFeedbackGenerator().notificationOccurred(.success)
-            withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                justAddedTitle = newEntry.title
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-                justAddedTitle = nil
-            }
-        } catch {
-            addMessage = "Could not save book: \(error.localizedDescription)"
-        }
-        showAddMessage = true
     }
 }
 
@@ -360,6 +260,5 @@ private struct SubjectBookRow: View {
 }
 
 #Preview {
-    SubjectBrowseView()
-        .environment(\.managedObjectContext, PersistenceController.preview.viewContext)
+    SubjectBrowseView(viewContext: PersistenceController.preview.viewContext)
 }

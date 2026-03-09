@@ -11,6 +11,8 @@ import CoreData
 /// Entry screen that lets users start a scan or open their saved library.
 /// Fetches saved books from Core Data and routes to scanner/library sheets.
 struct ContentView: View {
+    @Environment(\.managedObjectContext) private var viewContext
+
     private var appVersion: String {
         (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String) ?? "1.0"
     }
@@ -136,7 +138,7 @@ struct ContentView: View {
             if !isPresented { isLoadingLibrary = false }
         }
         .sheet(isPresented: $showSubjectBrowse) {
-            SubjectBrowseView()
+            SubjectBrowseView(viewContext: viewContext)
         }
         .fullScreenCover(isPresented: Binding(
             get: { !hasCompletedOnboarding },

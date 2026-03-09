@@ -8,6 +8,9 @@
 import CoreData
 import CloudKit
 
+
+// MARK: - PersistenceController
+
 struct PersistenceController {
     static let shared = PersistenceController()
     static let preview = PersistenceController(inMemory: true)
@@ -36,12 +39,13 @@ struct PersistenceController {
             self.container = cloudContainer
         }
 
-        container.loadPersistentStores { _, error in
-            if let error = error as NSError? {
+        self.container.loadPersistentStores { _, error in
+            if let error = error {
+                let msg = PersistenceErrorHandler.parse(error)
                 #if DEBUG
-                fatalError("Core Data failed to load: \(error), \(error.userInfo)")
+                fatalError("Core Data failed to load: \(msg.debug)")
                 #else
-                print("Core Data failed to load: \(error), \(error.userInfo)")
+                print(PersistenceErrorHandler.logMessage(for: error))
                 #endif
             }
         }
@@ -131,8 +135,7 @@ struct PersistenceController {
         do {
             try context.save()
         } catch {
-            let nsError = error as NSError
-            print("Core Data save error: \(nsError), \(nsError.userInfo)")
+            print(PersistenceErrorHandler.logMessage(for: error))
         }
     }
 }

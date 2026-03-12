@@ -101,6 +101,79 @@ See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for design patterns, data f
 
 ---
 
+## Usage
+
+### First Launch
+
+On first launch, a 4-page onboarding carousel introduces the app:
+
+1. **Welcome** — Overview of scanning, browsing, and saving books
+2. **Scan Book Barcodes** — How to use the camera to scan ISBNs
+3. **Browse by Subject** — How to search the Open Library catalog
+4. **Save & Organize** — How to manage your library
+
+Tap **Get Started** or **Skip** to reach the main screen.
+
+### Home Screen
+
+The home screen shows:
+
+- **Your Collection** — Stats dashboard (when you have books): total count, top subject, books per subject, and recently added
+- **Scan Now** — Opens the full-screen camera scanner
+- **Browse Books** — Opens the search/browse interface
+- **View Saved Books (N)** — Opens your library (N = number of saved books)
+
+### Scanning Books
+
+1. Tap **Scan Now**
+2. Allow camera access when prompted
+3. Align the book’s barcode or QR code inside the green frame
+4. The app looks up the book via Open Library
+5. When found, tap **Add to My Books** to save it
+6. Tap the **×** button to close the scanner
+
+Duplicate ISBNs are blocked; you’ll see a message if the book is already in your library.
+
+### Browsing Books
+
+1. Tap **Browse Books**
+2. Choose a search type: **ISBN**, **Author**, **Title**, or **Subject**
+3. Enter your query (e.g., author name, book title, subject like “fiction”)
+4. For **Subject** searches, optionally add a date range (e.g., `1500-1600`)
+5. Tap **Search**
+6. Tap the **+** button on any result to add it to your library
+7. Tap **Done** to close
+
+### Managing Your Library
+
+1. Tap **View Saved Books**
+2. Use the search bar to filter by title, author, ISBN, or subject
+3. Switch between **List** and **Grid** layouts with the toolbar button
+4. Tap a book to open its detail view
+
+**List view swipe actions:**
+
+- Swipe right: **Favorite** / **Unfavorite**
+- Swipe left: **Share**, **Delete**
+
+**Grid view:** Long-press a book for **Share**, **Add/Remove from favorites**, or **Delete**
+
+### Editing Book Details
+
+1. Open a book from your library
+2. Tap the **⋯** menu in the top-right
+3. Choose **Edit** to change title, authors, notes, and other metadata
+4. Save your changes
+
+### Sharing & Exporting
+
+- **Single book:** Swipe to **Share** in the list, or use the **⋯** menu → **Share** in the detail view
+- **Full list:** Tap **Share** in the library toolbar to export all visible books as a text file
+
+Exports are plain text files with title, authors, ISBN, publisher, dates, subjects, and notes.
+
+---
+
 ## Contribution Requirements and Policies
 
 Contributions are welcome. Please follow these guidelines:

@@ -13,6 +13,9 @@
 - **iCloud sync** — Library syncs across devices using Core Data + CloudKit
 - **Share & export** — Export single books or your full list as text files
 
+### Error Handling
+- **Persistence errors** — Structured parsing of Core Data and CloudKit errors via `PersistenceErrorHandler`; user-facing messages and debug logging
+
 ### Library Management
 - **Collection stats** — Dashboard with total books, top subject, per-subject counts, and recently added
 - **List & grid views** — Toggle between list and grid layouts
@@ -39,18 +42,17 @@ The app uses a **SwiftUI-centric architecture** with clear separation:
         ┌────────────────────┼────────────────────┐
         ▼                    ▼                    ▼
 ┌───────────────┐   ┌────────────────┐   ┌──────────────────────┐
-│ BookService   │   │ PersistenceCont │   │ @Environment / State  │
-│ (Open Library)│   │ (Core Data +    │   │ (managedObjectContext,│
-└───────────────┘   │  iCloud sync)  │   │  dismiss, etc.)       │
+│ BookService   │   │ PersistenceCont │   │ ViewModels / State    │
+│ (Open Library)│   │ (Core Data +    │   │ SubjectBrowseViewModel│
+└───────────────┘   │  iCloud sync)  │   │ @Environment / State  │
                     └────────────────┘   └──────────────────────┘
 ```
 
 - **View layer** — SwiftUI views and UI components
-- **Service layer** — `BookService` for Open Library API calls
-- **Persistence layer** — Core Data via `PersistenceController`
+- **Service layer** — `BookService` for Open Library API calls (async/await)
+- **Persistence layer** — Core Data via `PersistenceController`; `PersistenceErrorHandler` for structured error handling
 - **Model layer** — `BookItem` (API), `SavedBook` (display), `BookEntity` (Core Data)
-
-Views own state with `@State`, `@FetchRequest`, and `@Environment`. No explicit ViewModel layer.
+- **ViewModel layer** — `SubjectBrowseViewModel` for browse/search logic; other views use `@State`, `@FetchRequest`, and `@Environment`
 
 See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for design patterns, data flow, and component details.
 
@@ -74,7 +76,7 @@ See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for design patterns, data f
 | Camera     | AVFoundation      |
 | Persistence| Core Data         |
 | Sync       | CloudKit          |
-| Networking | URLSession        |
+| Networking | URLSession (async/await) |
 | Data source| Open Library API  |
 
 ---
@@ -105,7 +107,7 @@ Contributions are welcome. Please follow these guidelines:
 
 1. **Pull requests** — Open a PR against `main` with a clear description of changes
 2. **Code style** — Match existing Swift/SwiftUI conventions and formatting
-3. **Testing** — Ensure `Book_ScannerTests` pass; add tests for new behavior when appropriate
+3. **Testing** — Ensure `Book_ScannerTests` pass (including `SubjectBrowseViewModelTests`); add tests for new behavior when appropriate
 4. **Scope** — Keep changes focused; split large features into smaller PRs
 5. **Documentation** — Update `docs/ARCHITECTURE.md` for architectural changes
 

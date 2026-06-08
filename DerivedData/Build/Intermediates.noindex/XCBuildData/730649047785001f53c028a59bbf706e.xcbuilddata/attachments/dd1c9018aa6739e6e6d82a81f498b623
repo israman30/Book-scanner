@@ -1,0 +1,189 @@
+{
+  "" : {
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/Book Scanner-primary.dia",
+    "emit-module-dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/Book Scanner-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/Book Scanner-primary-emit-module.dia",
+    "pch" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/Book Scanner-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/Book Scanner-primary.swiftdeps"
+  },
+  "/Users/israelmanzo/Documents/GitHub/Book-scanner/Book Scanner/Book Scanner/Book_ScannerApp.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/Book_ScannerApp.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/Book_ScannerApp.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/Book_ScannerApp.dia",
+    "index-unit-output-path" : "/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/Book_ScannerApp.o",
+    "llvm-bc" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/Book_ScannerApp.bc",
+    "object" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/Book_ScannerApp.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/Book_ScannerApp.swiftdeps",
+    "swiftmodule" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/Book_ScannerApp~partial.swiftmodule"
+  },
+  "/Users/israelmanzo/Documents/GitHub/Book-scanner/Book Scanner/Book Scanner/Entities/SavedBook.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SavedBook.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SavedBook.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SavedBook.dia",
+    "index-unit-output-path" : "/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SavedBook.o",
+    "llvm-bc" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SavedBook.bc",
+    "object" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SavedBook.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SavedBook.swiftdeps",
+    "swiftmodule" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SavedBook~partial.swiftmodule"
+  },
+  "/Users/israelmanzo/Documents/GitHub/Book-scanner/Book Scanner/Book Scanner/Local storage/Controller/PersistenceController.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/PersistenceController.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/PersistenceController.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/PersistenceController.dia",
+    "index-unit-output-path" : "/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/PersistenceController.o",
+    "llvm-bc" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/PersistenceController.bc",
+    "object" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/PersistenceController.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/PersistenceController.swiftdeps",
+    "swiftmodule" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/PersistenceController~partial.swiftmodule"
+  },
+  "/Users/israelmanzo/Documents/GitHub/Book-scanner/Book Scanner/Book Scanner/Local storage/Controller/PersistenceErrorHandlers.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/PersistenceErrorHandlers.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/PersistenceErrorHandlers.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/PersistenceErrorHandlers.dia",
+    "index-unit-output-path" : "/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/PersistenceErrorHandlers.o",
+    "llvm-bc" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/PersistenceErrorHandlers.bc",
+    "object" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/PersistenceErrorHandlers.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/PersistenceErrorHandlers.swiftdeps",
+    "swiftmodule" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/PersistenceErrorHandlers~partial.swiftmodule"
+  },
+  "/Users/israelmanzo/Documents/GitHub/Book-scanner/Book Scanner/Book Scanner/Local storage/Entities/BookEntity+CoreDataClass.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookEntity+CoreDataClass.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookEntity+CoreDataClass.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookEntity+CoreDataClass.dia",
+    "index-unit-output-path" : "/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookEntity+CoreDataClass.o",
+    "llvm-bc" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookEntity+CoreDataClass.bc",
+    "object" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookEntity+CoreDataClass.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookEntity+CoreDataClass.swiftdeps",
+    "swiftmodule" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookEntity+CoreDataClass~partial.swiftmodule"
+  },
+  "/Users/israelmanzo/Documents/GitHub/Book-scanner/Book Scanner/Book Scanner/Local storage/Entities/BookEntity+CoreDataProperties.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookEntity+CoreDataProperties.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookEntity+CoreDataProperties.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookEntity+CoreDataProperties.dia",
+    "index-unit-output-path" : "/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookEntity+CoreDataProperties.o",
+    "llvm-bc" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookEntity+CoreDataProperties.bc",
+    "object" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookEntity+CoreDataProperties.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookEntity+CoreDataProperties.swiftdeps",
+    "swiftmodule" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookEntity+CoreDataProperties~partial.swiftmodule"
+  },
+  "/Users/israelmanzo/Documents/GitHub/Book-scanner/Book Scanner/Book Scanner/Network Services/BookService.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookService.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookService.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookService.dia",
+    "index-unit-output-path" : "/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookService.o",
+    "llvm-bc" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookService.bc",
+    "object" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookService.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookService.swiftdeps",
+    "swiftmodule" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookService~partial.swiftmodule"
+  },
+  "/Users/israelmanzo/Documents/GitHub/Book-scanner/Book Scanner/Book Scanner/View/BookScannerView.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookScannerView.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookScannerView.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookScannerView.dia",
+    "index-unit-output-path" : "/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookScannerView.o",
+    "llvm-bc" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookScannerView.bc",
+    "object" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookScannerView.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookScannerView.swiftdeps",
+    "swiftmodule" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/BookScannerView~partial.swiftmodule"
+  },
+  "/Users/israelmanzo/Documents/GitHub/Book-scanner/Book Scanner/Book Scanner/View/CollectionStatsView.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/CollectionStatsView.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/CollectionStatsView.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/CollectionStatsView.dia",
+    "index-unit-output-path" : "/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/CollectionStatsView.o",
+    "llvm-bc" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/CollectionStatsView.bc",
+    "object" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/CollectionStatsView.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/CollectionStatsView.swiftdeps",
+    "swiftmodule" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/CollectionStatsView~partial.swiftmodule"
+  },
+  "/Users/israelmanzo/Documents/GitHub/Book-scanner/Book Scanner/Book Scanner/View/ContentView.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/ContentView.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/ContentView.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/ContentView.dia",
+    "index-unit-output-path" : "/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/ContentView.o",
+    "llvm-bc" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/ContentView.bc",
+    "object" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/ContentView.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/ContentView.swiftdeps",
+    "swiftmodule" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/ContentView~partial.swiftmodule"
+  },
+  "/Users/israelmanzo/Documents/GitHub/Book-scanner/Book Scanner/Book Scanner/View/EditableBookDetailView.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/EditableBookDetailView.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/EditableBookDetailView.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/EditableBookDetailView.dia",
+    "index-unit-output-path" : "/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/EditableBookDetailView.o",
+    "llvm-bc" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/EditableBookDetailView.bc",
+    "object" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/EditableBookDetailView.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/EditableBookDetailView.swiftdeps",
+    "swiftmodule" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/EditableBookDetailView~partial.swiftmodule"
+  },
+  "/Users/israelmanzo/Documents/GitHub/Book-scanner/Book Scanner/Book Scanner/View/OnboardingCarouselView.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/OnboardingCarouselView.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/OnboardingCarouselView.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/OnboardingCarouselView.dia",
+    "index-unit-output-path" : "/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/OnboardingCarouselView.o",
+    "llvm-bc" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/OnboardingCarouselView.bc",
+    "object" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/OnboardingCarouselView.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/OnboardingCarouselView.swiftdeps",
+    "swiftmodule" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/OnboardingCarouselView~partial.swiftmodule"
+  },
+  "/Users/israelmanzo/Documents/GitHub/Book-scanner/Book Scanner/Book Scanner/View/SavedBookCardView.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SavedBookCardView.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SavedBookCardView.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SavedBookCardView.dia",
+    "index-unit-output-path" : "/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SavedBookCardView.o",
+    "llvm-bc" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SavedBookCardView.bc",
+    "object" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SavedBookCardView.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SavedBookCardView.swiftdeps",
+    "swiftmodule" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SavedBookCardView~partial.swiftmodule"
+  },
+  "/Users/israelmanzo/Documents/GitHub/Book-scanner/Book Scanner/Book Scanner/View/SavedBooksView.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SavedBooksView.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SavedBooksView.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SavedBooksView.dia",
+    "index-unit-output-path" : "/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SavedBooksView.o",
+    "llvm-bc" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SavedBooksView.bc",
+    "object" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SavedBooksView.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SavedBooksView.swiftdeps",
+    "swiftmodule" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SavedBooksView~partial.swiftmodule"
+  },
+  "/Users/israelmanzo/Documents/GitHub/Book-scanner/Book Scanner/Book Scanner/View/SubjectBrowseView.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SubjectBrowseView.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SubjectBrowseView.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SubjectBrowseView.dia",
+    "index-unit-output-path" : "/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SubjectBrowseView.o",
+    "llvm-bc" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SubjectBrowseView.bc",
+    "object" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SubjectBrowseView.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SubjectBrowseView.swiftdeps",
+    "swiftmodule" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SubjectBrowseView~partial.swiftmodule"
+  },
+  "/Users/israelmanzo/Documents/GitHub/Book-scanner/Book Scanner/Book Scanner/View/ThumbnailView.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/ThumbnailView.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/ThumbnailView.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/ThumbnailView.dia",
+    "index-unit-output-path" : "/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/ThumbnailView.o",
+    "llvm-bc" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/ThumbnailView.bc",
+    "object" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/ThumbnailView.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/ThumbnailView.swiftdeps",
+    "swiftmodule" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/ThumbnailView~partial.swiftmodule"
+  },
+  "/Users/israelmanzo/Documents/GitHub/Book-scanner/Book Scanner/Book Scanner/ViewModels/SubjectBrowseViewModel.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SubjectBrowseViewModel.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SubjectBrowseViewModel.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SubjectBrowseViewModel.dia",
+    "index-unit-output-path" : "/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SubjectBrowseViewModel.o",
+    "llvm-bc" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SubjectBrowseViewModel.bc",
+    "object" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SubjectBrowseViewModel.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SubjectBrowseViewModel.swiftdeps",
+    "swiftmodule" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/SubjectBrowseViewModel~partial.swiftmodule"
+  },
+  "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/GeneratedAssetSymbols.dia",
+    "index-unit-output-path" : "/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftdeps",
+    "swiftmodule" : "/Users/israelmanzo/Documents/GitHub/Book-scanner/DerivedData/Build/Intermediates.noindex/Book Scanner.build/Debug-iphoneos/Book Scanner.build/Objects-normal/arm64/GeneratedAssetSymbols~partial.swiftmodule"
+  }
+}

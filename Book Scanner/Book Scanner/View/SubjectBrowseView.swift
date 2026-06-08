@@ -7,13 +7,24 @@
 
 import SwiftUI
 import CoreData
+#if canImport(UIKit)
+import UIKit
+#endif
 
 struct SubjectBrowseView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel: SubjectBrowseViewModel
 
     init(viewContext: NSManagedObjectContext) {
-        _viewModel = StateObject(wrappedValue: SubjectBrowseViewModel(viewContext: viewContext))
+        _viewModel = StateObject(
+            wrappedValue: SubjectBrowseViewModel(viewContext: viewContext)
+        )
+    }
+
+    private func dismissKeyboard() {
+        #if canImport(UIKit)
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        #endif
     }
 
     @ViewBuilder
@@ -77,7 +88,10 @@ struct SubjectBrowseView: View {
                     .autocapitalization(.none)
                     .keyboardType(viewModel.searchType == .isbn ? .numbersAndPunctuation : .default)
                     .submitLabel(.search)
-                    .onSubmit { viewModel.performSearch() }
+                    .onSubmit {
+                        dismissKeyboard()
+                        viewModel.performSearch()
+                    }
 
                     if viewModel.searchType == .subject {
                         Text("Published in (optional)")
@@ -90,12 +104,16 @@ struct SubjectBrowseView: View {
                         )
                         .keyboardType(.numbersAndPunctuation)
                         .submitLabel(.search)
-                        .onSubmit { viewModel.performSearch() }
+                        .onSubmit {
+                            dismissKeyboard()
+                            viewModel.performSearch()
+                        }
                     }
                 }
                 .padding(.horizontal, 20)
 
                 Button {
+                    dismissKeyboard()
                     viewModel.performSearch()
                 } label: {
                     if viewModel.isLoading {

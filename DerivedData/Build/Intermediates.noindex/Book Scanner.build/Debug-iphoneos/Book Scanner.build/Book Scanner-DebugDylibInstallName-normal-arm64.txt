@@ -1,0 +1,1 @@
+@rpath/Book Scanner.debug.dylib

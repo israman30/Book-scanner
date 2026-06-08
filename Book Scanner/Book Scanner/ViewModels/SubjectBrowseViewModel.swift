@@ -18,6 +18,13 @@ enum SearchType: String, CaseIterable {
     case subject = "Subject"
 }
 
+protocol SubjectBrowseViewModelProtocol {
+    func performSearch()
+    func addBookToLibrary(_ item: BookItem)
+}
+
+extension SubjectBrowseViewModel: SubjectBrowseViewModelProtocol { }
+
 @MainActor
 final class SubjectBrowseViewModel: ObservableObject {
     @Published var searchType: SearchType = .title

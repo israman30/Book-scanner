@@ -57,14 +57,20 @@ final class SubjectBrowseViewModel: ObservableObject {
     }
 
     func performSearch() {
+        // Treat whitespace-only input as empty to avoid firing requests that will
+        // always return broad/irrelevant results (and to keep UI state stable).
         let trimmed = searchInput.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }
 
+        // Reset UI state at the start of a search so results/messages always
+        // correspond to the most recent request.
         isLoading = true
         errorMessage = nil
         books = []
 
         Task { @MainActor in
+            // We keep networking isolated behind BookService and switch only on the
+            // query grammar (isbn:/author:/title:/subject) here.
             let result: BookListResult
             switch searchType {
             case .isbn:
@@ -77,6 +83,9 @@ final class SubjectBrowseViewModel: ObservableObject {
                 let query = "title:\(trimmed)"
                 result = await BookService.searchByQuery(query: query)
             case .subject:
+                // Subjects are normalized to lower-case for consistent API matching.
+                // The year range is optional; send `nil` when empty rather than an
+                // empty string so the service can omit the parameter entirely.
                 let subject = trimmed.lowercased()
                 let range = publishedIn.trimmingCharacters(in: .whitespaces)
                 let publishedParam = range.isEmpty ? nil : range
@@ -87,21 +96,28 @@ final class SubjectBrowseViewModel: ObservableObject {
             case .success(let items):
                 books = items
                 if items.isEmpty {
+                    // "No results" is not an error from the network layer; it’s a
+                    // user-facing empty state with a tailored message.
                     let term = searchType == .subject ? trimmed.lowercased() : trimmed
                     errorMessage = searchType == .subject
                         ? "No books found for subject \"\(term)\""
                         : "No books found for \(searchType.rawValue) \"\(term)\""
                 }
             case .failure(let message):
+                // Preserve the service-provided failure message for debugging and
+                // to avoid losing potentially actionable context (e.g. bad URL).
                 errorMessage = message
             }
         }
     }
 
     func addBookToLibrary(_ item: BookItem) {
+        // Convert remote/API model into the local persistence representation.
         let newEntry = SavedBook(from: item)
 
         if let isbn = newEntry.isbn {
+            // ISBN is the strongest identifier we have; use it to prevent duplicates
+            // without scanning the entire store.
             let request = BookEntity.fetchRequest()
             request.predicate = NSPredicate(format: "isbn == %@", isbn)
             request.fetchLimit = 1
@@ -113,6 +129,8 @@ final class SubjectBrowseViewModel: ObservableObject {
                     return
                 }
             } catch {
+                // If the duplicate check fails, we still attempt to save; the UX
+                // should not be blocked by a best-effort preflight.
                 print("Duplicate check failed: \(error)")
             }
         }
@@ -123,13 +141,17 @@ final class SubjectBrowseViewModel: ObservableObject {
             addMessage = "\"\(newEntry.title)\" added to your list."
             UINotificationFeedbackGenerator().notificationOccurred(.success)
             withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                // Used by the list row to briefly highlight the item that was added.
                 justAddedTitle = newEntry.title
             }
             Task { @MainActor in
+                // Auto-clear the highlight after a short delay so it reads as a
+                // transient “confirmation” rather than a persistent state.
                 try? await Task.sleep(nanoseconds: 1_200_000_000)
                 justAddedTitle = nil
             }
         } catch {
+            // Surface persistence failures explicitly—this is actionable for users.
             addMessage = "Could not save book: \(error.localizedDescription)"
         }
         showAddMessage = true

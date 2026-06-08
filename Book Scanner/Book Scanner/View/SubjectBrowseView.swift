@@ -16,6 +16,7 @@ struct SubjectBrowseView: View {
     @StateObject private var viewModel: SubjectBrowseViewModel
 
     init(viewContext: NSManagedObjectContext) {
+        // Own the view model for the lifetime of this view.
         _viewModel = StateObject(
             wrappedValue: SubjectBrowseViewModel(viewContext: viewContext)
         )
@@ -23,6 +24,8 @@ struct SubjectBrowseView: View {
 
     private func dismissKeyboard() {
         #if canImport(UIKit)
+        // Keep the UX consistent: dismiss the keyboard when searching via button
+        // or Return key, especially on smaller screens.
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
         #endif
     }
@@ -33,6 +36,8 @@ struct SubjectBrowseView: View {
         text: Binding<String>,
         icon: String
     ) -> some View {
+        // Centralized styling so both search fields (query + optional year range)
+        // look and behave consistently.
         HStack(spacing: 12) {
             Image(systemName: icon)
                 .font(.body.weight(.medium))
@@ -90,6 +95,7 @@ struct SubjectBrowseView: View {
                     .submitLabel(.search)
                     .onSubmit {
                         dismissKeyboard()
+                        // Search from the keyboard to match the button behavior.
                         viewModel.performSearch()
                     }
 
@@ -106,6 +112,8 @@ struct SubjectBrowseView: View {
                         .submitLabel(.search)
                         .onSubmit {
                             dismissKeyboard()
+                            // If the user finishes editing the optional year range,
+                            // treat Return as “search” for a snappy flow.
                             viewModel.performSearch()
                         }
                     }

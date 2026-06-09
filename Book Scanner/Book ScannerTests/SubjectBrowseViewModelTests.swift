@@ -38,7 +38,7 @@ final class SubjectBrowseViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.publishedIn, "")
         XCTAssertTrue(viewModel.books.isEmpty)
         XCTAssertFalse(viewModel.isLoading)
-        XCTAssertNil(viewModel.errorMessage)
+        XCTAssertNil(viewModel.error)
         XCTAssertEqual(viewModel.addMessage, "")
         XCTAssertFalse(viewModel.showAddMessage)
         XCTAssertNil(viewModel.justAddedTitle)
@@ -114,6 +114,7 @@ final class SubjectBrowseViewModelTests: XCTestCase {
 
         XCTAssertTrue(viewModel.books.isEmpty)
         XCTAssertFalse(viewModel.isLoading)
+        XCTAssertNil(viewModel.error)
     }
 
     func test_performSearch_withWhitespaceOnlyInput_doesNothing() {
@@ -129,6 +130,24 @@ final class SubjectBrowseViewModelTests: XCTestCase {
 
         XCTAssertTrue(viewModel.books.isEmpty)
         XCTAssertFalse(viewModel.isLoading)
+        XCTAssertNil(viewModel.error)
+    }
+
+    // MARK: - SubjectBrowseViewModelError
+
+    func test_ErrorMessage_noResults_subject() {
+        let error = SubjectBrowseViewModelError.noResults(searchType: .subject, term: "science")
+        XCTAssertEqual(error.message, "No books found for subject \"science\"")
+    }
+
+    func test_ErrorMessage_noResults_title() {
+        let error = SubjectBrowseViewModelError.noResults(searchType: .title, term: "Pride and Prejudice")
+        XCTAssertEqual(error.message, "No books found for Title \"Pride and Prejudice\"")
+    }
+
+    func test_ErrorMessage_serviceFailure_passthrough() {
+        let error = SubjectBrowseViewModelError.serviceFailure(message: "Network error")
+        XCTAssertEqual(error.message, "Network error")
     }
 
     // MARK: - addBookToLibrary

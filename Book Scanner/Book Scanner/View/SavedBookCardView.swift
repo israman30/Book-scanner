@@ -99,7 +99,8 @@ struct SavedBookCardView: View {
             .filter { !$0.isEmpty }
         return ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                ForEach(subjectList, id: \.self) { subject in
+                // Use indices as IDs to avoid runtime issues if the stored string contains duplicates.
+                ForEach(Array(subjectList.enumerated()), id: \.offset) { _, subject in
                     Text(subject)
                         .font(.caption)
                         .fontWeight(.medium)

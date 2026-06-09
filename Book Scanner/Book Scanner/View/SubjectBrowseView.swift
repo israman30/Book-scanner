@@ -244,7 +244,8 @@ private struct SubjectBookRow: View {
     private func subjectBadgesView(subjects: [String]) -> some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                ForEach(subjects, id: \.self) { subject in
+                // Use indices as IDs to avoid runtime issues if the API returns duplicates.
+                ForEach(Array(subjects.enumerated()), id: \.offset) { _, subject in
                     Text(subject)
                         .font(.caption)
                         .fontWeight(.medium)

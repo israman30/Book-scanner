@@ -61,9 +61,9 @@ struct SubjectBrowseView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay {
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: 8)
                 .strokeBorder(Color(.systemGray4).opacity(0.6), lineWidth: 1)
         }
     }
@@ -136,7 +136,7 @@ struct SubjectBrowseView: View {
                 .padding(.vertical, 16)
                 .background(Color.accentColor)
                 .foregroundStyle(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
                 .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
                 .disabled(viewModel.isSearchDisabled)
                 .padding(.horizontal, 20)
@@ -197,7 +197,7 @@ private struct SubjectBookRow: View {
                     }
                 }
                 .frame(width: 56, height: 84)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
             } else {
                 placeholder
                     .frame(width: 56, height: 84)
@@ -233,7 +233,7 @@ private struct SubjectBookRow: View {
         }
         .padding(16)
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: 8)
                 .fill(Color(.secondarySystemGroupedBackground))
         )
         .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 4)
@@ -251,7 +251,7 @@ private struct SubjectBookRow: View {
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
                         .background(
-                            RoundedRectangle(cornerRadius: 10)
+                            RoundedRectangle(cornerRadius: 5)
                                 .fill(softColorForSubject(subject).opacity(0.35))
                         )
                         .foregroundStyle(softColorForSubject(subject))
@@ -276,7 +276,7 @@ private struct SubjectBookRow: View {
     }
 
     private var placeholder: some View {
-        RoundedRectangle(cornerRadius: 12)
+        RoundedRectangle(cornerRadius: 8)
             .fill(Color(.systemGray5))
             .overlay {
                 Image(systemName: "book.closed")

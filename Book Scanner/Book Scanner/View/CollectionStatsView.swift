@@ -79,7 +79,7 @@ struct CollectionStatsView: View {
             }
             .padding(20)
             .background(
-                RoundedRectangle(cornerRadius: 20)
+                RoundedRectangle(cornerRadius: 8)
                     .fill(Color(.secondarySystemGroupedBackground))
                     .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 4)
             )
@@ -102,7 +102,7 @@ struct CollectionStatsView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: 8)
                 .fill(Color(.tertiarySystemGroupedBackground))
                 .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
         )
@@ -142,7 +142,7 @@ struct CollectionStatsView: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 8)
                 .fill(color.opacity(0.2))
         )
     }
@@ -182,7 +182,7 @@ struct CollectionStatsView: View {
                             }
                             .frame(width: 40, height: 58)
                             .clipped()
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                         } else {
                             recentPlaceholder
                                 .frame(width: 40, height: 58)
@@ -202,7 +202,7 @@ struct CollectionStatsView: View {
                     }
                     .padding(12)
                     .background(
-                        RoundedRectangle(cornerRadius: 14)
+                        RoundedRectangle(cornerRadius: 8)
                             .fill(Color(.tertiarySystemGroupedBackground))
                             .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
                     )
@@ -212,7 +212,7 @@ struct CollectionStatsView: View {
     }
 
     private var recentPlaceholder: some View {
-        RoundedRectangle(cornerRadius: 10)
+        RoundedRectangle(cornerRadius: 8)
             .fill(Color(.systemGray5))
             .overlay {
                 Image(systemName: "book.closed")

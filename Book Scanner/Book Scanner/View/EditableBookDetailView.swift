@@ -100,7 +100,7 @@ struct EditableBookDetailView: View {
         .padding(.vertical, 32)
         .padding(.horizontal, 24)
         .background(
-            RoundedRectangle(cornerRadius: 20)
+            RoundedRectangle(cornerRadius: 8)
                 .fill(Color(.secondarySystemGroupedBackground))
                 .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 4)
         )
@@ -124,7 +124,7 @@ struct EditableBookDetailView: View {
             }
         }
         .frame(width: coverWidth, height: coverHeight)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
         .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: 6)
         .accessibilityLabel("Book cover")
         .onTapGesture {
@@ -133,7 +133,7 @@ struct EditableBookDetailView: View {
     }
 
     private var placeholderCover: some View {
-        RoundedRectangle(cornerRadius: 16)
+        RoundedRectangle(cornerRadius: 8)
             .fill(Color(.systemGray5))
             .frame(width: coverWidth, height: coverHeight)
             .overlay {
@@ -251,7 +251,7 @@ struct EditableBookDetailView: View {
                             .padding(.horizontal, 10)
                             .padding(.vertical, 6)
                             .background(
-                                RoundedRectangle(cornerRadius: 10)
+                                RoundedRectangle(cornerRadius: 5)
                                     .fill(softColorForSubject(subject).opacity(0.35))
                             )
                             .foregroundStyle(softColorForSubject(subject))
@@ -400,7 +400,7 @@ private struct SectionView<Content: View>: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(16)
                 .background(
-                    RoundedRectangle(cornerRadius: 16)
+                    RoundedRectangle(cornerRadius: 8)
                         .fill(Color(.secondarySystemGroupedBackground))
                         .shadow(color: .black.opacity(0.04), radius: 6, x: 0, y: 3)
                 )

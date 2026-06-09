@@ -112,7 +112,7 @@ struct SavedBooksView: View {
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets(top: 8, leading: 20, bottom: 8, trailing: 20))
                 .listRowBackground(
-                    RoundedRectangle(cornerRadius: 16)
+                    RoundedRectangle(cornerRadius: 8)
                         .fill(Color(.secondarySystemGroupedBackground))
                         .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
                         .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)

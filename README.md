@@ -15,6 +15,7 @@
 
 ### Error Handling
 - **Persistence errors** — Structured parsing of Core Data and CloudKit errors via `PersistenceErrorHandler`; user-facing messages and debug logging
+- **Browse/search errors** — `SubjectBrowseViewModelError` provides typed empty-state and service-failure handling for the Browse Books experience (with a UI-ready `message`)
 
 ### Library Management
 - **Collection stats** — Dashboard with total books, top subject, per-subject counts, and recently added
@@ -52,7 +53,7 @@ The app uses a **SwiftUI-centric architecture** with clear separation:
 - **Service layer** — `BookService` for Open Library API calls (async/await)
 - **Persistence layer** — Core Data via `PersistenceController`; `PersistenceErrorHandler` for structured error handling
 - **Model layer** — `BookItem` (API), `SavedBook` (display), `BookEntity` (Core Data)
-- **ViewModel layer** — `SubjectBrowseViewModel` for browse/search logic; other views use `@State`, `@FetchRequest`, and `@Environment`
+- **ViewModel layer** — `SubjectBrowseViewModel` for browse/search logic (via `SubjectBrowseViewModelProtocol`) and typed error state with `SubjectBrowseViewModelError`; other views use `@State`, `@FetchRequest`, and `@Environment`
 
 See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for design patterns, data flow, and component details.
 
@@ -62,7 +63,7 @@ See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for design patterns, data f
 
 - **Declarative SwiftUI** — Reactive UI driven by state and environment
 - **System design** — Uses `.accentColor`, `.secondarySystemGroupedBackground`, and semantic colors
-- **Visual hierarchy** — Rounded corners (12–20pt), soft shadows, material overlays for loading
+- **Visual hierarchy** — Rounded corners (5–8pt), soft shadows, material overlays for loading
 - **Subject badges** — Soft pastel palette for per-subject counts
 - **UIKit integration** — `UIViewControllerRepresentable` for camera (AVFoundation) and share sheet
 

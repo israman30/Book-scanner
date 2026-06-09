@@ -50,7 +50,7 @@ struct ContentView: View {
                             .padding(.vertical, 16)
                             .background(Color.accentColor)
                             .foregroundStyle(.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                     .buttonStyle(.plain)
                     .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
@@ -66,9 +66,9 @@ struct ContentView: View {
                             .padding(.vertical, 16)
                             .background(Color(.secondarySystemGroupedBackground))
                             .foregroundStyle(.primary)
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                             .overlay {
-                                RoundedRectangle(cornerRadius: 16)
+                                RoundedRectangle(cornerRadius: 8)
                                     .stroke(Color.primary.opacity(0.1), lineWidth: 1)
                             }
                     }
@@ -87,9 +87,9 @@ struct ContentView: View {
                             .padding(.vertical, 16)
                             .background(Color(.secondarySystemGroupedBackground))
                             .foregroundStyle(.primary)
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                             .overlay {
-                                RoundedRectangle(cornerRadius: 16)
+                                RoundedRectangle(cornerRadius: 8)
                                     .stroke(Color.primary.opacity(0.1), lineWidth: 1)
                             }
                     }
@@ -123,7 +123,7 @@ struct ContentView: View {
                             .foregroundStyle(.secondary)
                     }
                     .padding(24)
-                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
                     .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 8)
                 }
             }

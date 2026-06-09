@@ -48,7 +48,7 @@ struct SavedBookCardView: View {
             }
         }
         .frame(width: 60, height: 90)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
         .accessibilityHidden(true)
     }
     
@@ -99,14 +99,15 @@ struct SavedBookCardView: View {
             .filter { !$0.isEmpty }
         return ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                ForEach(subjectList, id: \.self) { subject in
+                // Use indices as IDs to avoid runtime issues if the stored string contains duplicates.
+                ForEach(Array(subjectList.enumerated()), id: \.offset) { _, subject in
                     Text(subject)
                         .font(.caption)
                         .fontWeight(.medium)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)
                         .background(
-                            RoundedRectangle(cornerRadius: 10)
+                            RoundedRectangle(cornerRadius: 5)
                                 .fill(softColorForSubject(subject).opacity(0.35))
                         )
                         .foregroundStyle(softColorForSubject(subject))
@@ -146,7 +147,7 @@ struct SavedBookCardView: View {
     }
 
     private var placeholder: some View {
-        RoundedRectangle(cornerRadius: 12)
+        RoundedRectangle(cornerRadius: 8)
             .fill(Color(.systemGray5))
             .overlay {
                 Image(systemName: "book.closed")
@@ -177,7 +178,7 @@ struct SavedBookGridCellView: View {
         .frame(width: cardWidth, height: coverHeight + 8 + titleHeight, alignment: .topLeading)
         .padding(12)
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: 8)
                 .fill(Color(.secondarySystemGroupedBackground))
         )
         .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
@@ -208,7 +209,7 @@ struct SavedBookGridCellView: View {
         }
         .frame(width: cardWidth, height: coverHeight)
         .clipped()
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(alignment: .topTrailing) {
             if book.isFavorite {
                 Image(systemName: "heart.fill")
@@ -220,7 +221,7 @@ struct SavedBookGridCellView: View {
     }
 
     private var placeholder: some View {
-        RoundedRectangle(cornerRadius: 12)
+        RoundedRectangle(cornerRadius: 8)
             .fill(Color(.systemGray5))
             .overlay {
                 Image(systemName: "book.closed")
@@ -229,7 +230,7 @@ struct SavedBookGridCellView: View {
     }
 }
 
-#Preview {
+#Preview("SavedBookCardView", traits: .sizeThatFitsLayout) {
     let controller = PersistenceController(inMemory: true)
     let context = controller.viewContext
     let sample = SavedBook(title: "The Pragmatic Programmer", authors: "Andrew Hunt, David Thomas", isbn: "978-0201616224", publisher: "Addison-Wesley Professional", publishedDate: "1999", description: "One of the most significant books in my life.", subjects: "Programming, Software Development, Best Practices")
@@ -238,5 +239,6 @@ struct SavedBookGridCellView: View {
 
     return SavedBookCardView(book: book)
         .padding()
+        .background(Color(.systemGroupedBackground))
         .environment(\.managedObjectContext, context)
 }

@@ -143,7 +143,7 @@ struct OnboardingCarouselView: View {
                 .padding(.vertical, 16)
                 .background(Color.accentColor)
                 .foregroundStyle(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
     }

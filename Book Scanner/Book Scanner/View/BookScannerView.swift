@@ -41,7 +41,7 @@ struct BookScannerView: View {
                 permissionDenied = true
             })
             .overlay {
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: 8)
                     .stroke(Color.green, lineWidth: 2)
                     .frame(width: 300, height: 240)
                     .shadow(color: .green.opacity(0.6), radius: 8)
@@ -71,7 +71,7 @@ struct BookScannerView: View {
                         .font(.headline)
                         .foregroundStyle(.white)
                         .padding()
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
                         .padding(.bottom, 40)
                         .accessibilityLabel("Scanned code")
                         .accessibilityValue(scannedCode)
@@ -225,7 +225,7 @@ struct BookLookupSection: View {
                             .padding()
                             .background(.white.opacity(0.1))
                             .foregroundStyle(.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                     .padding(.top, 8)
                     .accessibilityHint("Adds this book to your saved list")
@@ -235,7 +235,7 @@ struct BookLookupSection: View {
                     .font(.subheadline)
                     .foregroundStyle(.red.opacity(0.9))
                     .padding(12)
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
                     .accessibilityLabel("Lookup failed")
                     .accessibilityValue(errorMessage ?? "No book found")
             }
@@ -282,7 +282,7 @@ struct BookDetailCard: View {
         .padding(12)
         .background(
             Color.black.opacity(0.35),
-            in: RoundedRectangle(cornerRadius: 12)
+            in: RoundedRectangle(cornerRadius: 8)
         )
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Book details")

@@ -181,6 +181,63 @@ private let kRequestTimeout: TimeInterval = 30
 /// Open Library API client. All methods are async and can be called from any context;
 /// callers should use @MainActor or Task when updating UI.
 final class BookService {
+    // MARK: - Endpoints
+
+    /// Open Library endpoints used by `BookService`.
+    private enum Endpoint {
+        static let baseURL = URL(string: "https://openlibrary.org")
+
+        case search(query: String)
+        case subject(subject: String, publishedIn: String?)
+
+        var path: String {
+            switch self {
+            case .search:
+                return "/search.json"
+            case .subject(let subject, _):
+                return "/subjects/\(Self.encodedSubjectPathComponent(subject)).json"
+            }
+        }
+
+        var queryItems: [URLQueryItem] {
+            switch self {
+            case .search(let query):
+                return [URLQueryItem(name: "q", value: query)]
+            case .subject(_, let publishedIn):
+                guard let range = publishedIn, !range.isEmpty else { return [] }
+                return [URLQueryItem(name: "published_in", value: range)]
+            }
+        }
+
+        var url: URL? {
+            guard let baseURL = Self.baseURL else { return nil }
+            var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: true)
+            components?.path = path
+            let items = queryItems
+            if !items.isEmpty {
+                components?.queryItems = items
+            }
+            return components?.url
+        }
+
+        private static func encodedSubjectPathComponent(_ subject: String) -> String {
+            let normalized = subject
+                .lowercased()
+                .replacingOccurrences(of: " ", with: "_")
+            return normalized.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? normalized
+        }
+    }
+
+    private static func makeRequest(endpoint: Endpoint) -> URLRequest? {
+        guard let url = endpoint.url else { return nil }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.timeoutInterval = kRequestTimeout
+        request.setValue("BookScanner/1.0 (iOS)", forHTTPHeaderField: "User-Agent")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        return request
+    }
+
     /// Queries Open Library by ISBN and returns either the first matched item or a
     /// user-facing error message.
     /// Uses: https://openlibrary.org/search.json?q=isbn:{isbn}
@@ -198,16 +255,9 @@ final class BookService {
     /// Supports prefixes: isbn:, author:, title:, subject:
     /// Uses: https://openlibrary.org/search.json?q={query}
     static func searchByQuery(query: String) async -> BookListResult {
-        guard var url = URL(string: "https://openlibrary.org/search.json") else {
+        guard let request = makeRequest(endpoint: .search(query: query)) else {
             return .failure(BookServiceError.invalidURL.message)
         }
-        url.append(queryItems: [URLQueryItem(name: "q", value: query)])
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.timeoutInterval = kRequestTimeout
-        request.setValue("BookScanner/1.0 (iOS)", forHTTPHeaderField: "User-Agent")
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
 
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
@@ -241,22 +291,9 @@ final class BookService {
     ///   - subject: Subject name (e.g. "love", "science", "fiction")
     ///   - publishedIn: Optional date range (e.g. "1500-1600")
     static func searchBySubject(subject: String, publishedIn: String? = nil) async -> BookListResult {
-        let encodedSubject = subject
-            .lowercased()
-            .replacingOccurrences(of: " ", with: "_")
-            .addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? subject
-        guard var url = URL(string: "https://openlibrary.org/subjects/\(encodedSubject).json") else {
+        guard let request = makeRequest(endpoint: .subject(subject: subject, publishedIn: publishedIn)) else {
             return .failure(BookServiceError.invalidURL.message)
         }
-        if let range = publishedIn, !range.isEmpty {
-            url.append(queryItems: [URLQueryItem(name: "published_in", value: range)])
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.timeoutInterval = kRequestTimeout
-        request.setValue("BookScanner/1.0 (iOS)", forHTTPHeaderField: "User-Agent")
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
 
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
@@ -312,17 +349,9 @@ final class BookService {
     }
 
     private static func search(query: String, fallbackIsbn: String?) async -> BookResult {
-        guard var url = URL(string: "https://openlibrary.org/search.json") else {
+        guard let request = makeRequest(endpoint: .search(query: query)) else {
             return .failure(BookServiceError.invalidURL.message)
         }
-
-        url.append(queryItems: [URLQueryItem(name: "q", value: query)])
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.timeoutInterval = kRequestTimeout
-        request.setValue("BookScanner/1.0 (iOS)", forHTTPHeaderField: "User-Agent")
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
 
         do {
             let (data, response) = try await URLSession.shared.data(for: request)

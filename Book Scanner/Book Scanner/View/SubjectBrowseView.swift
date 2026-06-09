@@ -7,13 +7,27 @@
 
 import SwiftUI
 import CoreData
+#if canImport(UIKit)
+import UIKit
+#endif
 
 struct SubjectBrowseView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel: SubjectBrowseViewModel
 
     init(viewContext: NSManagedObjectContext) {
-        _viewModel = StateObject(wrappedValue: SubjectBrowseViewModel(viewContext: viewContext))
+        // Own the view model for the lifetime of this view.
+        _viewModel = StateObject(
+            wrappedValue: SubjectBrowseViewModel(viewContext: viewContext)
+        )
+    }
+
+    private func dismissKeyboard() {
+        #if canImport(UIKit)
+        // Keep the UX consistent: dismiss the keyboard when searching via button
+        // or Return key, especially on smaller screens.
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        #endif
     }
 
     @ViewBuilder
@@ -22,6 +36,8 @@ struct SubjectBrowseView: View {
         text: Binding<String>,
         icon: String
     ) -> some View {
+        // Centralized styling so both search fields (query + optional year range)
+        // look and behave consistently.
         HStack(spacing: 12) {
             Image(systemName: icon)
                 .font(.body.weight(.medium))
@@ -45,9 +61,9 @@ struct SubjectBrowseView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
         .background(Color(.secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay {
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: 8)
                 .strokeBorder(Color(.systemGray4).opacity(0.6), lineWidth: 1)
         }
     }
@@ -77,7 +93,11 @@ struct SubjectBrowseView: View {
                     .autocapitalization(.none)
                     .keyboardType(viewModel.searchType == .isbn ? .numbersAndPunctuation : .default)
                     .submitLabel(.search)
-                    .onSubmit { viewModel.performSearch() }
+                    .onSubmit {
+                        dismissKeyboard()
+                        // Search from the keyboard to match the button behavior.
+                        viewModel.performSearch()
+                    }
 
                     if viewModel.searchType == .subject {
                         Text("Published in (optional)")
@@ -90,12 +110,18 @@ struct SubjectBrowseView: View {
                         )
                         .keyboardType(.numbersAndPunctuation)
                         .submitLabel(.search)
-                        .onSubmit { viewModel.performSearch() }
+                        .onSubmit {
+                            dismissKeyboard()
+                            // If the user finishes editing the optional year range,
+                            // treat Return as “search” for a snappy flow.
+                            viewModel.performSearch()
+                        }
                     }
                 }
                 .padding(.horizontal, 20)
 
                 Button {
+                    dismissKeyboard()
                     viewModel.performSearch()
                 } label: {
                     if viewModel.isLoading {
@@ -110,7 +136,7 @@ struct SubjectBrowseView: View {
                 .padding(.vertical, 16)
                 .background(Color.accentColor)
                 .foregroundStyle(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
                 .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
                 .disabled(viewModel.isSearchDisabled)
                 .padding(.horizontal, 20)
@@ -171,7 +197,7 @@ private struct SubjectBookRow: View {
                     }
                 }
                 .frame(width: 56, height: 84)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
             } else {
                 placeholder
                     .frame(width: 56, height: 84)
@@ -207,7 +233,7 @@ private struct SubjectBookRow: View {
         }
         .padding(16)
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: 8)
                 .fill(Color(.secondarySystemGroupedBackground))
         )
         .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 4)
@@ -218,14 +244,15 @@ private struct SubjectBookRow: View {
     private func subjectBadgesView(subjects: [String]) -> some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                ForEach(subjects, id: \.self) { subject in
+                // Use indices as IDs to avoid runtime issues if the API returns duplicates.
+                ForEach(Array(subjects.enumerated()), id: \.offset) { _, subject in
                     Text(subject)
                         .font(.caption)
                         .fontWeight(.medium)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
                         .background(
-                            RoundedRectangle(cornerRadius: 10)
+                            RoundedRectangle(cornerRadius: 5)
                                 .fill(softColorForSubject(subject).opacity(0.35))
                         )
                         .foregroundStyle(softColorForSubject(subject))
@@ -250,7 +277,7 @@ private struct SubjectBookRow: View {
     }
 
     private var placeholder: some View {
-        RoundedRectangle(cornerRadius: 12)
+        RoundedRectangle(cornerRadius: 8)
             .fill(Color(.systemGray5))
             .overlay {
                 Image(systemName: "book.closed")

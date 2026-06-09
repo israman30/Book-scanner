@@ -13,15 +13,18 @@ import CoreData
 final class SubjectBrowseViewModelTests: XCTestCase {
 
     var viewModel: SubjectBrowseViewModel!
+    var sut: SubjectBrowseViewModelProtocol!
     var viewContext: NSManagedObjectContext!
 
     override func setUp() {
         super.setUp()
         viewContext = PersistenceController.preview.viewContext
         viewModel = SubjectBrowseViewModel(viewContext: viewContext)
+        sut = viewModel
     }
 
     override func tearDown() {
+        sut = nil
         viewModel = nil
         viewContext = nil
         super.tearDown()
@@ -35,7 +38,7 @@ final class SubjectBrowseViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.publishedIn, "")
         XCTAssertTrue(viewModel.books.isEmpty)
         XCTAssertFalse(viewModel.isLoading)
-        XCTAssertNil(viewModel.errorMessage)
+        XCTAssertNil(viewModel.error)
         XCTAssertEqual(viewModel.addMessage, "")
         XCTAssertFalse(viewModel.showAddMessage)
         XCTAssertNil(viewModel.justAddedTitle)
@@ -99,7 +102,7 @@ final class SubjectBrowseViewModelTests: XCTestCase {
 
     func test_performSearch_withEmptyInput_doesNothing() {
         viewModel.searchInput = ""
-        viewModel.performSearch()
+        sut.performSearch()
 
         // Give async task a moment; with empty input it returns immediately
         let expectation = expectation(description: "Search completes")
@@ -111,11 +114,12 @@ final class SubjectBrowseViewModelTests: XCTestCase {
 
         XCTAssertTrue(viewModel.books.isEmpty)
         XCTAssertFalse(viewModel.isLoading)
+        XCTAssertNil(viewModel.error)
     }
 
     func test_performSearch_withWhitespaceOnlyInput_doesNothing() {
         viewModel.searchInput = "   "
-        viewModel.performSearch()
+        sut.performSearch()
 
         let expectation = expectation(description: "Search completes")
         Task { @MainActor in
@@ -126,13 +130,31 @@ final class SubjectBrowseViewModelTests: XCTestCase {
 
         XCTAssertTrue(viewModel.books.isEmpty)
         XCTAssertFalse(viewModel.isLoading)
+        XCTAssertNil(viewModel.error)
+    }
+
+    // MARK: - SubjectBrowseViewModelError
+
+    func test_ErrorMessage_noResults_subject() {
+        let error = SubjectBrowseViewModelError.noResults(searchType: .subject, term: "science")
+        XCTAssertEqual(error.message, "No books found for subject \"science\"")
+    }
+
+    func test_ErrorMessage_noResults_title() {
+        let error = SubjectBrowseViewModelError.noResults(searchType: .title, term: "Pride and Prejudice")
+        XCTAssertEqual(error.message, "No books found for Title \"Pride and Prejudice\"")
+    }
+
+    func test_ErrorMessage_serviceFailure_passthrough() {
+        let error = SubjectBrowseViewModelError.serviceFailure(message: "Network error")
+        XCTAssertEqual(error.message, "Network error")
     }
 
     // MARK: - addBookToLibrary
 
     func test_addBookToLibrary_addsNewBook() {
         let bookItem = makeBookItem(title: "Test Book", authors: "Test Author", isbn: "978-1234567890")
-        viewModel.addBookToLibrary(bookItem)
+        sut.addBookToLibrary(bookItem)
 
         XCTAssertEqual(viewModel.addMessage, "\"Test Book\" added to your list.")
         XCTAssertTrue(viewModel.showAddMessage)
@@ -149,10 +171,10 @@ final class SubjectBrowseViewModelTests: XCTestCase {
 
     func test_addBookToLibrary_duplicateShowsMessage() {
         let bookItem = makeBookItem(title: "Duplicate Book", authors: "Author", isbn: "978-1111111111")
-        viewModel.addBookToLibrary(bookItem)
+        sut.addBookToLibrary(bookItem)
         viewModel.showAddMessage = false
 
-        viewModel.addBookToLibrary(bookItem)
+        sut.addBookToLibrary(bookItem)
 
         XCTAssertEqual(viewModel.addMessage, "This book is already in your list.")
         XCTAssertTrue(viewModel.showAddMessage)
@@ -166,7 +188,7 @@ final class SubjectBrowseViewModelTests: XCTestCase {
 
     func test_addBookToLibrary_bookWithoutIsbn_addsSuccessfully() {
         let bookItem = makeBookItem(title: "No ISBN Book", authors: "Author", isbn: nil)
-        viewModel.addBookToLibrary(bookItem)
+        sut.addBookToLibrary(bookItem)
 
         XCTAssertEqual(viewModel.addMessage, "\"No ISBN Book\" added to your list.")
         XCTAssertTrue(viewModel.showAddMessage)

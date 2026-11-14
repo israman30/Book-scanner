@@ -35,7 +35,7 @@ struct BookScannerView: View {
                 lookupState = .loading
                 book = nil
                 errorMessage = nil
-                announce("Code captured. Looking up book details.")
+                announce(AppConstants.Strings.codeCaptured)
                 fetchBook(for: code)
             }, onPermissionDenied: {
                 permissionDenied = true
@@ -48,32 +48,32 @@ struct BookScannerView: View {
                     .accessibilityHidden(true)
             }
             .ignoresSafeArea()
-            .accessibilityLabel("Live camera view for barcode scanning")
-            .accessibilityHint("Align the code inside the green frame to scan")
+            .accessibilityLabel(AppConstants.Accessibility.scannerViewLabel)
+            .accessibilityHint(AppConstants.Accessibility.scannerViewHint)
 
             VStack {
                 HStack {
                     Button {
                         dismiss()
                     } label: {
-                        Image(systemName: "xmark.circle.fill")
+                        Image(systemName: AppConstants.Icons.close)
                             .font(.system(size: 28, weight: .bold))
                             .foregroundStyle(.white)
                             .padding(12)
                     }
-                    .accessibilityLabel("Close scanner")
-                    .accessibilityHint("Returns to the previous screen")
+                    .accessibilityLabel(AppConstants.Accessibility.closeScanner)
+                    .accessibilityHint(AppConstants.Accessibility.closeScannerHint)
                     Spacer()
                 }
                 Spacer()
                 if let scannedCode {
-                    Text("Scanned: \(scannedCode)")
+                    Text("\(AppConstants.Strings.screenshotTitle) \(scannedCode)")
                         .font(.headline)
                         .foregroundStyle(.white)
                         .padding()
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
                         .padding(.bottom, 40)
-                        .accessibilityLabel("Scanned code")
+                        .accessibilityLabel(AppConstants.Accessibility.scannedCode)
                         .accessibilityValue(scannedCode)
                     BookLookupSection(
                         state: lookupState,
@@ -93,25 +93,25 @@ struct BookScannerView: View {
                     )
                     .padding(.bottom, 20)
                 } else {
-                    Text("Align the code in the frame")
+                    Text(AppConstants.Strings.alignCodeInFrame)
                         .font(.headline)
                         .foregroundStyle(.white.opacity(0.9))
                         .padding(.bottom, 40)
                         .multilineTextAlignment(.center)
-                        .accessibilityHint("Move your device until the barcode is centered")
+                        .accessibilityHint(AppConstants.Accessibility.alignCodeHint)
                 }
             }
             .padding()
         }
-        .alert("Camera Access Needed", isPresented: $permissionDenied) {
-            Button("OK", role: .cancel) {
+        .alert(AppConstants.Alerts.cameraAccessNeeded, isPresented: $permissionDenied) {
+            Button(AppConstants.Alerts.ok, role: .cancel) {
                 dismiss()
             }
         } message: {
-            Text("Enable camera permissions in Settings to scan barcodes and QR codes.")
+            Text(AppConstants.Alerts.cameraAccessMessage)
         }
         .alert(addMessage, isPresented: $showAddMessage) {
-            Button("OK", role: .cancel) { }
+            Button(AppConstants.Alerts.ok, role: .cancel) { }
         }
     }
 
@@ -125,7 +125,7 @@ struct BookScannerView: View {
                 self.book = item
                 self.lookupState = .loaded
                 let title = item.volumeInfo.title ?? "book"
-                announce("Book found: \(title)")
+                announce("\(AppConstants.Strings.bookFound) \(title)")
                 UIImpactFeedbackGenerator(style: .medium).impactOccurred()
             case .failure(let message):
                 self.errorMessage = message
@@ -149,23 +149,23 @@ struct BookScannerView: View {
             do {
                 let existing = try viewContext.fetch(request)
                 if !existing.isEmpty {
-                    addMessage = "This book is already in your list."
+                    addMessage = AppConstants.Strings.existingBook
                     showAddMessage = true
                     announce(addMessage)
                     return false
                 }
             } catch {
-                BookLog.error("Duplicate check failed: \(error)")
+                BookLog.error("Duplicate check failed: \(error)", category: "BookScannerView")
             }
         }
 
         _ = BookEntity.create(from: newEntry, in: viewContext)
         do {
             try viewContext.save()
-            addMessage = "\"\(newEntry.title)\" added to your list."
+            addMessage = AppConstants.Strings.bookAdded(newEntry.title)
             UINotificationFeedbackGenerator().notificationOccurred(.success)
         } catch {
-            addMessage = "Could not save book: \(error.localizedDescription)"
+            addMessage = AppConstants.Strings.errorSearchingUpBook(error.localizedDescription)
             showAddMessage = true
             announce(addMessage)
             return false
@@ -207,10 +207,10 @@ struct BookLookupSection: View {
                 HStack(spacing: 12) {
                     ProgressView()
                         .progressViewStyle(.circular)
-                    Text("Looking up book...")
+                    Text(AppConstants.Strings.loadingBooks)
                         .font(.subheadline)
                         .foregroundStyle(.white)
-                        .accessibilityLabel("Looking up book details")
+                        .accessibilityLabel(AppConstants.Strings.lookingUpBookDetails)
                 }
             case .loaded:
                 if let book {
@@ -220,7 +220,7 @@ struct BookLookupSection: View {
                     Button {
                         onAdd?(book)
                     } label: {
-                        Label("Add to My Books", systemImage: "plus.circle.fill")
+                        Label(AppConstants.Strings.addToMyBooks, systemImage: AppConstants.Icons.add)
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(.white.opacity(0.1))
@@ -228,16 +228,16 @@ struct BookLookupSection: View {
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                     .padding(.top, 8)
-                    .accessibilityHint("Adds this book to your saved list")
+                    .accessibilityHint(AppConstants.Accessibility.addToMyBooksHint)
                 }
             case .failed:
-                Text(errorMessage ?? "No book found")
+                Text(errorMessage ?? AppConstants.Strings.noBookFound)
                     .font(.subheadline)
                     .foregroundStyle(.red.opacity(0.9))
                     .padding(12)
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
-                    .accessibilityLabel("Lookup failed")
-                    .accessibilityValue(errorMessage ?? "No book found")
+                    .accessibilityLabel(AppConstants.Accessibility.lookupFailed)
+                    .accessibilityValue(errorMessage ?? AppConstants.Strings.noBookFound)
             }
         }
         .animation(.easeInOut, value: state)
@@ -250,7 +250,7 @@ struct BookDetailCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(book.volumeInfo.title ?? "Unknown Title")
+            Text(book.volumeInfo.title ?? AppConstants.Strings.unknownTitle)
                 .font(.headline)
                 .foregroundStyle(.white)
 
@@ -285,7 +285,9 @@ struct BookDetailCard: View {
             in: RoundedRectangle(cornerRadius: 8)
         )
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Book details")
+        .accessibilityLabel(AppConstants.Accessibility.bookDetails)
+        .accessibilityHint(AppConstants.Accessibility.bookDetailsHint)
+        .accessibilityAddTraits(.isButton)
         .accessibilityValue(accessibilitySummary)
     }
 

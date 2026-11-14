@@ -62,7 +62,7 @@ struct SavedBookCardView: View {
                     .lineLimit(2)
                 Spacer(minLength: 4)
                 if book.isFavorite {
-                    Image(systemName: "heart.fill")
+                    Image(systemName: AppConstants.Icons.heartFill)
                         .font(.caption)
                         .foregroundStyle(.pink)
                 }
@@ -150,7 +150,7 @@ struct SavedBookCardView: View {
         RoundedRectangle(cornerRadius: 8)
             .fill(Color(.systemGray5))
             .overlay {
-                Image(systemName: "book.closed")
+                Image(systemName: AppConstants.Icons.bookClosed)
                     .foregroundStyle(.secondary)
             }
     }
@@ -212,7 +212,7 @@ struct SavedBookGridCellView: View {
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(alignment: .topTrailing) {
             if book.isFavorite {
-                Image(systemName: "heart.fill")
+                Image(systemName: AppConstants.Icons.heartFill)
                     .font(.caption)
                     .foregroundStyle(.pink)
                     .padding(6)
@@ -224,7 +224,7 @@ struct SavedBookGridCellView: View {
         RoundedRectangle(cornerRadius: 8)
             .fill(Color(.systemGray5))
             .overlay {
-                Image(systemName: "book.closed")
+                Image(systemName: AppConstants.Icons.bookClosed)
                     .foregroundStyle(.secondary)
             }
     }

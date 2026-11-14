@@ -57,29 +57,29 @@ struct SavedBooksView: View {
                     booksListView
                 }
             }
-            .navigationTitle("My Books")
-            .searchable(text: $searchText, prompt: "Search by title, author, ISBN, or subject")
+            .navigationTitle(AppConstants.Strings.myBooks)
+            .searchable(text: $searchText, prompt: AppConstants.Strings.searchPlaceholderSubject)
             .onAppear {
                 onBooksLoaded?()
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") {
+                    Button(AppConstants.Strings.done) {
                         dismiss()
                     }
-                    .accessibilityLabel("Close library")
+                    .accessibilityLabel(AppConstants.Accessibility.closeLibrary)
                 }
                 ToolbarItem(placement: .primaryAction) {
                     if !filteredBooks.isEmpty && displayMode == .list {
                         EditButton()
-                            .accessibilityLabel("Edit saved books")
+                            .accessibilityLabel(AppConstants.Accessibility.editSavedBooks)
                     }
                 }
                 ToolbarItem(placement: .secondaryAction) {
                     if !filteredBooks.isEmpty {
                         ShareBookListButton(books: filteredBooks.map(\.toSavedBook))
-                            .accessibilityLabel("Share book list")
-                            .accessibilityHint("Share your book list with friends or family")
+                            .accessibilityLabel(AppConstants.Accessibility.shareBookList)
+                            .accessibilityHint(AppConstants.Accessibility.shareBookListHint)
                     }
                 }
                 ToolbarItem(placement: .primaryAction) {
@@ -87,10 +87,10 @@ struct SavedBooksView: View {
                         Button {
                             displayMode = displayMode == .list ? .grid : .list
                         } label: {
-                            Image(systemName: displayMode == .list ? "square.grid.2x2" : "list.bullet")
-                            Text(displayMode == .list ? "Grid" : "List")
+                            Image(systemName: displayMode == .list ? AppConstants.Icons.squareGrid2x2 : AppConstants.Icons.listBullet)
+                            Text(displayMode == .list ? AppConstants.Strings.grid : AppConstants.Strings.list)
                         }
-                        .accessibilityLabel(displayMode == .list ? "Switch to grid view" : "Switch to list view")
+                        .accessibilityLabel(displayMode == .list ? AppConstants.Accessibility.switchToGridView : AppConstants.Accessibility.switchToListView)
                     }
                 }
             }
@@ -123,8 +123,8 @@ struct SavedBooksView: View {
                         PersistenceController.shared.save()
                     } label: {
                         Label(
-                            book.isFavorite ? "Unfavorite" : "Favorite",
-                            systemImage: book.isFavorite ? "heart.slash" : "heart"
+                            book.isFavorite ? AppConstants.Strings.unfavorite : AppConstants.Strings.favorite,
+                            systemImage: book.isFavorite ? AppConstants.Icons.heartSlash : AppConstants.Icons.heart
                         )
                     }
                     .tint(book.isFavorite ? .gray : .pink)
@@ -134,13 +134,13 @@ struct SavedBooksView: View {
                         viewContext.delete(book)
                         PersistenceController.shared.save()
                     } label: {
-                        Label("Delete", systemImage: "trash")
+                        Label(AppConstants.Strings.delete, systemImage: AppConstants.Icons.trash)
                     }
                     Button {
                         shareItems = [exportSingleBook(book)]
                         showShareSheet = true
                     } label: {
-                        Label("Share", systemImage: "square.and.arrow.up")
+                        Label(AppConstants.Strings.share, systemImage: AppConstants.Icons.share)
                     }
                     .tint(.blue)
                 }
@@ -178,15 +178,15 @@ struct SavedBooksView: View {
                             shareItems = [exportSingleBook(book)]
                             showShareSheet = true
                         } label: {
-                            Label("Share", systemImage: "square.and.arrow.up")
+                            Label(AppConstants.Strings.share, systemImage: AppConstants.Icons.share)
                         }
                         Button {
                             book.isFavorite.toggle()
                             PersistenceController.shared.save()
                         } label: {
                             Label(
-                                book.isFavorite ? "Remove from favorites" : "Add to favorites",
-                                systemImage: book.isFavorite ? "heart.slash" : "heart"
+                                book.isFavorite ? AppConstants.Strings.unfavorite : AppConstants.Strings.favorite,
+                                systemImage: book.isFavorite ? AppConstants.Icons.heartSlash : AppConstants.Icons.heart
                             )
                         }
                         Divider()
@@ -194,7 +194,7 @@ struct SavedBooksView: View {
                             viewContext.delete(book)
                             PersistenceController.shared.save()
                         } label: {
-                            Label("Delete", systemImage: "trash")
+                            Label(AppConstants.Strings.delete, systemImage: AppConstants.Icons.trash)
                         }
                     }
                 }
@@ -257,8 +257,8 @@ struct SavedBooksView: View {
                 shareItems = [exportBookList()]
                 showShareSheet = true
             } label: {
-                Image(systemName: "square.and.arrow.up")
-                Text("Share")
+                Image(systemName: AppConstants.Icons.squareAndArrowUp)
+                Text(AppConstants.Strings.share)
             }
             .sheet(isPresented: $showShareSheet) {
                 ShareSheet(items: shareItems)
@@ -302,22 +302,22 @@ struct SavedBooksView: View {
     /// Empty Library placeholder
     private var emptyLibraryView: some View {
         VStack(spacing: 16) {
-            Image(systemName: "books.vertical")
+            Image(systemName: AppConstants.Icons.booksVertical)
                 .font(.system(size: 48))
                 .foregroundStyle(.tertiary)
-            Text("No books yet")
+            Text(AppConstants.Strings.noBooksYet)
                 .font(.title2)
                 .fontWeight(.semibold)
                 .foregroundStyle(.primary)
-            Text("Scan and add books to see them here.")
+            Text(AppConstants.Strings.scanAndAddBooksToSeeThemHere)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("No books yet")
-        .accessibilityHint("Scan and add books to see them here")
+        .accessibilityLabel(AppConstants.Accessibility.noBooksYet)
+        .accessibilityHint(AppConstants.Strings.scanAndAddBooksToSeeThemHere)
     }
 
     /// Shown when search yields no matches, with suggestion tips.

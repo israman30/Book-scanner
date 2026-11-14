@@ -11,13 +11,6 @@ import CoreData
 import UIKit
 import Combine
 
-enum SearchType: String, CaseIterable {
-    case isbn = "ISBN"
-    case author = "Author"
-    case title = "Title"
-    case subject = "Subject"
-}
-
 /// Errors/empty-states produced by `SubjectBrowseViewModel`.
 /// Centralizes user-facing messaging so views don't need to interpret raw strings.
 enum SubjectBrowseViewModelError: Error, Equatable {
@@ -30,9 +23,7 @@ enum SubjectBrowseViewModelError: Error, Equatable {
     var message: String {
         switch self {
         case .noResults(let searchType, let term):
-            return searchType == .subject
-                ? "No books found for subject \"\(term)\""
-                : "No books found for \(searchType.rawValue) \"\(term)\""
+            return AppConstants.Strings.noResults(for: searchType, term: term)
         case .serviceFailure(let message):
             return message
         }
@@ -149,7 +140,7 @@ final class SubjectBrowseViewModel: ObservableObject {
             do {
                 let existing = try viewContext.fetch(request)
                 if !existing.isEmpty {
-                    addMessage = "This book is already in your list."
+                    addMessage = AppConstants.Strings.thisBookAlreadyExistInYourList
                     showAddMessage = true
                     return
                 }
@@ -163,7 +154,7 @@ final class SubjectBrowseViewModel: ObservableObject {
         _ = BookEntity.create(from: newEntry, in: viewContext)
         do {
             try viewContext.save()
-            addMessage = "\"\(newEntry.title)\" added to your list."
+            addMessage = AppConstants.Strings.bookAdded(newEntry.title)
             UINotificationFeedbackGenerator().notificationOccurred(.success)
             withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
                 // Used by the list row to briefly highlight the item that was added.
@@ -177,7 +168,7 @@ final class SubjectBrowseViewModel: ObservableObject {
             }
         } catch {
             // Surface persistence failures explicitly—this is actionable for users.
-            addMessage = "Could not save book: \(error.localizedDescription)"
+            addMessage = AppConstants.Strings.couldNotSaveBook(error.localizedDescription)
         }
         showAddMessage = true
     }

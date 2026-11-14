@@ -51,21 +51,21 @@ struct CollectionStatsView: View {
             EmptyView()
         } else {
             VStack(alignment: .leading, spacing: 20) {
-                Text("Your Collection")
+                Text(AppConstants.Strings.yourCollection)
                     .font(.headline)
                     .foregroundStyle(.secondary)
 
                 HStack(spacing: 16) {
                     statCard(
                         value: "\(totalBooks)",
-                        label: "Total books",
-                        icon: "books.vertical"
+                        label: AppConstants.Strings.totalBooks,
+                        icon: AppConstants.Icons.booksVertical
                     )
                     if let top = mostOwnedSubject {
                         statCard(
                             value: top.subject,
                             label: "Top subject (\(top.count))",
-                            icon: "tag.fill"
+                            icon: AppConstants.Icons.tagFill
                         )
                     }
                 }
@@ -110,7 +110,7 @@ struct CollectionStatsView: View {
 
     private var subjectsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Books per subject")
+            Text(AppConstants.Strings.bookSubjects)
                 .font(.subheadline)
                 .fontWeight(.medium)
                 .foregroundStyle(.secondary)
@@ -166,7 +166,7 @@ struct CollectionStatsView: View {
 
     private var recentlyAddedSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Recently added")
+            Text(AppConstants.Strings.recentlyAdded)
                 .font(.subheadline)
                 .fontWeight(.medium)
                 .foregroundStyle(.secondary)
@@ -215,7 +215,7 @@ struct CollectionStatsView: View {
         RoundedRectangle(cornerRadius: 8)
             .fill(Color(.systemGray5))
             .overlay {
-                Image(systemName: "book.closed")
+                Image(systemName: AppConstants.Icons.bookClosed)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

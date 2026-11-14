@@ -50,7 +50,7 @@ struct SubjectBrowseView: View {
                 Button {
                     text.wrappedValue = ""
                 } label: {
-                    Image(systemName: "xmark.circle.fill")
+                    Image(systemName: AppConstants.Icons.close)
                         .font(.body)
                         .foregroundStyle(.secondary)
                         .symbolRenderingMode(.hierarchical)
@@ -72,11 +72,11 @@ struct SubjectBrowseView: View {
         NavigationStack {
             VStack(spacing: 20) {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Search by")
+                    Text(AppConstants.Strings.searchBy)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                    Picker("Search type", selection: $viewModel.searchType) {
-                        ForEach(SearchType.allCases, id: \.self) { type in
+                    Picker(AppConstants.Strings.searchType, selection: $viewModel.searchType) {
+                        ForEach(SearchType.allCases, id: \ .self) { type in
                             Text(type.rawValue).tag(type)
                         }
                     }
@@ -88,32 +88,29 @@ struct SubjectBrowseView: View {
                     styledTextField(
                         placeholder: viewModel.searchPlaceholder,
                         text: $viewModel.searchInput,
-                        icon: viewModel.searchType == .isbn ? "barcode" : "magnifyingglass"
+                        icon: viewModel.searchType == .isbn ? AppConstants.Icons.barcode : AppConstants.Icons.magnifyingGlass
                     )
                     .autocapitalization(.none)
                     .keyboardType(viewModel.searchType == .isbn ? .numbersAndPunctuation : .default)
                     .submitLabel(.search)
                     .onSubmit {
                         dismissKeyboard()
-                        // Search from the keyboard to match the button behavior.
                         viewModel.performSearch()
                     }
 
                     if viewModel.searchType == .subject {
-                        Text("Published in (optional)")
+                        Text(AppConstants.Strings.publishedInOptional)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                         styledTextField(
-                            placeholder: "e.g. 1500-1600 or leave empty",
+                            placeholder: AppConstants.Strings.publishedInExample,
                             text: $viewModel.publishedIn,
-                            icon: "calendar"
+                            icon: AppConstants.Icons.calendar
                         )
                         .keyboardType(.numbersAndPunctuation)
                         .submitLabel(.search)
                         .onSubmit {
                             dismissKeyboard()
-                            // If the user finishes editing the optional year range,
-                            // treat Return as “search” for a snappy flow.
                             viewModel.performSearch()
                         }
                     }
@@ -129,7 +126,7 @@ struct SubjectBrowseView: View {
                             .progressViewStyle(.circular)
                             .tint(.white)
                     } else {
-                        Text("Search")
+                        Text(AppConstants.Strings.search)
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -150,7 +147,7 @@ struct SubjectBrowseView: View {
 
                 ScrollView {
                     LazyVStack(spacing: 16) {
-                        ForEach(Array(viewModel.books.enumerated()), id: \.offset) { _, book in
+                        ForEach(Array(viewModel.books.enumerated()), id: \ .offset) { _, book in
                             SubjectBookRow(
                                 book: book,
                                 didJustAdd: viewModel.justAddedTitle == book.volumeInfo.title
@@ -162,16 +159,16 @@ struct SubjectBrowseView: View {
                     .padding(20)
                 }
             }
-            .navigationTitle("Browse Books")
+            .navigationTitle(AppConstants.Strings.browseBooksTitle)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") {
+                    Button(AppConstants.Strings.done) {
                         dismiss()
                     }
                 }
             }
             .alert(viewModel.addMessage, isPresented: $viewModel.showAddMessage) {
-                Button("OK", role: .cancel) { }
+                Button(AppConstants.Strings.ok, role: .cancel) { }
             }
         }
     }
@@ -204,7 +201,7 @@ private struct SubjectBookRow: View {
             }
 
             VStack(alignment: .leading, spacing: 6) {
-                Text(book.volumeInfo.title ?? "Unknown")
+                Text(book.volumeInfo.title ?? AppConstants.Strings.unknown)
                     .font(.headline)
                     .fontWeight(.semibold)
                 if let authors = book.volumeInfo.authors?.joined(separator: ", ") {
@@ -213,7 +210,7 @@ private struct SubjectBookRow: View {
                         .foregroundStyle(.secondary)
                 }
                 if let published = book.volumeInfo.publishedDate {
-                    Text("Published: \(published)")
+                    Text("\(AppConstants.Strings.published): \(published)")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -227,7 +224,7 @@ private struct SubjectBookRow: View {
             Button {
                 onAdd()
             } label: {
-                Image(systemName: "plus.circle.fill")
+                Image(systemName: AppConstants.Icons.add)
                     .font(.title2)
             }
         }
@@ -280,7 +277,7 @@ private struct SubjectBookRow: View {
         RoundedRectangle(cornerRadius: 8)
             .fill(Color(.systemGray5))
             .overlay {
-                Image(systemName: "book.closed")
+                Image(systemName: AppConstants.Icons.bookClosed)
                     .foregroundStyle(.secondary)
             }
     }

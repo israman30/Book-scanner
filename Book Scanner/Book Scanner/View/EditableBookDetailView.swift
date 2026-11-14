@@ -36,7 +36,7 @@ struct EditableBookDetailView: View {
             }
         }
         .background(Color(.systemGroupedBackground))
-        .navigationTitle("Book Details")
+        .navigationTitle(AppConstants.Strings.bookDetails)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -45,30 +45,30 @@ struct EditableBookDetailView: View {
                         shareItems = [exportSingleBook()]
                         showShareSheet = true
                     } label: {
-                        Label("Share", systemImage: "square.and.arrow.up")
+                        Label(AppConstants.Strings.share, systemImage: AppConstants.Icons.squareAndArrowUp)
                     }
                     Button {
                         showEditSheet = true
                     } label: {
-                        Label("Edit", systemImage: "pencil")
+                        Label(AppConstants.Strings.edit, systemImage: AppConstants.Icons.pencil)
                     }
                     Divider()
                     Button(role: .destructive) {
                         showDeleteConfirmation = true
                     } label: {
-                        Label("Delete", systemImage: "trash")
+                        Label(AppConstants.Strings.delete, systemImage: AppConstants.Icons.trash)
                     }
                 } label: {
-                    Image(systemName: "ellipsis.circle")
+                    Image(systemName: AppConstants.Icons.ellipsisCircle)
                 }
-                .accessibilityLabel("Book actions")
+                .accessibilityLabel(AppConstants.Accessibility.bookActions)
             }
         }
-        .confirmationDialog("Delete Book", isPresented: $showDeleteConfirmation) {
-            Button("Delete", role: .destructive) {
+        .confirmationDialog(AppConstants.Strings.deleteBook, isPresented: $showDeleteConfirmation) {
+            Button(AppConstants.Strings.delete, role: .destructive) {
                 deleteBook()
             }
-            Button("Cancel", role: .cancel) {}
+            Button(AppConstants.Strings.cancel, role: .cancel) {}
         } message: {
             Text("Remove \"\(book.title ?? "")\" from your catalog? This cannot be undone.")
         }
@@ -126,7 +126,7 @@ struct EditableBookDetailView: View {
         .frame(width: coverWidth, height: coverHeight)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: 6)
-        .accessibilityLabel("Book cover")
+        .accessibilityLabel(AppConstants.Accessibility.bookCover)
         .onTapGesture {
             showThumbnailFullScreen = true
         }
@@ -137,11 +137,11 @@ struct EditableBookDetailView: View {
             .fill(Color(.systemGray5))
             .frame(width: coverWidth, height: coverHeight)
             .overlay {
-                Image(systemName: "book.closed")
+                Image(systemName: AppConstants.Icons.bookClosed)
                     .font(.system(size: 48))
                     .foregroundStyle(.tertiary)
             }
-            .accessibilityLabel("No book cover available")
+            .accessibilityLabel(AppConstants.Accessibility.bookCoverNoAvailable)
     }
 
     // MARK: - Title
@@ -170,21 +170,21 @@ struct EditableBookDetailView: View {
     private var quickActionsSection: some View {
         HStack(spacing: 20) {
             QuickActionButton(
-                title: "Share",
-                icon: "square.and.arrow.up",
+                title: AppConstants.Strings.share,
+                icon: AppConstants.Icons.squareAndArrowUp,
                 action: {
                     shareItems = [exportSingleBook()]
                     showShareSheet = true
                 }
             )
             QuickActionButton(
-                title: "Edit",
-                icon: "pencil",
+                title: AppConstants.Strings.edit,
+                icon: AppConstants.Icons.pencil,
                 action: { showEditSheet = true }
             )
             QuickActionButton(
-                title: "Delete",
-                icon: "trash",
+                title: AppConstants.Strings.delete,
+                icon: AppConstants.Icons.trash,
                 tint: .red,
                 action: { showDeleteConfirmation = true }
             )
@@ -199,7 +199,7 @@ struct EditableBookDetailView: View {
     private var descriptionSection: some View {
         Group {
             if let description = book.bookDescription, !description.isEmpty {
-                SectionView(title: "Description") {
+                SectionView(title: AppConstants.Strings.description) {
                     Text(description)
                         .font(.body)
                         .foregroundStyle(.primary)
@@ -212,13 +212,13 @@ struct EditableBookDetailView: View {
     // MARK: - Metadata
 
     private var metadataSection: some View {
-        SectionView(title: "Metadata") {
+        SectionView(title: AppConstants.Strings.metadata) {
             VStack(alignment: .leading, spacing: 14) {
                 if let publisher = book.publisher, !publisher.isEmpty {
-                    MetadataRow(label: "Publisher", value: publisher)
+                    MetadataRow(label: AppConstants.Strings.publisher, value: publisher)
                 }
                 if let publishedDate = book.publishedDate {
-                    MetadataRow(label: "Published", value: publishedDate)
+                    MetadataRow(label: AppConstants.Strings.published, value: publishedDate)
                 }
                 if let subjects = book.subjects, !subjects.isEmpty {
                     subjectBadgesSection(subjects: subjects)
@@ -226,7 +226,7 @@ struct EditableBookDetailView: View {
                 if (book.publisher?.isEmpty ?? true) &&
                    book.publishedDate == nil &&
                    (book.subjects?.isEmpty ?? true) {
-                    Text("No metadata available")
+                    Text(AppConstants.Strings.noMetdataAvailable)
                         .font(.subheadline)
                         .foregroundStyle(.tertiary)
                 }
@@ -239,7 +239,7 @@ struct EditableBookDetailView: View {
             .split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
         return VStack(alignment: .leading, spacing: 8) {
-            Text("Subjects")
+            Text(AppConstants.Strings.subjects)
                 .font(.caption)
                 .foregroundStyle(.tertiary)
             ScrollView(.horizontal, showsIndicators: false) {
@@ -280,7 +280,7 @@ struct EditableBookDetailView: View {
     // MARK: - ISBN
 
     private var isbnSection: some View {
-        SectionView(title: "ISBN") {
+        SectionView(title: AppConstants.Strings.isbn) {
             HStack {
                 if let isbn = book.isbn, !isbn.isEmpty {
                     Text(isbn)
@@ -291,17 +291,17 @@ struct EditableBookDetailView: View {
                         copyISBNToClipboard(isbn)
                     } label: {
                         Label(
-                            isbnCopied ? "Copied" : "Copy",
-                            systemImage: isbnCopied ? "checkmark.circle.fill" : "doc.on.doc"
+                            isbnCopied ? AppConstants.Strings.copied : AppConstants.Strings.copy,
+                            systemImage: isbnCopied ? AppConstants.Icons.checkmarkCircleFill : AppConstants.Icons.docOnDoc
                         )
                         .font(.subheadline)
                         .foregroundStyle(isbnCopied ? .green : .accentColor)
                     }
                     .buttonStyle(.borderless)
                     .disabled(isbnCopied)
-                    .accessibilityHint("Copies ISBN to clipboard")
+                    .accessibilityHint(AppConstants.Accessibility.copiesISBNtoClipboard)
                 } else {
-                    Text("Not available")
+                    Text(AppConstants.Strings.noMetdataAvailable)
                         .font(.body)
                         .foregroundStyle(.tertiary)
                 }
@@ -315,7 +315,7 @@ struct EditableBookDetailView: View {
     private var notesSection: some View {
         Group {
             if let notes = book.notes, !notes.isEmpty {
-                SectionView(title: "Notes") {
+                SectionView(title: AppConstants.Strings.notes) {
                     Text(notes)
                         .font(.body)
                         .foregroundStyle(.primary)
@@ -463,17 +463,17 @@ private struct BookEditSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Book Info") {
-                    TextField("Title", text: Binding(
+                Section(AppConstants.Strings.bookInfo) {
+                    TextField(AppConstants.Strings.title, text: Binding(
                         get: { book.title ?? "" },
                         set: { book.title = $0 }
                     ))
-                    TextField("Authors", text: Binding(
+                    TextField(AppConstants.Strings.authors, text: Binding(
                         get: { book.authors ?? "" },
                         set: { book.authors = $0 }
                     ))
                 }
-                Section("Notes") {
+                Section(AppConstants.Strings.notes) {
                     TextEditor(text: Binding(
                         get: { book.notes ?? "" },
                         set: { book.notes = $0.isEmpty ? nil : $0 }
@@ -482,7 +482,7 @@ private struct BookEditSheet: View {
                     .font(.body)
                     .overlay(alignment: .topLeading) {
                         if (book.notes ?? "").isEmpty {
-                            Text("Add your thoughts, highlights, or reminders about this book…")
+                            Text(AppConstants.Strings.addYourThoughtsHighlights)
                                 .foregroundStyle(.tertiary)
                                 .padding(.horizontal, 5)
                                 .padding(.vertical, 8)
@@ -491,17 +491,17 @@ private struct BookEditSheet: View {
                     }
                 }
             }
-            .navigationTitle("Edit Book")
+            .navigationTitle(AppConstants.Strings.editBook)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button(AppConstants.Strings.cancel) {
                         viewContext.rollback()
                         dismiss()
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+                    Button(AppConstants.Strings.save) {
                         PersistenceController.shared.save()
                         dismiss()
                     }

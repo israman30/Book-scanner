@@ -14,13 +14,14 @@ struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
 
     private var appVersion: String {
-        (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String) ?? "1.0"
+        AppConstants.Strings.appVersion.isEmpty ? "1.0" : AppConstants.Strings.appVersion
     }
+
     private var currentYear: String {
         String(Calendar.current.component(.year, from: Date()))
     }
 
-    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @AppStorage(AppConstants.Strings.storage) private var hasCompletedOnboarding = false
     @State private var showScanner = false
     @State private var showLibrary = false
     @State private var showSubjectBrowse = false
@@ -34,7 +35,7 @@ struct ContentView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                Text("Welcome to Book Scanner")
+                Text(AppConstants.Strings.welcome)
                     .font(.title2)
                     .fontWeight(.semibold)
                     .accessibilityAddTraits(.isHeader)
@@ -45,7 +46,7 @@ struct ContentView: View {
                     Button {
                         showScanner = true
                     } label: {
-                        Label("Scan Now", systemImage: "camera.viewfinder")
+                        Label(AppConstants.Strings.scanNow, systemImage: AppConstants.Icons.cameraViewfinder)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
                             .background(Color.accentColor)
@@ -55,13 +56,13 @@ struct ContentView: View {
                     .buttonStyle(.plain)
                     .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
                     .padding(.horizontal, 20)
-                    .accessibilityLabel("Start scanning a book")
-                    .accessibilityHint("Opens the camera to scan a barcode or QR code")
+                    .accessibilityLabel(AppConstants.Accessibility.startScanningABook)
+                    .accessibilityHint(AppConstants.Accessibility.startScanningHint)
 
                     Button {
                         showSubjectBrowse = true
                     } label: {
-                        Label("Browse Books", systemImage: "tag")
+                        Label(AppConstants.Strings.browseBooks, systemImage: AppConstants.Icons.tag)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
                             .background(Color(.secondarySystemGroupedBackground))
@@ -75,14 +76,14 @@ struct ContentView: View {
                     .buttonStyle(.plain)
                     .shadow(color: .black.opacity(0.06), radius: 6, x: 0, y: 3)
                     .padding(.horizontal, 20)
-                    .accessibilityLabel("Browse Books")
-                    .accessibilityHint("Opens subject browse using Open Library API")
+                    .accessibilityLabel(AppConstants.Accessibility.browseBooks)
+                    .accessibilityHint(AppConstants.Accessibility.browseBooksHint)
 
                     Button {
                         isLoadingLibrary = true
                         showLibrary = true
                     } label: {
-                        Label("View Saved Books (\(savedBooks.count))", systemImage: "books.vertical")
+                        Label(AppConstants.Strings.viewSavedBooks(count: savedBooks.count), systemImage: AppConstants.Icons.booksVertical)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
                             .background(Color(.secondarySystemGroupedBackground))
@@ -96,13 +97,17 @@ struct ContentView: View {
                     .buttonStyle(.plain)
                     .shadow(color: .black.opacity(0.06), radius: 6, x: 0, y: 3)
                     .padding(.horizontal, 20)
-                    .accessibilityLabel("View saved books")
-                    .accessibilityValue("\(savedBooks.count) books")
-                    .accessibilityHint("Opens your saved library")
+                    .accessibilityLabel(AppConstants.Accessibility.viewSavedBooks)
+                    .accessibilityValue(
+                        AppConstants
+                            .Accessibility
+                            .savedBooks(savedBooks.count)
+                    )
+                    .accessibilityHint(AppConstants.Accessibility.viewSavedBooksHint)
                 }
 
                 VStack(spacing: 4) {
-                    Text("Version \(appVersion)")
+                    Text("\(AppConstants.Strings.version) \(appVersion)")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -118,7 +123,7 @@ struct ContentView: View {
                     VStack(spacing: 16) {
                         ProgressView()
                             .scaleEffect(1.2)
-                        Text("Loading books...")
+                        Text(AppConstants.Strings.loadingBooks)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }

@@ -29,7 +29,7 @@ struct ThumbnailView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") {
+                    Button(AppConstants.Strings.done) {
                         dismiss()
                     }
                 }

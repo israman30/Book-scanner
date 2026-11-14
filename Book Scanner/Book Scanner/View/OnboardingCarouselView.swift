@@ -21,24 +21,24 @@ struct OnboardingCarouselView: View {
 
     private let pages: [OnboardingPage] = [
         OnboardingPage(
-            icon: "book.closed.fill",
-            title: "Welcome to Book Scanner",
-            subtitle: "Build your personal book library by scanning barcodes, browsing by subject, and saving your favorites."
+            icon: AppConstants.Icons.bookClosedFill,
+            title: AppConstants.Strings.welcome,
+            subtitle: AppConstants.Strings.buildYourPersonalBookLibrary
         ),
         OnboardingPage(
-            icon: "camera.viewfinder",
-            title: "Scan Book Barcodes",
-            subtitle: "Tap \"Scan Now\" to open the camera. Align a book's barcode or QR code in the frame to look up book details instantly."
+            icon: AppConstants.Icons.cameraViewfinder,
+            title: AppConstants.Strings.scanBookBarcodes,
+            subtitle: AppConstants.Strings.tapScanNowToOpenTheCamera
         ),
         OnboardingPage(
-            icon: "tag.fill",
-            title: "Browse by Subject",
-            subtitle: "Use \"Browse Books\" to search by ISBN, author, title, or subject. Discover new reads from the Open Library catalog."
+            icon: AppConstants.Icons.tagFill,
+            title: AppConstants.Strings.browseSubjects,
+            subtitle: AppConstants.Strings.useBrowseBooksToSearchByISBNAuthorTitleSubject
         ),
         OnboardingPage(
-            icon: "books.vertical.fill",
-            title: "Save & Organize",
-            subtitle: "Add books to your library and access them anytime. Edit details, share your list, or browse your collection by subject."
+            icon: AppConstants.Icons.booksVerticalFill,
+            title: AppConstants.Strings.saveAndOrganize,
+            subtitle: AppConstants.Strings.addBooksToYourLibraryAndAccessThemAnytimeEditDetailsSharelist
         )
     ]
 
@@ -74,8 +74,8 @@ struct OnboardingCarouselView: View {
             }
             .padding(.top, 12)
             .padding(.trailing, 8)
-            .accessibilityLabel("Skip onboarding")
-            .accessibilityHint("Dismisses the onboarding and goes to the main screen")
+            .accessibilityLabel(AppConstants.Accessibility.skipOnboarding)
+            .accessibilityHint(AppConstants.Accessibility.skipOnboardingHint)
         }
         .background(Color(.systemGroupedBackground))
     }
@@ -136,7 +136,7 @@ struct OnboardingCarouselView: View {
                 }
             }
         } label: {
-            Text(currentPage == pages.count - 1 ? "Get Started" : "Continue")
+            Text(currentPage == pages.count - 1 ? AppConstants.Strings.getStarted : AppConstants.Strings.continue)
                 .font(.headline)
                 .fontWeight(.semibold)
                 .frame(maxWidth: .infinity)

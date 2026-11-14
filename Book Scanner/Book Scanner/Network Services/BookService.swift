@@ -245,7 +245,7 @@ final class BookService {
         await search(query: "isbn:\(isbn)", fallbackIsbn: isbn)
     }
 
-    /// Queries Open Library by general search (title, author, etc).
+    /// Queries Open Library by general search (title, author, etc ).
     /// Uses: https://openlibrary.org/search.json?q={query}
     static func search(query: String) async -> BookResult {
         await search(query: query, fallbackIsbn: nil)
@@ -267,7 +267,7 @@ final class BookService {
             guard (200...299).contains(httpResponse.statusCode) else {
                 #if DEBUG
                 if let body = String(data: data, encoding: .utf8) {
-                    print("[BookService] searchByQuery bad status \(httpResponse.statusCode): \(body.prefix(500))")
+                    BookLog.warning("searchByQuery bad status \(httpResponse.statusCode): \(body.prefix(500))", category: "BookService")
                 }
                 #endif
                 return .failure(BookServiceError.badStatus(code: httpResponse.statusCode).message)
@@ -277,7 +277,7 @@ final class BookService {
             return .success(books)
         } catch let error as DecodingError {
             #if DEBUG
-            print("[BookService] searchByQuery decoding failed: \(error)")
+            BookLog.error("searchByQuery decoding failed", category: "BookService", error: error)
             #endif
             return .failure(BookServiceError.decodingFailed(error).message)
         } catch {
@@ -303,7 +303,7 @@ final class BookService {
             guard (200...299).contains(httpResponse.statusCode) else {
                 #if DEBUG
                 if let body = String(data: data, encoding: .utf8) {
-                    print("[BookService] searchBySubject bad status \(httpResponse.statusCode): \(body.prefix(500))")
+                    BookLog.warning("searchBySubject bad status \(httpResponse.statusCode): \(body.prefix(500))", category: "BookService")
                 }
                 #endif
                 return .failure(BookServiceError.badStatus(code: httpResponse.statusCode).message)
@@ -313,7 +313,7 @@ final class BookService {
             return .success(books)
         } catch let error as DecodingError {
             #if DEBUG
-            print("[BookService] searchBySubject decoding failed: \(error)")
+            BookLog.error("searchBySubject decoding failed", category: "BookService", error: error)
             #endif
             return .failure(BookServiceError.decodingFailed(error).message)
         } catch {
@@ -361,7 +361,7 @@ final class BookService {
             guard (200...299).contains(httpResponse.statusCode) else {
                 #if DEBUG
                 if let body = String(data: data, encoding: .utf8) {
-                    print("[BookService] Bad status \(httpResponse.statusCode): \(body.prefix(500))")
+                    BookLog.warning("Bad status \(httpResponse.statusCode): \(body.prefix(500))", category: "BookService")
                 }
                 #endif
                 return .failure(BookServiceError.badStatus(code: httpResponse.statusCode).message)
@@ -369,7 +369,7 @@ final class BookService {
             let searchResponse = try JSONDecoder().decode(OpenLibrarySearchResponse.self, from: data)
             if let firstDoc = searchResponse.docs.first {
                 let bookItem = BookService.mapToBookItem(doc: firstDoc, searchIsbn: fallbackIsbn)
-                BookService.logBookDetails(bookItem)
+                BookLog.bookDetails(bookItem)
                 return .success(bookItem)
             } else {
                 let msg = fallbackIsbn.map { BookServiceError.noBooksFound(isbn: $0).message }
@@ -378,7 +378,7 @@ final class BookService {
             }
         } catch let error as DecodingError {
             #if DEBUG
-            print("[BookService] search decoding failed: \(error)")
+            BookLog.error("search decoding failed", category: "BookService", error: error)
             #endif
             return .failure(BookServiceError.decodingFailed(error).message)
         } catch {
@@ -416,21 +416,4 @@ final class BookService {
         )
         return BookItem(volumeInfo: volumeInfo)
     }
-
-    /// Helper used for debugging to print book metadata when found.
-    private static func logBookDetails(_ book: BookItem) {
-        guard let title = book.volumeInfo.title else { return }
-        let authorList = book.volumeInfo.authors?.joined(separator: ", ") ?? "—"
-        let publisher = book.volumeInfo.publisher ?? "—"
-        let publishedDate = book.volumeInfo.publishedDate ?? "—"
-        let description = book.volumeInfo.description ?? "—"
-        print("""
-        Book: \(title)
-        author(s): \(authorList)
-        publisher: \(publisher)
-        published date: \(publishedDate)
-        description: \(description)
-        """)
-    }
 }
-

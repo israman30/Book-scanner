@@ -57,7 +57,7 @@ struct PersistenceController {
                 #if DEBUG
                 fatalError("Core Data failed to load: \(msg.debug)")
                 #else
-                print(PersistenceErrorHandler.logMessage(for: error))
+                BookLog.error("Core Data store failed to load: \(msg.userFacing)", category: "PersistenceController", error: error)
                 #endif
             }
         }
@@ -151,7 +151,7 @@ struct PersistenceController {
         do {
             try context.save()
         } catch {
-            print(PersistenceErrorHandler.logMessage(for: error))
+            BookLog.error("Core Data save failed: \(PersistenceErrorHandler.userMessage(for: error))", category: "PersistenceController", error: error)
         }
     }
 }

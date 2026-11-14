@@ -156,7 +156,7 @@ final class SubjectBrowseViewModel: ObservableObject {
             } catch {
                 // If the duplicate check fails, we still attempt to save; the UX
                 // should not be blocked by a best-effort preflight.
-                print("Duplicate check failed: \(error)")
+                BookLog.warning("Duplicate check failed: \(error.localizedDescription)", category: "SubjectBrowseViewModel")
             }
         }
 

@@ -7,6 +7,39 @@
 
 import CoreData
 import CloudKit
+import OSLog
+
+// MARK: - Shared app logging
+
+enum BookLog {
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "BookScanner", category: "BookScanner")
+
+    static func info(_ message: String, category: String = "App") {
+        logger.info("[\(category)] \(message)")
+    }
+
+    static func debug(_ message: String, category: String = "App") {
+        logger.debug("[\(category)] \(message)")
+    }
+
+    static func warning(_ message: String, category: String = "App") {
+        logger.warning("[\(category)] \(message)")
+    }
+
+    static func error(_ message: String, category: String = "App", error: Error? = nil) {
+        let details = error.map { " | Error: \($0.localizedDescription)" } ?? ""
+        logger.error("[\(category)] \(message)\(details)")
+    }
+
+    static func bookDetails(_ book: BookItem, category: String = "BookService") {
+        guard let title = book.volumeInfo.title else { return }
+        let authorList = book.volumeInfo.authors?.joined(separator: ", ") ?? "—"
+        let publisher = book.volumeInfo.publisher ?? "—"
+        let publishedDate = book.volumeInfo.publishedDate ?? "—"
+        let description = book.volumeInfo.description ?? "—"
+        logger.info("[\(category)] Book: \(title) | author(s): \(authorList) | publisher: \(publisher) | published date: \(publishedDate) | description: \(description)")
+    }
+}
 
 // MARK: - Persistence Error Handler
 

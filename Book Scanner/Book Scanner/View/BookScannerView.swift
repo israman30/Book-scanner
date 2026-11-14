@@ -155,7 +155,7 @@ struct BookScannerView: View {
                     return false
                 }
             } catch {
-                print("Duplicate check failed: \(error)")
+                BookLog.error("Duplicate check failed: \(error)")
             }
         }
 
